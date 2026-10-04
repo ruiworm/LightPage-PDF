@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <linearGradient id="base" x1="28" y1="12" x2="204" y2="249" gradientUnits="userSpaceOnUse"><stop stop-color="#278BFF"/><stop offset=".45" stop-color="#0B5BFF"/><stop offset="1" stop-color="#043AB8"/></linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(233 15) rotate(135) scale(230)" gradientUnits="userSpaceOnUse"><stop stop-color="#00C2FF"/><stop offset="1" stop-color="#00C2FF" stop-opacity="0"/></radialGradient>
+    <linearGradient id="paper" x1="69" y1="44" x2="200" y2="219" gradientUnits="userSpaceOnUse"><stop stop-color="white"/><stop offset=".65" stop-color="#F7FBFF"/><stop offset="1" stop-color="#CBEFFF"/></linearGradient>
+    <linearGradient id="fold" x1="155" y1="40" x2="204" y2="97" gradientUnits="userSpaceOnUse"><stop stop-color="white"/><stop offset=".6" stop-color="#F5FAFF"/><stop offset="1" stop-color="#D7EEFF"/></linearGradient>
+    <linearGradient id="ribbon" x1="63" y1="181" x2="217" y2="245" gradientUnits="userSpaceOnUse"><stop stop-color="#51D9FF"/><stop offset=".4" stop-color="#00C2FF"/><stop offset="1" stop-color="#0BD4EB"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-20%" width="170%" height="160%"><feDropShadow dx="0" dy="12" stdDeviation="13" flood-color="#003BA3" flood-opacity=".35"/></filter>
+    <filter id="foldShadow" x="-50%" y="-30%" width="200%" height="200%"><feDropShadow dx="-4" dy="6" stdDeviation="5" flood-color="#4276B8" flood-opacity=".22"/></filter>
+    <clipPath id="tile"><rect width="256" height="256" rx="64"/></clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect width="256" height="256" rx="64" fill="url(#base)"/>
+    <rect width="256" height="256" rx="64" fill="url(#glow)"/>
+    <path d="M78 32H151C160 32 167 35 173 41L208 77C214 83 217 90 217 99V178C217 201 203 216 180 216H78C54 216 39 201 39 178V70C39 46 54 32 78 32Z" fill="url(#paper)" filter="url(#shadow)"/>
+    <path d="M165 35V72C165 83 170 88 182 88H215C213 84 211 80 208 77L173 41C170 38 168 37 165 35Z" fill="url(#fold)" filter="url(#foldShadow)"/>
+    <path d="M78 86H139M78 115H152M78 144H152" stroke="#BDD5F9" stroke-width="11" stroke-linecap="round"/>
+    <path d="M39 179C63 204 89 169 121 170C161 171 169 221 216 240L244 252C219 263 191 263 169 251C139 235 128 201 107 190C85 179 69 199 53 198Z" fill="url(#ribbon)"/>
+    <path d="M39 179C61 201 89 169 121 170C104 172 96 189 88 208C64 214 48 202 39 179Z" fill="#66DDFF" fill-opacity=".44"/>
+  </g>
+</svg>

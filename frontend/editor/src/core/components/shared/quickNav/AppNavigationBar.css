@@ -1,0 +1,143 @@
+.app-navigation-bar {
+  display: grid;
+  /* Equal outside columns keep the view switcher centred on the whole window. */
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.75rem;
+  flex-shrink: 0;
+  height: var(--app-nav-h);
+  padding-inline: 1rem;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--c-border-subtle);
+  background: var(--c-surface);
+  color: var(--c-text);
+}
+
+.app-navigation-bar__brand {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+}
+
+.app-navigation-bar__views {
+  display: flex;
+  max-width: 100%;
+  gap: 0.25rem;
+  padding: 0.1875rem;
+  border-radius: var(--radius-lg);
+  background: var(--c-bg);
+}
+
+.app-navigation-bar__view {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 0;
+  min-height: 2.25rem;
+  padding: 0.375rem 1rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--c-text-muted);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.app-navigation-bar__view:hover,
+.app-navigation-bar__theme:hover,
+.app-navigation-bar__settings:hover {
+  background: var(--c-hover);
+  color: var(--c-text);
+}
+
+.app-navigation-bar__view[aria-current="page"],
+.app-navigation-bar__settings[aria-current="page"] {
+  background: var(--c-primary-subtle);
+  color: var(--c-text);
+}
+
+.app-navigation-bar__view > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-navigation-bar__view:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.app-navigation-bar__actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-navigation-bar__theme,
+.app-navigation-bar__settings,
+.app-navigation-bar__actions .quick-nav-rail-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--c-text-muted);
+  cursor: pointer;
+}
+
+.app-navigation-bar button:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 48rem) {
+  .app-navigation-bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 3rem 3rem;
+    padding-inline: 0.75rem;
+  }
+
+  .app-navigation-bar__brand {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .app-navigation-bar__actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .app-navigation-bar__views {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+  }
+
+  .app-navigation-bar__view {
+    min-height: 2.75rem;
+    padding-inline: 1.125rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-navigation-bar__view {
+    transition: none;
+  }
+}

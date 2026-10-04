@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "stirling-frontend",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "editor", "--mode", "core", "--port", "5175"],
+      "port": 5175
+    }
+  ]
+}

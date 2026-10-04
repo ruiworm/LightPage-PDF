@@ -1,0 +1,29 @@
+.app-frame {
+  --app-nav-h: 0px;
+  /* Explicit lengths keep nested viewport layouts bounded in desktop WebKit. */
+  --app-body-h: calc(var(--titlebar-body-h, 100dvh) - var(--app-nav-h));
+
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh; /* track mobile browser chrome */
+  overflow: hidden;
+  background-color: var(--c-bg);
+}
+
+.app-frame[data-navigation="true"] {
+  --app-nav-h: 3.5rem;
+}
+
+.app-frame__content {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: var(--app-body-h);
+}
+
+@media (max-width: 48rem) {
+  .app-frame[data-navigation="true"] {
+    --app-nav-h: 6.25rem;
+  }
+}

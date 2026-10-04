@@ -1,0 +1,46 @@
+.sui-brandmark {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.sui-brandmark__logo,
+.sui-brandmark__chevron {
+  grid-area: 1 / 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sui-brandmark__chevron {
+  opacity: 0;
+  color: var(--c-text);
+}
+
+[data-brandmark-morph]:hover .sui-brandmark__logo,
+[data-brandmark-morph]:focus-visible .sui-brandmark__logo,
+[data-brandmark-morph].is-open .sui-brandmark__logo {
+  opacity: 0;
+}
+
+[data-brandmark-morph]:hover .sui-brandmark__chevron,
+[data-brandmark-morph]:focus-visible .sui-brandmark__chevron,
+[data-brandmark-morph].is-open .sui-brandmark__chevron {
+  opacity: 1;
+}
+
+.sui-brandmark--working .sui-brandmark__logo {
+  animation: lightpage-thinking 2s ease-in-out infinite;
+}
+
+@keyframes lightpage-thinking {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sui-brandmark--working .sui-brandmark__logo {
+    animation: none;
+  }
+}
