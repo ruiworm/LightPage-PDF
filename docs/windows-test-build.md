@@ -1,6 +1,6 @@
 # Windows 测试安装包
 
-GitHub Actions 的 `Windows test package` 工作流从指定分支构建 Windows x64 的 EXE 与 MSI 安装包。在 Actions 页面选择该工作流并运行，完成后下载 `LightPage-PDF-Windows-运行编号` artifact。
+GitHub Actions 的 `Windows test package` 工作流从指定分支构建 Windows x64 的 EXE 安装包，并尝试额外生成 MSI。在 Actions 页面选择该工作流并运行，完成后下载 `LightPage-PDF-Windows-运行编号` artifact。EXE 是必需产物，MSI 失败不会丢弃已经生成的 EXE，失败详情保留在对应步骤日志中。
 
 工作流准备 Java 25、Node.js 24、Rust 和 Task，使用现有 `desktop:prepare` 打包后端 JAR、Java 运行时和 Windows 安装辅助组件，再执行桌面类型检查、Rust 测试与 Tauri 构建。安装包附带 SHA-256 校验文件，artifact 保留 14 天。
 

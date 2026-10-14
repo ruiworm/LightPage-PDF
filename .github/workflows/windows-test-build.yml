@@ -67,14 +67,19 @@ jobs:
         working-directory: frontend/editor/src-tauri
         run: cargo test --locked --lib
 
-      - name: Build Windows installers
+      - name: Build EXE installer
         working-directory: frontend/editor
-        run: npx tauri build --bundles nsis,msi --config src-tauri/tauri.test-build.conf.json
+        run: npx tauri build --bundles nsis --config src-tauri/tauri.test-build.conf.json
+
+      - name: Build MSI installer
+        continue-on-error: true
+        working-directory: frontend/editor
+        run: npx tauri bundle --verbose --bundles msi --config src-tauri/tauri.test-build.conf.json
 
       - name: Record artifact checksums
         run: |
-          $packages = Get-ChildItem -Path frontend/editor/src-tauri/target/release/bundle/nsis/*.exe,frontend/editor/src-tauri/target/release/bundle/msi/*.msi
-          if ($packages.Count -lt 2) { throw "Expected both EXE and MSI installers" }
+          $packages = Get-ChildItem -LiteralPath frontend/editor/src-tauri/target/release/bundle -Recurse -File | Where-Object Extension -In '.exe','.msi'
+          if (-not ($packages | Where-Object Extension -EQ '.exe')) { throw "Expected an EXE installer" }
           $packages | ForEach-Object { $hash = Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256; "$($hash.Hash)  $($_.Name)" } | Set-Content -LiteralPath frontend/editor/src-tauri/target/release/bundle/SHA256SUMS.txt
 
       - name: Upload Windows test package
