@@ -13,7 +13,11 @@ import { NavSurface } from "@app/ui/NavSurface";
 import { Button } from "@app/ui/Button";
 import { Icon, type IconName } from "@app/ui/Icon";
 import { useTranslation } from "react-i18next";
-import { useFileState, useFileActions } from "@app/contexts/file/fileHooks";
+import {
+  useFileState,
+  useFileActions,
+  useFileSelectors,
+} from "@app/contexts/file/fileHooks";
 import { useAppConfig } from "@app/contexts/AppConfigContext";
 import { useGoogleDrivePicker } from "@app/hooks/useGoogleDrivePicker";
 import {
@@ -22,6 +26,7 @@ import {
   useNavigationGuard,
 } from "@app/contexts/NavigationContext";
 import { useViewer } from "@app/contexts/ViewerContext";
+import { usePageEditor } from "@app/contexts/PageEditorContext";
 import { useFileHandler } from "@app/hooks/useFileHandler";
 import { openFilesFromDisk } from "@app/services/openFilesFromDisk";
 import { useAccountIdentity } from "@app/hooks/useAccountIdentity";
@@ -38,7 +43,6 @@ import { FileItem } from "@app/components/shared/FileSidebarFileItem";
 import { useLabelName } from "@app/data/labelDisplay";
 import { useClassificationEnabled } from "@app/hooks/useClassificationEnabled";
 import {
-  FileSidebarGroupControls,
   useFileSidebarGroups,
   type FileSidebarGroup,
 } from "@app/components/shared/fileSidebarGrouping";
@@ -208,7 +212,6 @@ function FileDropOverlay({ show }: { show: boolean }) {
 }
 
 interface LibraryHeaderProps {
-  stubs: StirlingFileStub[];
   scrolled: boolean;
   isGoogleDriveEnabled: boolean;
   onGoogleDrive: () => void;
@@ -217,7 +220,6 @@ interface LibraryHeaderProps {
 }
 
 function LibraryHeader({
-  stubs,
   scrolled,
   isGoogleDriveEnabled,
   onGoogleDrive,
@@ -233,7 +235,6 @@ function LibraryHeader({
       <span className="file-sidebar-section-label">
         {t("fileSidebar.library", "PDF Library")}
       </span>
-      <FileSidebarGroupControls stubs={stubs} />
       <ActionIcon
         variant="quiet"
         className="file-sidebar-section-btn file-sidebar-section-btn-external"
@@ -410,6 +411,7 @@ interface LibraryFileListProps extends Omit<
   groups: FileSidebarGroup[] | null;
   scrollRef: RefCallback<HTMLElement>;
   onOpenFilesPage: () => void;
+  selectedOnly?: boolean;
 }
 
 function LibraryFileList({
@@ -418,6 +420,7 @@ function LibraryFileList({
   groups,
   scrollRef,
   onOpenFilesPage,
+  selectedOnly,
   ...grouping
 }: LibraryFileListProps) {
   const { t } = useTranslation();
@@ -432,10 +435,17 @@ function LibraryFileList({
     return (
       <div className="file-sidebar-empty">
         <p className="file-sidebar-empty-text">
-          {t("fileSidebar.noFiles", "No files yet")}
+          {selectedOnly
+            ? t("workspaceFiles.noneSelected", "No files selected")
+            : t("fileSidebar.noFiles", "No files yet")}
         </p>
         <p className="file-sidebar-empty-hint">
-          {t("fileSidebar.dropHint", "Open files to get started")}
+          {selectedOnly
+            ? t(
+                "workspaceFiles.selectionHint",
+                "Select files using the checkboxes on the left.",
+              )
+            : t("fileSidebar.dropHint", "Open files to get started")}
         </p>
       </div>
     );
@@ -463,25 +473,52 @@ interface FileLibrarySectionProps extends Omit<
   isGoogleDriveEnabled: boolean;
   onGoogleDrive: () => void;
   onAddFiles: () => void;
+  selectedCount: number;
+  onSelectedOnlyChange: (selectedOnly: boolean) => void;
 }
 
 function FileLibrarySection({
   isGoogleDriveEnabled,
   onGoogleDrive,
   onAddFiles,
+  selectedCount,
+  onSelectedOnlyChange,
   ...list
 }: FileLibrarySectionProps) {
   const { scrolled, scrollRef } = useIsScrolled();
+  const { t } = useTranslation();
   return (
     <div className="file-sidebar-files-section sidebar-content-fade">
       <LibraryHeader
-        stubs={list.stubs}
         scrolled={scrolled}
         isGoogleDriveEnabled={isGoogleDriveEnabled}
         onGoogleDrive={onGoogleDrive}
         onAddFiles={onAddFiles}
         onOpenFilesPage={list.onOpenFilesPage}
       />
+      <div
+        className="file-sidebar-selection-filter"
+        aria-label={t("workspaceFiles.filter", "File filter")}
+      >
+        <Button
+          variant={list.selectedOnly ? "quiet" : "secondary"}
+          size="sm"
+          aria-pressed={!list.selectedOnly}
+          onClick={() => onSelectedOnlyChange(false)}
+        >
+          {t("workspaceFiles.all", "All files")}
+        </Button>
+        <Button
+          variant={list.selectedOnly ? "secondary" : "quiet"}
+          size="sm"
+          aria-pressed={!!list.selectedOnly}
+          onClick={() => onSelectedOnlyChange(!list.selectedOnly)}
+        >
+          {t("workspaceFiles.selectedCount", "Selected {{count}}", {
+            count: selectedCount,
+          })}
+        </Button>
+      </div>
       <BulkAddProgressRow />
       <LibraryFileList scrollRef={scrollRef} {...list} />
     </div>
@@ -517,6 +554,9 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
       openPicker: openGoogleDrivePicker,
     } = useGoogleDrivePicker();
     const { state } = useFileState();
+    const { fileColorIndexMap } = usePageEditor();
+    const selectors = useFileSelectors();
+    const [selectedOnly, setSelectedOnly] = useState(false);
     const { actions: fileActions } = useFileActions();
     const { actions: navActions } = useNavigationActions();
     const { workbench: currentWorkbench, selectedTool } = useNavigationState();
@@ -809,12 +849,23 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
       if (isInWorkbench) {
         setPendingViewFileId(null);
         setActiveFileId(pendingViewFileId);
-        navActions.setWorkbench("viewer");
+        navActions.restoreWorkbench("viewer");
       }
     }, [pendingViewFileId, state.files.ids, setActiveFileId, navActions]);
 
     // SaaS groups by classification label; core returns null → one flat, recency-sorted list.
-    const fileGroups = useFileSidebarGroups(allFileStubs);
+    const selectedIds = useMemo(
+      () => new Set(state.ui.selectedFileIds),
+      [state.ui.selectedFileIds],
+    );
+    const visibleStubs = useMemo(
+      () =>
+        selectedOnly
+          ? allFileStubs.filter((stub) => selectedIds.has(stub.id))
+          : allFileStubs,
+      [selectedOnly, allFileStubs, selectedIds],
+    );
+    const fileGroups = useFileSidebarGroups(visibleStubs);
     const workbenchIds = useMemo(
       () => new Set(state.files.ids.map((id) => id as string)),
       [state.files.ids],
@@ -844,9 +895,9 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
         await onPickGoogleDriveFiles(files);
         return;
       }
-      await addFiles(files);
-      if (!isMultiTool) {
-        navActions.setWorkbench(files.length === 1 ? "viewer" : "fileEditor");
+      const added = await addFiles(files);
+      if (!isMultiTool && added[0]) {
+        setPendingViewFileId(added[0].fileId);
       }
     }, [
       isGoogleDriveEnabled,
@@ -857,135 +908,66 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
       onPickGoogleDriveFiles,
     ]);
 
-    const handleFileClick = useCallback(
-      async (fileId: FileId) => {
-        const stub = allFileStubs.find((s) => s.id === fileId);
-        if (!stub) return;
-
-        // Its bytes are gone; opening it can only fail. Say so instead of a
-        // click that goes nowhere.
-        if (stub.dataUnavailable || lostFileIds.has(fileId)) {
-          alert({
-            alertType: "warning",
-            title: t("fileSidebar.dataLostTitle", "File data is unavailable"),
-            body: t(
-              "fileSidebar.dataLostBody",
-              "This browser lost this file's contents. Upload it again to keep working with it.",
-            ),
-            expandable: false,
-            durationMs: 6000,
-          });
-          return;
-        }
-
-        const workbenchFileId = state.files.ids.find(
-          (id) => (id as string) === (stub.id as string),
-        );
-
-        if (workbenchFileId) {
-          // If this is the file currently open in the viewer, route through the
-          // navigation guard so the save modal fires when there are unsaved changes.
-          const isCurrentlyViewed = workbenchFileId === viewedWorkbenchId;
-          if (isCurrentlyViewed) {
-            requestNavigation(() => {
-              void fileActions.removeFiles([workbenchFileId], false);
+    const handleSelectionToggle = useCallback(
+      (fileId: FileId) => {
+        const stub = allFileStubs.find((file) => file.id === fileId);
+        if (!stub || stub.dataUnavailable || lostFileIds.has(fileId)) return;
+        const toggle = async () => {
+          if (!state.files.ids.includes(fileId)) {
+            await fileActions.addStirlingFileStubs([stub], {
+              selectFiles: false,
             });
-            return;
           }
-          await fileActions.removeFiles([workbenchFileId], false);
-        } else {
-          // Re-add by stub to preserve its ID - addFiles() would create a new UUID + IDB entry.
-          const workbenchCount = state.files.ids.length;
-
-          if (workbenchCount > 0 && currentWorkbench === "viewer") {
-            navActions.setWorkbench("fileEditor");
-          }
-
-          await fileActions.addStirlingFileStubs([stub]);
-
-          if (isMultiTool) {
-            fileActions.setSelectedFiles([
-              ...state.ui.selectedFileIds,
-              stub.id,
-            ]);
-          } else {
-            if (workbenchCount === 0) {
-              navActions.setWorkbench("viewer");
-            } else {
-              navActions.setWorkbench("fileEditor");
-            }
-          }
-        }
+          // Read after hydration: rapid checkbox clicks must not overwrite each other.
+          const selection = selectors
+            .getSelectedStirlingFileStubs()
+            .map((file) => file.id);
+          fileActions.setSelectedFiles(
+            selection.includes(fileId)
+              ? selection.filter((id) => id !== fileId)
+              : [...selection, fileId],
+          );
+        };
+        if (currentWorkbench === "pageEditor")
+          requestNavigation(() => {
+            void toggle();
+          });
+        else void toggle();
       },
       [
         allFileStubs,
         lostFileIds,
-        t,
         state.files.ids,
-        state.ui.selectedFileIds,
         fileActions,
-        navActions,
+        selectors,
         currentWorkbench,
-        activeFileId,
         requestNavigation,
-        isMultiTool,
       ],
     );
 
-    // Which file is currently open in the viewer - stable ID, never index-derived.
     const viewedWorkbenchId =
       currentWorkbench === "viewer" ? activeFileId : null;
 
-    const handleEyeClick = useCallback(
-      async (fileId: FileId, _e: React.MouseEvent) => {
-        const stub = allFileStubs.find((s) => s.id === fileId);
-        if (!stub) return;
-
-        const isCurrentlyViewed = !!(
-          viewedWorkbenchId && viewedWorkbenchId === (stub.id as string)
-        );
-
-        if (isCurrentlyViewed) {
-          // Closing the currently-viewed file - guard against unsaved changes.
-          navActions.setWorkbench("fileEditor");
-          return;
-        }
-
-        // Switching to a different file while viewer is open - guard against unsaved changes.
-        const performSwitch = async () => {
-          const alreadyInWorkbench = state.files.ids.some(
-            (id) => (id as string) === (stub.id as string),
-          );
-
-          if (!alreadyInWorkbench) {
-            // Leave viewer before mutating workbench (prevents PSPDFKit crash).
-            if (state.files.ids.length > 0 && currentWorkbench === "viewer") {
-              navActions.setWorkbench("fileEditor");
-            }
-            await fileActions.addStirlingFileStubs([stub]);
-          }
-
-          // Route through pendingViewFileId so both setActiveFileIndex + setWorkbench fire together.
-          setPendingViewFileId(stub.id);
-        };
-
-        if (currentWorkbench === "viewer" && viewedWorkbenchId) {
-          requestNavigation(() => {
-            void performSwitch();
-          });
-        } else {
-          await performSwitch();
-        }
+    const handleFileClick = useCallback(
+      (fileId: FileId) => {
+        const stub = allFileStubs.find((file) => file.id === fileId);
+        if (!stub || stub.dataUnavailable || lostFileIds.has(fileId)) return;
+        if (viewedWorkbenchId === fileId) return;
+        requestNavigation(() => {
+          void (async () => {
+            await fileActions.addStirlingFileStubs([stub], {
+              selectFiles: false,
+            });
+            setPendingViewFileId(fileId);
+          })();
+        });
       },
       [
         allFileStubs,
+        lostFileIds,
         viewedWorkbenchId,
-        state.files.ids,
-        fileActions,
-        navActions,
-        currentWorkbench,
-        setPendingViewFileId,
         requestNavigation,
+        fileActions,
       ],
     );
 
@@ -997,13 +979,11 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
         if (onUploadFiles) {
           await onUploadFiles(files);
         } else {
-          await addFiles(files);
+          const added = await addFiles(files);
           // A tool that pinned its own workbench surface owns it - switching to
           // the viewer here strands the upload outside the tool being used.
           if (!isMultiTool && !currentWorkbench.startsWith("custom:")) {
-            navActions.setWorkbench(
-              files.length === 1 ? "viewer" : "fileEditor",
-            );
+            if (added[0]) setPendingViewFileId(added[0].fileId);
           }
         }
       },
@@ -1093,6 +1073,7 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
 
     const renderFileRow = (stub: StirlingFileStub) => {
       const isInWorkbench = workbenchIds.has(stub.id);
+      const isSelected = selectedIds.has(stub.id);
       const workbenchFileId = isInWorkbench ? stub.id : undefined;
       const isViewedInViewer = !!(
         viewedWorkbenchId && viewedWorkbenchId === (stub.id as string)
@@ -1116,7 +1097,7 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
       return (
         <FileItem
           isToolSkipped={
-            isInWorkbench &&
+            (isSelected || isViewedInViewer) &&
             eligibleFileIds !== null &&
             !eligibleFileIds.has(stub.id)
           }
@@ -1125,12 +1106,13 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
           name={stub.name}
           size={stub.size}
           lastModified={stub.lastModified}
-          isSelected={isInWorkbench}
+          isSelected={isSelected}
+          fileColorIndex={fileColorIndexMap.get(stub.id)}
           isActive={isActive}
           isViewedInViewer={isViewedInViewer}
           thumbnailUrl={thumbnailUrl}
           onClick={handleFileClick}
-          onEyeClick={handleEyeClick}
+          onSelectionToggle={handleSelectionToggle}
           dataUnavailable={dataUnavailable}
           policies={policyFileBadges.get(stub.id) ?? NO_POLICIES}
           onDelete={handleSidebarDelete}
@@ -1226,8 +1208,11 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
               ) : (
                 <FileLibrarySection
                   loaded={stubsLoaded}
-                  stubs={allFileStubs}
-                  groups={fileGroups}
+                  stubs={visibleStubs}
+                  groups={selectedOnly ? null : fileGroups}
+                  selectedOnly={selectedOnly}
+                  selectedCount={state.ui.selectedFileIds.length}
+                  onSelectedOnlyChange={setSelectedOnly}
                   groupOpen={groupOpen}
                   onGroupOpenChange={setGroupOpenState}
                   renderFileRow={renderFileRow}

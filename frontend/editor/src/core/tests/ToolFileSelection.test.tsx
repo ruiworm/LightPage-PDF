@@ -23,6 +23,7 @@ import {
 } from "@app/contexts/ToolFileEligibilityContext";
 import { FileItem } from "@app/components/shared/FileSidebarFileItem";
 import { createToolFlow } from "@app/components/tools/shared/createToolFlow";
+import { ToolStepProvider } from "@app/components/tools/shared/ToolStep";
 import { useCompressOperation } from "@app/hooks/tools/compress/useCompressOperation";
 import { defaultParameters as compressParameters } from "@app/hooks/tools/compress/useCompressParameters";
 
@@ -60,7 +61,7 @@ function FilePreviews() {
         eligibleFileIds !== null && !eligibleFileIds.has(file.fileId)
       }
       onClick={onFileClick}
-      onEyeClick={vi.fn()}
+      onSelectionToggle={vi.fn()}
     />
   ));
 }
@@ -86,12 +87,18 @@ vi.mock("@app/contexts/FileContext", () => ({
   useFileContext: () => ({ selectors, actions: {} }),
   useFileSelectors: () => selectors,
   useFileActions: () => ({ actions: {} }),
-  useFileSelection: () => ({ setSelectedFiles: vi.fn() }),
+  useFileSelection: () => ({
+    selectedFileIds: workspace.files.map((file) => file.fileId),
+    setSelectedFiles: vi.fn(),
+  }),
   useFileManagement: () => ({ reorderFiles: vi.fn() }),
 }));
 vi.mock("@app/contexts/ViewerContext", () => ({
   ViewerContext: createContext(null),
-  useViewer: () => viewer,
+  useViewer: () => ({
+    ...viewer,
+    activeFileId: workspace.files[viewer.activeFileIndex]?.fileId,
+  }),
 }));
 vi.mock("@app/contexts/NavigationContext", () => ({
   useNavigationState: () => navigation,
@@ -186,6 +193,46 @@ beforeEach(() => {
 });
 
 describe("tool file selection", () => {
+  test("grouped settings remain available before file selection without enabling execution", async () => {
+    workspace.files = [];
+    workspace.fileStubs = [];
+    const renderGroupedMerge = () => (
+      <MantineProvider>
+        <ToolStepProvider presentation="groups">
+          <Merge />
+        </ToolStepProvider>
+      </MantineProvider>
+    );
+    const view = render(renderGroupedMerge());
+    expect(
+      screen.getByRole("heading", { name: "Settings" }),
+    ).toBeInTheDocument();
+    const signatureOption = screen.getByRole("checkbox", {
+      name: /Remove digital signature/,
+    });
+    expect(signatureOption).toBeEnabled();
+    expect(screen.getByRole("button", { name: /Merge PDFs/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Sort" })).toBeDisabled();
+    await userEvent.setup().click(signatureOption);
+
+    workspace.files = [
+      createTestStirlingFile("first.pdf", "first", "application/pdf"),
+      createTestStirlingFile("second.pdf", "second", "application/pdf"),
+    ];
+    workspace.fileStubs = workspace.files.map((file) =>
+      createNewStirlingFileStub(file, file.fileId),
+    );
+    view.rerender(renderGroupedMerge());
+    expect(await screen.findByRole("status")).toHaveTextContent(/2 files/);
+    expect(
+      screen.getByRole("checkbox", { name: /Remove digital signature/ }),
+    ).toBeEnabled();
+    expect(
+      screen.getByRole("checkbox", { name: /Remove digital signature/ }),
+    ).toBeChecked();
+    expect(screen.getByRole("button", { name: /Merge PDFs/ })).toBeEnabled();
+  });
+
   test("eligible selections keep their identity until file objects or order change", () => {
     const secondPdf = createTestStirlingFile(
       "second.pdf",
@@ -261,9 +308,7 @@ describe("tool file selection", () => {
         <Merge />
       </MantineProvider>,
     );
-    expect(
-      await screen.findByText(/2 files$/, { selector: "p" }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("status")).toHaveTextContent(/2 files/);
     expect(screen.getByRole("button", { name: /Merge PDFs/ })).toBeEnabled();
   });
 
@@ -294,9 +339,7 @@ describe("tool file selection", () => {
     workspace.files.push(secondPdf);
     workspace.fileStubs.push(secondStub);
     view.rerender(renderMerge());
-    expect(
-      await screen.findByText(/2 files$/, { selector: "p" }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole("status")).toHaveTextContent(/2 files/);
     expect(screen.getByRole("button", { name: /Merge PDFs/ })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Sort" })).toBeEnabled();
 
@@ -408,9 +451,7 @@ describe("tool file selection", () => {
     );
     const view = render(ui);
     expect(await screen.findByText("report.pdf")).toBeInTheDocument();
-    expect(
-      screen.queryByText(/files$/, { selector: "p" }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).not.toHaveTextContent(/\d+ files/);
     expect(screen.getByRole("button", { name: "Compress" })).toBeEnabled();
 
     workspace.fileStubs[0].processedFile = { pages: [], isEncrypted: true };
@@ -460,7 +501,7 @@ describe("tool file selection", () => {
     expect(screen.getByTestId("settings-file-count")).toHaveTextContent("1");
 
     await user.click(screen.getByRole("button", { name: "image to pdf" }));
-    expect(screen.getByText(/2 files$/, { selector: "p" })).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(/2 files/);
     expect(screen.queryByText("report.pdf")).not.toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Convert Files (2 files)" }),
@@ -468,9 +509,9 @@ describe("tool file selection", () => {
     expect(screen.getByTestId("settings-file-count")).toHaveTextContent("2");
 
     await user.click(screen.getByRole("button", { name: "svg to pdf" }));
-    expect(
-      screen.queryByText(/2 files$/, { selector: "p" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("status")?.textContent ?? "").not.toMatch(
+      /2 files/,
+    );
     expect(
       screen.getByRole("button", { name: "Convert Files" }),
     ).toBeDisabled();

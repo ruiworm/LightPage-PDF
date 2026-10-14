@@ -7,8 +7,14 @@ import { Alert, Stack, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@app/ui/Icon";
 import { downloadFile } from "@app/services/downloadService";
-import { useFileContext, useFileSelection } from "@app/contexts/FileContext";
+import {
+  useAllFiles,
+  useFileContext,
+  useFileSelection,
+} from "@app/contexts/FileContext";
 import { useViewer } from "@app/contexts/ViewerContext";
+import { useViewActive } from "@app/components/layout/RetainedView";
+import { useNavigationActions } from "@app/contexts/NavigationContext";
 import { createStirlingFilesAndStubs } from "@app/services/fileStubHelpers";
 import type { FileId } from "@app/types/file";
 import type { BaseToolProps } from "@app/types/tool";
@@ -61,6 +67,13 @@ const WORKBENCH_VIEW_ID = "pdfTextEditorWorkbench";
 const INSERTED_IMAGE_RATIO = 0.4;
 
 export default function PdfTextEditor(_props: BaseToolProps) {
+  const viewActive = useViewActive();
+  const {
+    actions: {
+      registerNavigationWarningHandlers,
+      unregisterNavigationWarningHandlers,
+    },
+  } = useNavigationActions();
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const { store, state } = useEditorStore();
@@ -83,13 +96,37 @@ export default function PdfTextEditor(_props: BaseToolProps) {
     setSourceFileId(id);
   }, []);
   const { addFiles, consumeFiles, selectors } = useFileContext();
+  const { files: workbenchFiles } = useAllFiles();
   const { setSelectedFiles } = useFileSelection();
   // Saving replaces the workbench file, so for a moment the selection points at
   // a file the editor has not adopted yet. Auto-load must sit that out.
   const [applying, setApplying] = useState(false);
 
+  useEffect(() => {
+    if (
+      !applying &&
+      sourceFileId &&
+      !workbenchFiles.some((file) => file.fileId === sourceFileId)
+    ) {
+      store.clearDocument();
+      setSourceFile(null);
+    }
+  }, [applying, sourceFileId, workbenchFiles, store, setSourceFile]);
+
   useEditorTestGlobal(store);
   useUnsavedChangesGuard(state.dirty);
+  useEffect(() => {
+    if (!viewActive) return;
+    registerNavigationWarningHandlers({
+      onDiscardAndContinue: async () => store.clearDocument(),
+    });
+    return () => unregisterNavigationWarningHandlers();
+  }, [
+    viewActive,
+    store,
+    registerNavigationWarningHandlers,
+    unregisterNavigationWarningHandlers,
+  ]);
   const pinWorkbench = useWorkbenchPin({
     workbenchId: WORKBENCH_ID,
     workbenchViewId: WORKBENCH_VIEW_ID,
@@ -633,22 +670,22 @@ export default function PdfTextEditor(_props: BaseToolProps) {
       )}
       <EditorFileInputs onPickPdf={onPickPdf} onPickImage={handleInsertImage} />
       <HelpOverlay
-        opened={state.helpOpen}
+        opened={viewActive && state.helpOpen}
         onClose={() => store.setHelpOpen(false)}
       />
       <SaveRiskModal
-        risks={saveRisks}
+        risks={viewActive ? saveRisks : null}
         onConfirm={handleConfirmSaveRisk}
         onCancel={() => setSaveRisks(null)}
       />
       <PasswordPromptModal
-        prompt={state.passwordPrompt}
+        prompt={viewActive ? state.passwordPrompt : null}
         loading={state.loading}
         onSubmit={handleSubmitPassword}
         onCancel={handleCancelPassword}
       />
       <DiscardChangesModal
-        incomingFileName={pendingOpen?.file.name ?? null}
+        incomingFileName={viewActive ? (pendingOpen?.file.name ?? null) : null}
         onConfirm={confirmPendingOpen}
         onCancel={() => setPendingOpen(null)}
       />

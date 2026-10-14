@@ -8,30 +8,30 @@ import OperationButton, {
 } from "@app/components/tools/shared/OperationButton";
 import { StirlingFile } from "@app/types/fileContext";
 import { useAllFiles } from "@app/contexts/FileContext";
-import { useViewer } from "@app/contexts/ViewerContext";
 import { useNavigationState } from "@app/contexts/NavigationContext";
 
 export interface ScopedOperationButtonProps extends OperationButtonProps {
   selectedFiles: StirlingFile[];
   disableScopeHints?: boolean;
+  usesWorkspaceSelection?: boolean;
 }
 
 /**
  * Wraps OperationButton with scope-aware button text and a filename note.
  *
- * - Viewer mode (multiple files loaded): appends "(this file)" to button text and
+ * - A single viewer-scoped input: appends "(this file)" to button text and
  *   shows a note naming the exact file that will be processed.
- * - N>1 files loaded: appends "(N files)" to button text.
+ * - Multiple processing inputs: appends "(N files)" to button text.
  * - All other cases: no change to button text or layout.
  */
 export function ScopedOperationButton({
   selectedFiles,
   disableScopeHints,
+  usesWorkspaceSelection = false,
   ...props
 }: ScopedOperationButtonProps) {
   const { t } = useTranslation();
   const { workbench } = useNavigationState();
-  const { activeFileIndex } = useViewer();
   const { files: allFiles, fileIds } = useAllFiles();
 
   // Disable until all files are hydrated — running early would silently skip unloaded files.
@@ -42,18 +42,16 @@ export function ScopedOperationButton({
       : props.disabledReason;
 
   const isViewerMode = workbench === "viewer";
-  const isFileEditorMode = workbench === "fileEditor";
-  const hasMultipleFilesLoaded = allFiles.length > 1;
   const baseText = props.submitText ?? t("submit", "Submit");
 
   const disabledForViewerMode = props.disabledReason === "viewerMode";
 
   let scopedText = baseText;
   if (!disableScopeHints && !disabledForViewerMode) {
-    if (isViewerMode && hasMultipleFilesLoaded) {
+    if (isViewerMode && !usesWorkspaceSelection && selectedFiles.length === 1) {
       scopedText = `${baseText} (${t("tool.scopeThisFile", "this file")})`;
-    } else if (!isViewerMode && selectedFiles.length > 1) {
-      scopedText = `${baseText} (${selectedFiles.length} ${t("tool.scopeFiles", "files")})`;
+    } else if (selectedFiles.length > 1) {
+      scopedText = `${baseText} (${t("workspaceFiles.fileCount", "{{count}} files", { count: selectedFiles.length })})`;
     }
   }
 
@@ -61,8 +59,9 @@ export function ScopedOperationButton({
     !disableScopeHints &&
     !disabledForViewerMode &&
     isViewerMode &&
-    hasMultipleFilesLoaded
-      ? allFiles[activeFileIndex]?.name
+    !usesWorkspaceSelection &&
+    selectedFiles.length === 1
+      ? selectedFiles[0]?.name
       : null;
 
   const pendingCount = fileIds.length - allFiles.length;
@@ -71,10 +70,7 @@ export function ScopedOperationButton({
     ? (allFiles.length / fileIds.length) * 100
     : 0;
   const showSelectFilesHint =
-    !disableScopeHints &&
-    isFileEditorMode &&
-    allFiles.length > 0 &&
-    selectedFiles.length === 0;
+    !disableScopeHints && allFiles.length > 0 && selectedFiles.length === 0;
 
   const loadingVariant: ButtonVariant =
     operationButtonVariantMap[props.variant ?? "filled"] ?? "primary";
@@ -84,7 +80,7 @@ export function ScopedOperationButton({
   return (
     <>
       {isFilesHydrating ? (
-        <Box mx="md" mt="md">
+        <Box mx="md" mt="md" className="tool-operation-placeholder">
           <Button
             fullWidth
             disabled
@@ -104,9 +100,11 @@ export function ScopedOperationButton({
                   style={{
                     position: "absolute",
                     inset: 0,
-                    width: `${loadProgress}%`,
-                    backgroundColor: "rgba(255,255,255,0.15)",
-                    transition: "width 0.3s ease",
+                    backgroundColor: "var(--c-text-on-primary)",
+                    opacity: 0.15,
+                    transform: `scaleX(${loadProgress / 100})`,
+                    transformOrigin: "left",
+                    transition: "transform 0.3s ease",
                     borderRadius: "inherit",
                   }}
                 />
@@ -132,18 +130,37 @@ export function ScopedOperationButton({
         />
       )}
       {viewerFileName && (
-        <Text size="xs" c="dimmed" ta="center" mx="md" mt={2}>
+        <Text
+          size="xs"
+          c="dimmed"
+          ta="center"
+          mx="md"
+          mt={2}
+          className="tool-scope-note"
+        >
           {t("tool.singleFileScope", "Only applying to: {{fileName}}", {
             fileName: viewerFileName,
           })}
         </Text>
       )}
       {showSelectFilesHint && (
-        <Text size="xs" c="dimmed" ta="center" mx="md" mt={2}>
-          {t(
-            "tool.selectFilesHint",
-            "Select files in Active Files to run this tool",
-          )}
+        <Text
+          size="xs"
+          c="dimmed"
+          ta="center"
+          mx="md"
+          mt={2}
+          className="tool-scope-note"
+        >
+          {isViewerMode && !usesWorkspaceSelection
+            ? t(
+                "workspaceFiles.openFileHint",
+                "Click a filename on the left to open the file you want to process.",
+              )
+            : t(
+                "tool.selectFilesHint",
+                "Select files using the checkboxes on the left",
+              )}
         </Text>
       )}
     </>

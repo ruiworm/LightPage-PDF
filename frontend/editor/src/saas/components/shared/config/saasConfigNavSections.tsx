@@ -262,7 +262,7 @@ export function createSaasConfigNavSections(
       item.key === "general"
         ? {
             ...item,
-            component: <PreferencesSection hideUpdateSection hideAdminBanner />,
+            component: <PreferencesSection />,
           }
         : item,
     ),

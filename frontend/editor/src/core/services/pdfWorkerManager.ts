@@ -63,6 +63,10 @@ class PDFWorkerManager {
       disableStream?: boolean;
       stopAtErrors?: boolean;
       verbosity?: number;
+      cMapUrl?: string;
+      cMapPacked?: boolean;
+      standardFontDataUrl?: string;
+      useSystemFonts?: boolean;
       signal?: { cancelled: boolean };
       /** Reject with {@link PdfOpenTimeout} if the document has not opened by then,
        *  destroying the loading task. A worker that dies mid-parse never settles its
@@ -98,6 +102,10 @@ class PDFWorkerManager {
             verbosity: options.verbosity ?? 0,
             // Suppress warnings about unimplemented widget types and other non-critical issues
             isEvalSupported: false,
+            cMapUrl: options.cMapUrl,
+            cMapPacked: options.cMapPacked,
+            standardFontDataUrl: options.standardFontDataUrl,
+            useSystemFonts: options.useSystemFonts,
           }
         : {
             ...pdfData,
@@ -107,6 +115,10 @@ class PDFWorkerManager {
             verbosity: options.verbosity ?? 0,
             // Suppress warnings about unimplemented widget types and other non-critical issues
             isEvalSupported: false,
+            cMapUrl: options.cMapUrl,
+            cMapPacked: options.cMapPacked,
+            standardFontDataUrl: options.standardFontDataUrl,
+            useSystemFonts: options.useSystemFonts,
           },
     );
 

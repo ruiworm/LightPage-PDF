@@ -1,0 +1,292 @@
+.tool-panel__active-scroll .mantine-ScrollArea-content {
+  display: flex !important;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.tool-inspector {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--c-bg-raised);
+  color: var(--c-text);
+  font-size: 0.8125rem;
+  user-select: text;
+  accent-color: var(--c-primary);
+  scrollbar-color: var(--c-border-strong) transparent;
+}
+
+.tool-inspector__description {
+  margin: 0;
+  padding: 0.875rem 1rem 1rem;
+  font-size: 0.75rem;
+  line-height: 1.65;
+  color: var(--c-text-muted);
+  border-bottom: 1px solid var(--c-border-subtle);
+}
+
+.tool-inspector ::selection {
+  background: var(--c-primary-subtle);
+  color: var(--c-text);
+}
+
+.tool-settings-group {
+  padding: 1rem;
+  border-bottom: 1px solid var(--c-border-subtle);
+  min-width: 0;
+}
+
+.tool-workflow-intro {
+  padding: 1rem;
+  border-bottom: 1px solid var(--c-border-subtle);
+}
+
+.tool-settings-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.tool-settings-group__header h3 {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.tool-settings-group__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  min-width: 0;
+}
+
+.tool-settings-group__help {
+  margin: 0;
+  color: var(--c-text-muted);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.tool-settings-group__edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.tool-settings-group__edit:hover {
+  color: var(--c-accent-fg);
+}
+
+.tool-settings-group__edit:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.tool-inspector :is(.mantine-Input-input, .mantine-Textarea-input) {
+  min-height: 2.5rem;
+  border-radius: 0.75rem;
+  border-color: var(--c-border-subtle);
+  background: var(--c-input-bg);
+  color: var(--c-text);
+  font-size: 0.8125rem;
+  caret-color: var(--c-primary);
+}
+
+.tool-inspector :is(.mantine-Input-input, .mantine-Textarea-input):focus {
+  border-color: var(--c-primary);
+}
+
+.tool-inspector
+  :is(.mantine-Input-input, .mantine-Textarea-input)::placeholder {
+  color: var(--c-text-muted);
+}
+
+.tool-inspector
+  :is(
+    .mantine-InputWrapper-label,
+    .mantine-Checkbox-label,
+    .mantine-Radio-label,
+    .mantine-Switch-label
+  ) {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--c-text);
+}
+
+.tool-inspector
+  :is(
+    .mantine-InputWrapper-description,
+    .mantine-Checkbox-description,
+    .mantine-Switch-description
+  ) {
+  font-size: 0.75rem;
+  color: var(--c-text-muted);
+  line-height: 1.6;
+}
+
+.tool-inspector .mantine-InputWrapper-label {
+  margin-bottom: 0.375rem;
+  font-weight: 500;
+}
+
+.tool-inspector .mantine-Divider-root {
+  border-color: var(--c-border-subtle);
+  margin-inline: 0;
+}
+
+.tool-inspector
+  .tool-settings-group__body
+  > .mantine-Stack-root
+  > .mantine-Divider-root:first-child {
+  display: none;
+}
+
+.tool-inspector .sui-seg {
+  border-radius: 0.75rem;
+  background: var(--c-surface-sunken);
+  padding: 4px;
+}
+
+.tool-inspector .mantine-SegmentedControl-label {
+  padding: 0.5rem 0.375rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.tool-inspector .mantine-Checkbox-input {
+  border-radius: 5px;
+}
+
+.tool-inspector .mantine-Checkbox-body {
+  align-items: flex-start;
+}
+
+.tool-inspector .mantine-Button-root {
+  --button-radius: 0.75rem;
+  min-height: 2.5rem;
+  font-size: 0.8125rem;
+}
+
+.tool-inspector .tool-operation-button,
+.tool-inspector .tool-operation-placeholder {
+  margin: 0 !important;
+}
+
+.tool-inspector .tool-scope-note {
+  margin: 0.5rem 0 0;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+  font-size: 0.6875rem;
+  color: var(--c-text-muted);
+}
+
+.tool-file-status {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.tool-file-status__ready {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.75rem;
+  background: var(--c-input-bg);
+  border: 1px solid var(--c-border-subtle);
+  border-radius: 0.75rem;
+}
+
+.tool-file-status__icon {
+  display: inline-flex;
+  color: var(--c-text-muted);
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.tool-file-status__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.tool-file-status__meta {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--c-text-muted);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tool-inspector[data-tool="redact"] .file-redaction-intro {
+  display: none;
+}
+
+.tool-inspector .file-redaction-settings {
+  padding: 1rem;
+}
+
+.tool-inspector .file-redaction-actions {
+  padding-block: 1rem;
+  margin-block: 1rem;
+  border-block: 1px solid var(--c-border-subtle);
+}
+
+.tool-inspector .file-redaction-tabs {
+  padding: 4px;
+  border: 0;
+  border-radius: 0.75rem;
+  background: var(--c-surface-sunken);
+  gap: 2px;
+}
+
+.tool-inspector .file-redaction-tabs button {
+  border: 0;
+  border-radius: 0.5rem;
+  min-height: 2rem;
+  padding: 0.5rem 0.25rem;
+}
+
+.tool-inspector .file-redaction-tabs button[aria-selected="true"] {
+  background: var(--c-input-bg);
+  color: var(--c-text);
+}
+
+.tool-inspector .file-redaction-method {
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+}
+
+.tool-inspector .file-redaction-method:has(input:checked) {
+  background: var(--c-primary-subtle);
+}
+
+.tool-inspector .file-redaction-method strong,
+.tool-inspector .file-redaction-fieldset legend {
+  font-size: 0.8125rem;
+}
+
+.tool-inspector .file-redaction-method small,
+.tool-inspector .file-redaction-note {
+  font-size: 0.75rem;
+}
+
+@media (max-width: 48rem) {
+  .tool-inspector {
+    min-height: 100%;
+  }
+  .tool-inspector :is(.mantine-Input-input, .mantine-Textarea-input) {
+    font-size: 1rem;
+  }
+}

@@ -1,10 +1,11 @@
+import { useSyncExternalStore } from "react";
+import { backendHealthMonitor } from "@app/services/backendHealthMonitor";
 import type { BackendHealthState } from "@app/types/backendHealth";
 
 export function useBackendHealth(): BackendHealthState {
-  return {
-    status: "healthy",
-    message: null,
-    error: null,
-    isOnline: true,
-  };
+  return useSyncExternalStore(
+    backendHealthMonitor.subscribe,
+    backendHealthMonitor.getSnapshot,
+    backendHealthMonitor.getServerSnapshot,
+  );
 }

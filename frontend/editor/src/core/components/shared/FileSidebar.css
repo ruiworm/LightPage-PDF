@@ -633,3 +633,11 @@
 .sidebar-content-fade {
   animation: sidebar-content-in 0.12s ease 0.18s both;
 }
+
+.file-sidebar-selection-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem 0.5rem;
+  flex-shrink: 0;
+}

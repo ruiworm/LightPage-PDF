@@ -35,6 +35,7 @@ yarn-error.log*
 data/
 output/
 logs/
+.model_cache/
 
 # IDE
 .vscode/

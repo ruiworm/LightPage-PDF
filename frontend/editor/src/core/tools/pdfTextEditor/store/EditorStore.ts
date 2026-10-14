@@ -299,6 +299,7 @@ export class EditorStore {
   }
 
   clearDocument(): void {
+    this.loadToken++;
     this.disposeDocumentIfAny();
     resetCharcodeCaches();
     this.history.clear();
@@ -551,6 +552,7 @@ export class EditorStore {
   }
 
   dispose(): void {
+    this.loadToken++;
     this.disposeDocumentIfAny();
     this.listeners.clear();
   }

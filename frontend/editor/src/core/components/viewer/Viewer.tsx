@@ -33,7 +33,6 @@ const Viewer = (props: ViewerProps & SignatureOverlayPassThrough) => {
     activeFileId,
     isAttachmentSidebarVisible,
     toggleAttachmentSidebar,
-    isThumbnailSidebarVisible,
     isBookmarkSidebarVisible,
   } = useViewer();
 
@@ -43,7 +42,7 @@ const Viewer = (props: ViewerProps & SignatureOverlayPassThrough) => {
     const byId = activeFileId
       ? activeFiles.find((f) => isStirlingFile(f) && f.fileId === activeFileId)
       : null;
-    return byId ?? activeFiles[0] ?? null;
+    return byId ?? null;
   }, [props.previewFile, activeFiles, activeFileId]);
 
   // A portfolio stays pinned while its members are read, so the panel below
@@ -91,7 +90,6 @@ const Viewer = (props: ViewerProps & SignatureOverlayPassThrough) => {
       {viewer}
       <AttachmentSidebar
         visible={isAttachmentSidebarVisible}
-        thumbnailVisible={isThumbnailSidebarVisible}
         bookmarkVisible={isBookmarkSidebarVisible}
         portfolio={portfolio}
       />

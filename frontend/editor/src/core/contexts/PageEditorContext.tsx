@@ -12,7 +12,9 @@ import { FileId } from "@app/types/file";
 import { useFileActions, useFileState } from "@app/contexts/FileContext";
 import { PDFDocument, PDFPage } from "@app/types/pageEditor";
 import { MAX_PAGE_EDITOR_FILES } from "@app/components/pageEditor/fileColors";
+import { useFileColorMap } from "@app/components/pageEditor/hooks/useFileColorMap";
 import { useNavigationState } from "@app/contexts/NavigationContext";
+import { useViewer } from "@app/contexts/ViewerContext";
 
 // PageEditorFile is now defined locally in consuming components
 // Components should derive file list directly from FileContext
@@ -123,6 +125,7 @@ interface PageEditorContextValue {
   // Page editor's own file order (independent of FileContext global order)
   fileOrder: FileId[];
   setFileOrder: (order: FileId[]) => void;
+  fileColorIndexMap: ReadonlyMap<FileId, number>;
 
   // Set file selection (calls FileContext actions)
   setFileSelection: (fileId: FileId, selected: boolean) => void;
@@ -189,48 +192,51 @@ export function PageEditorProvider({ children }: PageEditorProviderProps) {
   // Read from FileContext (for file metadata only, not order)
   const { actions: fileActions } = useFileActions();
   const { state } = useFileState();
+  const selectedPdfIds = useMemo(
+    () =>
+      state.ui.selectedFileIds.filter((id) =>
+        state.files.byId[id]?.name?.toLowerCase().endsWith(".pdf"),
+      ),
+    [state.ui.selectedFileIds, state.files.byId],
+  );
+  const fileColorIndexMap = useFileColorMap(selectedPdfIds);
 
   const navigationState = useNavigationState();
+  const { activeFileId } = useViewer();
   const prevWorkbenchRef = useRef(navigationState.workbench);
   useEffect(() => {
     const prevWorkbench = prevWorkbenchRef.current;
     const nextWorkbench = navigationState.workbench;
-    const isLeavingPageEditor =
-      prevWorkbench === "pageEditor" && nextWorkbench !== "pageEditor";
     const isEnteringPageEditor =
       prevWorkbench !== "pageEditor" && nextWorkbench === "pageEditor";
 
-    if (isLeavingPageEditor) {
-      clearPersistedDocument();
-    }
-
     if (isEnteringPageEditor) {
-      prevFileContextIdsRef.current = state.files.ids;
-      setReorderedPages(null);
-      setCurrentPages(null); // Force clear current pages when entering
-      setFileOrder((currentOrder) => {
-        const validOrder = currentOrder.filter((id) =>
-          state.files.ids.includes(id),
-        );
-        const newIds = state.files.ids.filter((id) => !validOrder.includes(id));
-        if (newIds.length === 0 && validOrder.length === currentOrder.length) {
-          return currentOrder;
-        }
-        return [...validOrder, ...newIds];
-      });
-      clearPersistedDocument();
-      // Select all workbench files so they render as expanded pages
-      fileActions.setSelectedFiles(state.files.ids);
+      const readerFileId = activeFileId as FileId | null;
+      const readerIsPdf =
+        readerFileId &&
+        state.files.byId[readerFileId]?.name?.toLowerCase().endsWith(".pdf");
+      // Seed only on entry so unchecking the last file inside the editor stays empty.
+      if (selectedPdfIds.length === 0 && readerIsPdf && readerFileId) {
+        fileActions.setSelectedFiles([
+          ...state.ui.selectedFileIds,
+          readerFileId,
+        ]);
+      }
+      // File selection/content effects below invalidate the document when needed.
+      // A tab switch alone must preserve the pages and their thumbnails.
     }
 
     prevWorkbenchRef.current = nextWorkbench;
   }, [
     navigationState.workbench,
     clearPersistedDocument,
-    state.files.ids,
+    state.ui.selectedFileIds,
     setFileOrder,
     setReorderedPages,
     fileActions,
+    activeFileId,
+    selectedPdfIds,
+    state.files.byId,
   ]);
 
   const fileContextSignature = useMemo(() => {
@@ -269,7 +275,7 @@ export function PageEditorProvider({ children }: PageEditorProviderProps) {
     return false;
   };
   useEffect(() => {
-    const currentFileIds = state.files.ids;
+    const currentFileIds = state.ui.selectedFileIds;
     const prevFileIds = prevFileContextIdsRef.current;
     const idsChanged = haveFileIdSetsChanged(prevFileIds, currentFileIds);
     const previousContentKeys = prevFileContentKeys.current;
@@ -318,7 +324,7 @@ export function PageEditorProvider({ children }: PageEditorProviderProps) {
     fileContextSignature,
     fileContentKeys,
     clearPersistedDocument,
-    state.files.ids,
+    state.ui.selectedFileIds,
   ]);
 
   // Keep a ref to always read latest state in stable callbacks
@@ -332,7 +338,7 @@ export function PageEditorProvider({ children }: PageEditorProviderProps) {
 
   // Initialize fileOrder from FileContext when files change (add/remove only)
   useEffect(() => {
-    const currentFileIds = state.files.ids;
+    const currentFileIds = state.ui.selectedFileIds;
     const prevFileIds = prevFileContextIdsRef.current;
 
     // Only react to FileContext changes, not our own fileOrder changes
@@ -395,7 +401,7 @@ export function PageEditorProvider({ children }: PageEditorProviderProps) {
         }
       });
     }, 100);
-  }, [state.files.ids, state.files.byId, fileActions]);
+  }, [state.ui.selectedFileIds, state.files.byId, fileActions]);
 
   const updateCurrentPages = useCallback((pages: PDFPage[] | null) => {
     setCurrentPages(pages);
@@ -546,6 +552,7 @@ export function PageEditorProvider({ children }: PageEditorProviderProps) {
       reorderedPages,
       clearReorderedPages,
       fileOrder,
+      fileColorIndexMap,
       setFileOrder,
       setFileSelection,
       toggleFileSelection,
@@ -566,6 +573,7 @@ export function PageEditorProvider({ children }: PageEditorProviderProps) {
       reorderedPages,
       clearReorderedPages,
       fileOrder,
+      fileColorIndexMap,
       setFileSelection,
       toggleFileSelection,
       selectAll,

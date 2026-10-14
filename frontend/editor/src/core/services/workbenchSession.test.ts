@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   originalIdOf,
   readWorkbenchSession,
@@ -15,9 +15,25 @@ import type { StirlingFileStub } from "@app/types/fileContext";
 const SESSION_KEY = "stirling.workbench.session";
 
 beforeEach(() => {
-  sessionStorage.clear();
+  const values = new Map<string, string>();
+  vi.stubGlobal("sessionStorage", {
+    get length() {
+      return values.size;
+    },
+    clear: vi.fn(() => values.clear()),
+    getItem: vi.fn((key: string) => values.get(key) ?? null),
+    key: vi.fn((index: number) => [...values.keys()][index] ?? null),
+    removeItem: vi.fn((key: string) => {
+      values.delete(key);
+    }),
+    setItem: vi.fn((key: string, value: string) => {
+      values.set(key, String(value));
+    }),
+  } satisfies Storage);
   resumeWorkbenchSession();
 });
+
+afterEach(() => vi.unstubAllGlobals());
 
 describe("workbench session record", () => {
   it("round-trips the open files and selection", () => {
@@ -103,7 +119,7 @@ describe("record hygiene", () => {
   it("drops the previous record when a write fails, rather than leaving it stale", () => {
     writeWorkbenchSession({ fileIds: ["old"], selectedFileIds: [] });
     const setItem = vi
-      .spyOn(Storage.prototype, "setItem")
+      .spyOn(sessionStorage, "setItem")
       .mockImplementation(() => {
         throw new Error("QuotaExceededError");
       });

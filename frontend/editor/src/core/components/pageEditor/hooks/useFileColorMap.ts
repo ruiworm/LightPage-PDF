@@ -8,10 +8,8 @@ import { FileId } from "@app/types/file";
 export function useFileColorMap(fileIds: FileId[]): Map<FileId, number> {
   const assignmentsRef = useRef(new Map<FileId, number>());
 
-  const serializedIds = useMemo(() => fileIds.join(","), [fileIds]);
-
   return useMemo(() => {
-    const assignments = assignmentsRef.current;
+    const assignments = new Map(assignmentsRef.current);
     const activeIds = new Set(fileIds);
 
     // Remove colors for files that no longer exist
@@ -21,13 +19,17 @@ export function useFileColorMap(fileIds: FileId[]): Map<FileId, number> {
       }
     }
 
-    // Assign colors to any new files
+    const usedColors = new Set(assignments.values());
     fileIds.forEach((id) => {
       if (!assignments.has(id)) {
-        assignments.set(id, assignments.size);
+        let colorIndex = 0;
+        while (usedColors.has(colorIndex)) colorIndex += 1;
+        assignments.set(id, colorIndex);
+        usedColors.add(colorIndex);
       }
     });
 
+    assignmentsRef.current = assignments;
     return assignments;
-  }, [serializedIds, fileIds]);
+  }, [fileIds]);
 }

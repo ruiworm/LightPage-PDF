@@ -4,7 +4,7 @@ import { Icon } from "@app/ui/Icon";
 import "@app/components/shared/ToolPanelHeader.css";
 
 export interface ToolPanelHeaderProps {
-  /** Glyph rendered in the tinted circular badge at the header's leading edge. */
+  /** Glyph identifying the active tool. */
   icon: ReactNode;
   /** Header title. */
   title: ReactNode;
@@ -14,15 +14,6 @@ export interface ToolPanelHeaderProps {
   closeLabel?: string;
 }
 
-/**
- * Header for the active-tool rail surface: a tinted icon badge + title in a
- * rounded bar with a trailing close button.
- *
- * Core-owned so the OSS build carries no design-system dependency. It mirrors
- * the shared rail header's styling for the simple (non-menu) case the tool panel
- * needs; the richer variant (dropdown menu, accents, loading dot) lives in the
- * design system for the AI chat and Policies surfaces.
- */
 export function ToolPanelHeader({
   icon,
   title,
@@ -30,14 +21,14 @@ export function ToolPanelHeader({
   closeLabel,
 }: ToolPanelHeaderProps) {
   return (
-    <div className="sui-panelhdr">
-      <div className="sui-panelhdr__bar">
-        <span className="sui-panelhdr__icon">{icon}</span>
-        <span className="sui-panelhdr__label">{title}</span>
+    <div className="tool-panel-header">
+      <div className="tool-panel-header__bar">
+        <span className="tool-panel-header__icon">{icon}</span>
+        <span className="tool-panel-header__label">{title}</span>
       </div>
       {onClose && (
         <ActionIcon
-          className="sui-panelhdr__close"
+          className="tool-panel-header__close"
           variant="tertiary"
           accent="neutral"
           shape="circle"

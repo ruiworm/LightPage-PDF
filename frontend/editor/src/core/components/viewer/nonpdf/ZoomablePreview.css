@@ -1,0 +1,69 @@
+.nonpdf-zoom-preview {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  background: var(--c-bg);
+}
+.nonpdf-zoom-viewport {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-color: var(--c-border-strong) var(--c-bg);
+}
+.nonpdf-zoom-center {
+  width: max-content;
+  min-width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+}
+.nonpdf-zoom-footprint {
+  margin-inline: auto;
+  position: relative;
+}
+.nonpdf-zoom-content {
+  transform-origin: top left;
+}
+.nonpdf-zoom-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 6px 12px;
+  border-top: 1px solid var(--c-border-subtle);
+  background: var(--c-bg-raised);
+  color: var(--c-text);
+}
+.nonpdf-zoom-controls output {
+  width: 4ch;
+  text-align: center;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.nonpdf-zoom-content img {
+  display: block;
+}
+.nonpdf-zoom-controls button:focus-visible {
+  outline: 2px solid var(--c-accent-fg);
+  outline-offset: 2px;
+}
+.nonpdf-word-layout {
+  color: black;
+}
+.nonpdf-word-layout .document-word-wrapper {
+  padding: 0;
+  background: transparent;
+  align-items: flex-start;
+}
+.nonpdf-word-layout section.document-word {
+  margin-bottom: 24px;
+}
+.nonpdf-legacy-page-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+}

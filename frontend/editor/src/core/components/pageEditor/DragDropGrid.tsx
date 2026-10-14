@@ -1034,4 +1034,4 @@ const DragDropGrid = <T extends DragDropItem>({
   );
 };
 
-export default DragDropGrid;
+export default React.memo(DragDropGrid) as typeof DragDropGrid;

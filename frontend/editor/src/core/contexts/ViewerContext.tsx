@@ -8,7 +8,6 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { useNavigation } from "@app/contexts/NavigationContext";
 import {
   useFileIndex,
   useFileSelector,
@@ -285,9 +284,6 @@ export const ViewerProvider: React.FC<ViewerProviderProps> = ({ children }) => {
   const [pdfRenderMode, setPdfRenderModeState] = useState<PdfRenderMode>(() =>
     preferencesService.getPreference("pdfRenderMode"),
   );
-
-  // Get current navigation state to check if we're in sign mode
-  useNavigation();
 
   // Bridge registry - bridges register their state and APIs here
   const bridgeRefs = useRef<ViewerBridgeRegistry>(createBridgeRegistry());

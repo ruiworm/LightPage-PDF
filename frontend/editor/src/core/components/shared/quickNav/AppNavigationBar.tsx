@@ -49,7 +49,7 @@ export function AppNavigationBar({
   );
   const currentTheme = themeOptions[themeIndex] ?? themeOptions[2];
   const nextTheme = themeOptions[(themeIndex + 1) % themeOptions.length];
-  const themeLabel = `${t("settings.general.theme", "Theme")}: ${currentTheme.label} → ${nextTheme.label}`;
+  const themeLabel = currentTheme.label;
 
   return (
     <header className="app-navigation-bar">

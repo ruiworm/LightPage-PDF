@@ -18,11 +18,17 @@ import {
 } from "@app/utils/hotkeys";
 import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
 import { ToolId } from "@app/types/toolId";
-import { ToolCategoryId, ToolRegistryEntry } from "@app/data/toolsTaxonomy";
+import {
+  isComingSoonTool,
+  ToolCategoryId,
+  ToolRegistryEntry,
+} from "@app/data/toolsTaxonomy";
+import { filterToolRegistryByQuery } from "@app/utils/toolSearch";
 
 type Bindings = Partial<Record<ToolId, HotkeyBinding>>;
 
 interface HotkeyContextValue {
+  tools: [ToolId, ToolRegistryEntry][];
   hotkeys: Bindings;
   defaults: Bindings;
   isMac: boolean;
@@ -96,23 +102,29 @@ export const HotkeyProvider: React.FC<{ children: React.ReactNode }> = ({
   const [areHotkeysPaused, setHotkeysPaused] = useState(false);
 
   const toolEntries = useMemo(
-    () => Object.entries(toolRegistry),
+    () =>
+      filterToolRegistryByQuery(toolRegistry, "")
+        .map(({ item }) => item)
+        .filter(([toolId, tool]) => !isComingSoonTool(toolId, tool)),
     [toolRegistry],
-  ) as [ToolId, ToolRegistryEntry][];
+  );
+  const shortcutToolIds = useMemo(
+    () => new Set(toolEntries.map(([toolId]) => toolId)),
+    [toolEntries],
+  );
 
   const defaults = useMemo(
     () => generateDefaultHotkeys(toolEntries, isMac),
-    [toolRegistry, isMac],
+    [toolEntries, isMac],
   );
 
-  // Remove bindings for tools that are no longer present
   useEffect(() => {
     setCustomBindings((prev) => {
       const next: Bindings = {};
       let changed = false;
       (Object.entries(prev) as [ToolId, HotkeyBinding][]).forEach(
         ([toolId, binding]) => {
-          if (toolRegistry[toolId]) {
+          if (shortcutToolIds.has(toolId)) {
             next[toolId] = binding;
           } else {
             changed = true;
@@ -121,7 +133,7 @@ export const HotkeyProvider: React.FC<{ children: React.ReactNode }> = ({
       );
       return changed ? next : prev;
     });
-  }, [toolRegistry]);
+  }, [shortcutToolIds]);
 
   const resolved = useMemo(() => {
     const merged: Bindings = {};
@@ -162,6 +174,7 @@ export const HotkeyProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateHotkey = useCallback(
     (toolId: ToolId, binding: HotkeyBinding) => {
+      if (!shortcutToolIds.has(toolId)) return;
       setCustomBindings((prev) => {
         const normalized = normalizeBinding(binding);
         const defaultsForTool = defaults[toolId];
@@ -174,7 +187,7 @@ export const HotkeyProvider: React.FC<{ children: React.ReactNode }> = ({
         return next;
       });
     },
-    [defaults],
+    [defaults, shortcutToolIds],
   );
 
   const resetHotkey = useCallback((toolId: ToolId) => {
@@ -219,6 +232,7 @@ export const HotkeyProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const contextValue = useMemo<HotkeyContextValue>(
     () => ({
+      tools: toolEntries,
       hotkeys: resolved,
       defaults,
       isMac,
@@ -231,6 +245,7 @@ export const HotkeyProvider: React.FC<{ children: React.ReactNode }> = ({
       getDisplayParts: (binding) => getDisplayParts(binding ?? null, isMac),
     }),
     [
+      toolEntries,
       resolved,
       defaults,
       isMac,

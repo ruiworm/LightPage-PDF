@@ -24,7 +24,6 @@ import "@app/components/viewer/AttachmentSidebar.css";
 
 interface AttachmentSidebarProps {
   visible: boolean;
-  thumbnailVisible: boolean;
   bookmarkVisible: boolean;
   documentCacheKey?: string;
   preloadCacheKeys?: string[];
@@ -142,7 +141,6 @@ const createEntry = (
 
 export const AttachmentSidebar = ({
   visible,
-  thumbnailVisible,
   bookmarkVisible,
   documentCacheKey,
   preloadCacheKeys = [],
@@ -744,7 +742,7 @@ export const AttachmentSidebar = ({
           : t("viewer.attachments.title", "Attachments")
       }
       icon={isPortfolio ? <Icon name="library" /> : <Icon name="paperclip" />}
-      rightOffset={`${(thumbnailVisible ? 15 : 0) + (bookmarkVisible ? 15 : 0)}rem`}
+      rightOffset={`${bookmarkVisible ? 15 : 0}rem`}
       visible={visible}
       onClose={toggleAttachmentSidebar}
       closeLabel={t(

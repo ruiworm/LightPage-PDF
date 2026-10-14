@@ -53,7 +53,7 @@ export function BillingSettingsSection({
             )
           : t(
               "desktopBilling.description",
-    "Manage usage and billing in your browser. Sign in with the same Stirling account you use here.",
+              "Manage usage and billing in your browser. Sign in with the same Stirling account you use here.",
             )}
       </Text>
       {failed && (

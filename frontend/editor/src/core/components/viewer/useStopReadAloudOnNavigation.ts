@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigationState } from "@app/contexts/NavigationContext";
 import { useViewer } from "@app/contexts/ViewerContext";
+import { useViewActive } from "@app/components/layout/RetainedView";
 
 /**
  * Hook that automatically stops read-aloud when navigating away from the viewer.
@@ -12,6 +13,7 @@ export function useStopReadAloudOnNavigation(
 ) {
   const { workbench } = useNavigationState();
   const viewer = useViewer();
+  const viewActive = useViewActive();
 
   const previousStateRef = useRef({
     workbench,
@@ -20,6 +22,10 @@ export function useStopReadAloudOnNavigation(
 
   // Monitor workbench and file changes
   useEffect(() => {
+    if (isReadingAloud && !viewActive) {
+      onStop();
+      return;
+    }
     // Stop on workbench change
     if (isReadingAloud && previousStateRef.current.workbench !== workbench) {
       onStop();
@@ -39,7 +45,7 @@ export function useStopReadAloudOnNavigation(
 
     previousStateRef.current.workbench = workbench;
     previousStateRef.current.activeFileIndex = viewer.activeFileIndex;
-  }, [workbench, viewer.activeFileIndex, isReadingAloud, onStop]);
+  }, [workbench, viewer.activeFileIndex, isReadingAloud, onStop, viewActive]);
 
   // Stop on page unload (F5, navigation, close)
   useEffect(() => {

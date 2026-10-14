@@ -12,9 +12,7 @@ comingSoon = "Coming soon"
 confirm = "Confirm"
 confirmClose = "Confirm Close"
 confirmCloseCancel = "Cancel"
-confirmCloseConfirm = "Close File"
 confirmCloseDiscard = "Discard changes and close"
-confirmCloseMessage = "Are you sure you want to close this file?"
 confirmCloseSave = "Save and close"
 confirmCloseSaveFailed_one = "Saved with errors. {{count}} file could not be saved."
 confirmCloseSaveFailed_other = "Saved with errors. {{count}} files could not be saved."
@@ -36,12 +34,6 @@ editSecret = "Edit this value"
 editYourNewFiles = "Edit your new file(s)"
 exportAndContinue = "Export & Continue"
 false = "False"
-fileChangedOnDisk = "Changed on disk since you edited it"
-fileDiskUnavailable = "Cannot reach the file on disk"
-fileNotSavedToDisk = "Not saved to disk"
-fileOriginalDeleted = "Original deleted - save to keep a copy"
-fileSavedToDisk = "File saved to disk"
-fileSelected = "{{filename}}"
 filesSelected = "{{count}} files"
 font = "Font"
 fontSizeTooltip = "Size of the page number text in points. Larger numbers create bigger text."
@@ -4206,12 +4198,10 @@ scarf = "Scarf Pixel"
 coverTitle = "Cover page title"
 coverTitlePlaceholder = "PDF Portfolio"
 description = "Every selected file is kept whole inside the new PDF, whatever its type. Readers that don't support portfolios show a cover page with the files attached."
-goToFileEditor = "Go to file editor"
 info = "Combines your files into one PDF that keeps each file whole inside it. Open the result to browse the files and view or save any of them on their own."
 settings = "Portfolio Settings"
 submit = "Create Portfolio"
 title = "Portfolio Results"
-viewerModeHint = "A portfolio needs 2 or more files. Head to the file editor to select them."
 
 [createPortfolio.error]
 failed = "An error occurred while creating the PDF portfolio."
@@ -4488,7 +4478,6 @@ unlockAll = "Use for all ({{count}})"
 unlockAllPartialFail = "Wrong password for: {{names}}"
 unlockAllSuccess_one = "Unlocked {{count}} file."
 unlockAllSuccess_other = "Unlocked {{count}} files."
-unlockPrompt = "Unlock PDF to continue"
 viewerLocked = "This PDF is password-protected"
 viewerUnlock = "Unlock"
 
@@ -4578,29 +4567,7 @@ viewInViewer = "View in Viewer"
 [fileDropdownMenu]
 closeFile = "Close file"
 
-[fileEditor]
-addFiles = "Add Files"
-closedFile = "Closed {{name}}"
-couldNotSave = "Could not save {{name}}"
-filesAdded_one = "Added {{count}} file"
-filesAdded_other = "Added {{count}} files"
-filesReordered_one = "File reordered"
-filesReordered_other = "{{count}} files reordered"
-loadedFromStorage_one = "Loaded {{count}} file from storage"
-loadedFromStorage_other = "Loaded {{count}} files from storage"
-loadFromStorageFailed = "Failed to load some files from storage"
-pinnedFile = "Pinned {{name}}"
-processFilesFailed = "Failed to process files"
-savedAndClosed = "Saved and closed {{name}}"
-saveFailed = "Save failed"
-unpinnedFile = "Unpinned {{name}}"
-unzipping = "Unzipping {{name}}"
-
 [fileEditor.unzip]
-error = "Error unzipping {{name}}"
-extracted_one = "Extracted {{count}} file from {{name}}"
-extracted_other = "Extracted {{count}} files from {{name}}"
-failed = "Failed to extract files from {{name}}"
 
 [fileManager]
 addToUpload = "Add to Upload"
@@ -4622,9 +4589,6 @@ saveSelected = "Save Files"
 searchFiles = "Search files..."
 share = "Share"
 shared = "Shared"
-sharedEditNoticeBody = "You do not have edit rights to the server version of this file. Any edits you make will be saved as a local copy."
-sharedEditNoticeConfirm = "Got it"
-sharedEditNoticeTitle = "Read-only server copy"
 sharedWithYou = "Shared with you"
 showAll = "Show All"
 showAllCount_one = "Show All ({{count}} file)"
@@ -4638,9 +4602,6 @@ storageUsed = "Storage used"
 title = "Upload PDF Files"
 unsupported = "Unsupported"
 unzip = "Unzip"
-updateOnServer = "Update on Server"
-uploadToServer = "Upload to Server"
-versionHistory = "Version history"
 
 [filePicker]
 add_one = "Add {{count}} file"
@@ -4670,6 +4631,206 @@ unsupported = "This file type isn't supported by the selected tool."
 loadingThumbnail = "Loading thumbnail..."
 locked = "Locked"
 previewOf = "Preview of {{name}}"
+
+[fileRedaction]
+addFiles = "Add files"
+addMatches = "Find and add matches"
+cancel = "Cancel"
+categoriesTitle = "Information to identify"
+chooseResultFile = "Choose an analysed file"
+contextDetection = "Names, organizations, and addresses are detected using local Chinese entity recognition, field context, and dictionaries. Review the results and add missing items with search or manual selection."
+currentFileUnscanned = "The open file has not been analysed. Scan it or open an analysed file."
+dictionary = "Custom dictionary"
+dictionaryLocal = "The dictionary is saved locally. Preserved phrases are skipped automatically; manual additions still apply."
+dictionaryTooLarge = "Dictionary files must be smaller than 1 MB. Split the file before importing."
+dismiss = "Dismiss"
+downloadResult = "Download redacted files"
+drawRegion = "Draw region"
+export = "Export"
+exportAll = "Export all"
+exportArchive = "Redacted files"
+exported = "Exported {{count}} files. The originals are preserved."
+fileCount = "{{count}} files to process"
+filter = "Filter matches"
+finishDrawing = "Finish drawing"
+hitCount = "{{count}} matches · {{selected}} selected"
+intro = "Identify sensitive information, review the matches, and export a redacted copy."
+local = "Processed entirely on this device"
+method = "Redaction method"
+needsReview = "Needs review · click to confirm"
+ner = "Enhanced name, organization and address recognition (local)"
+noHits = "No matches. Adjust the categories or add a phrase using search."
+occurrences = "{{count}} matches"
+ocr = "Recognize text in scans and images"
+onePerLine = "One phrase per line; matches are exact."
+original = "Original"
+page = "Page {{index}}"
+panelTabs = "File redaction panel"
+paragraph = "Paragraph {{index}}"
+preserve = "Preserve this phrase"
+preservedWords = "Words to preserve"
+preview = "Redacted preview"
+redo = "Redo"
+replacement = "Replacement for {{value}}"
+requiredWords = "Words to redact"
+resultFile = "View detection results"
+saveToDictionary = "Save to the redaction dictionary"
+scan = "Identify sensitive data"
+scanAgain = "Scan again"
+scanFirst = "Start a scan to review matches here."
+searchAdded = "Added {{count}} matches."
+searchDescription = "Search all files in this session for an exact phrase. Existing matches are not duplicated."
+searchText = "Phrase to find"
+selectAll = "Select all"
+selectNone = "Deselect all"
+showOccurrences = "Review each occurrence"
+title = "File redaction"
+toggleGroup = "Redact all occurrences of {{value}}"
+toggleOccurrence = "Redact occurrence {{index}}"
+uncertain = "Uncertain, not selected"
+undo = "Undo"
+visualRegions = "Use Draw region in the right tool panel to permanently cover stamps, fingerprints, faces, and QR/barcodes."
+wordLayoutUnavailable = "Layout preview is unavailable. Switch to Text review."
+wordOtherPart = "Header, footer, or note"
+
+[fileRedaction.aliases]
+account = "Account"
+address = "Address"
+amount = "Amount"
+caseNumber = "Case"
+company = "Organization"
+creditCode = "Code"
+custom = "Item"
+date = "Date"
+documentNumber = "Reference"
+email = "Email"
+identity = "ID"
+invoice = "Invoice"
+ip = "IP"
+name = "Person"
+passport = "Passport"
+phone = "Phone"
+plate = "Plate"
+property = "Property"
+region = "Region"
+social = "Social"
+url = "URL"
+vin = "VIN"
+
+[fileRedaction.categories]
+account = "Account / card"
+address = "Address"
+amount = "Amount"
+caseNumber = "Case number"
+company = "Organization"
+creditCode = "Credit code"
+custom = "Custom phrase"
+date = "Date"
+documentNumber = "Official reference"
+email = "Email"
+identity = "National ID"
+invoice = "Invoice number"
+ip = "IP address"
+name = "Name"
+passport = "Travel document"
+phone = "Phone"
+plate = "License plate"
+property = "Property certificate"
+region = "Manual region"
+social = "Social account"
+url = "URL"
+vin = "VIN"
+
+[fileRedaction.errors]
+EXPORT_FAILED = "Export failed. Please retry."
+FILE_TOO_LARGE = "Files up to 100 MB are supported."
+FILE_UNSUPPORTED = "Add a PDF, DOCX, XLSX, CSV, or supported image."
+HIT_COORDINATES_UNAVAILABLE = "Some matches lack coordinates. Deselect them and draw a region before exporting."
+IMAGE_TOO_LARGE = "The image is too large. Reduce its dimensions and retry."
+LEGACY_WORD_UNAVAILABLE = "Legacy DOC conversion is unavailable locally. Save it as DOCX in Word and add it again."
+OCR_COORDINATES_UNAVAILABLE = "Text was recognized without coordinates. Use manual regions."
+PDF_PAGE_UNAVAILABLE = "Could not read this PDF page. Scan the document again."
+READ_FAILED = "Could not read the file. Add it again and retry."
+TABLE_COMPLEX = "Images, charts, macros, embedded objects and data connections are not supported. Export the required cells as a plain data workbook first."
+TABLE_EMPTY = "The table contains no cell values to process."
+TABLE_FORMULAS = "Workbooks with formulas are not supported. Copy and paste as values in Excel, then save a new XLSX copy."
+TABLE_INVALID = "The table is damaged or contains invalid structure or unclosed quotes. Save a new copy and retry."
+TABLE_TOO_LARGE = "Tables support up to 20 MB, 50,000 cells, and 20,000 rows and 256 columns per sheet. Split the file and retry."
+WORD_XML_INVALID = "The Word document is invalid or damaged."
+WORD_XML_UNSUPPORTED = "The Word document is too large or contains unsupported structures."
+
+[fileRedaction.examples]
+alias = "Jane Smith → Person1"
+blackout = "Remove the original and cover the region in black"
+full = "Jane Smith → ***"
+partial = "13812345678 → 138****5678"
+
+[fileRedaction.filters]
+all = "All matches"
+review = "Needs review"
+selected = "Selected"
+
+[fileRedaction.groups]
+business = "Business information"
+optional = "Optional categories"
+organization = "Organizations and addresses"
+personal = "Personal information"
+
+[fileRedaction.import]
+preservedWords = "Import preserved words"
+requiredWords = "Import redaction words"
+
+[fileRedaction.methods]
+alias = "Replace with aliases"
+blackout = "Permanent blackout"
+full = "Full masking"
+partial = "Partial masking"
+
+[fileRedaction.progress]
+export = "Creating redacted copy"
+ocr = "Recognizing text"
+reading = "Reading"
+recognition = "Recognizing sensitive information"
+
+[fileRedaction.sources]
+alias = "Organization alias"
+dictionary = "Dictionary match"
+field = "Field recognition"
+manual = "Manual addition"
+model = "Chinese model recognition"
+repeat = "Repeated content"
+rule = "Rule recognition"
+
+[fileRedaction.table]
+apply = "Redact column"
+category = "Treat column as"
+column = "Column"
+header = "Skip first row (header)"
+help = "Review cell content, or apply a category to a whole column. Export replaces the actual values."
+hidden = "hidden"
+next = "Next rows"
+preview = "Table redaction preview"
+previous = "Previous rows"
+sheet = "Worksheet"
+toggle = "Toggle redaction for this cell"
+
+[fileRedaction.tabs]
+results = "Matches"
+search = "Search"
+settings = "Settings"
+
+[fileRedaction.warnings]
+legacyWordPdf = "This legacy DOC was converted to PDF locally and will export as a redacted PDF."
+nerUnavailable = "Local enhanced recognition is unavailable. Field and dictionary recognition was used. Review names, organizations and addresses, and add missing items with search or manual selection."
+ocrDisabled = "Image text recognition is disabled. Review scanned pages and embedded images manually."
+pdfFlattened = "Exported PDF pages preserve their appearance as images and contain no original text layer; text selection is unavailable."
+tableExport = "Export replaces actual cell values. XLSX retains cell styles and removes comments, document properties, hyperlinks and validation. CSV uses UTF-8 and escapes formula-like content."
+wordPreview = "Word preview is for reviewing content; complex layouts may differ slightly from Word."
+wordVectorImages = "This document contains vector images. Convert them to PNG/JPG in Word to identify sensitive image content."
+
+[fileRedaction.wordViews]
+layout = "Layout preview"
+text = "Text review"
 
 [files]
 addFiles = "Add files"
@@ -4719,7 +4880,6 @@ library = "PDF Library"
 myFiles = "File library"
 noFiles = "No files yet"
 openFileManager = "Browse all files & folders"
-openFromComputer = "Open from computer"
 openSettings = "Open settings"
 other = "Other"
 recent = "Recent"
@@ -4729,7 +4889,6 @@ uploadFailedTitle = "Upload failed"
 viewAll = "View all {{count}} files"
 
 [fileSidebar.fileItem]
-closeViewer = "Close viewer"
 dataLost = "Data lost"
 dataLostTooltip = "This browser lost this file's contents. Upload it again to keep working with it."
 delete = "Delete"
@@ -4851,7 +5010,6 @@ selectedCount = "{{count}} selected"
 selectedFile = "{{name}}, selected"
 selectFile = "Select file {{name}}"
 serverFolderNeedsConnection = "Sign in to Stirling Cloud or connect a self-hosted server to use server folders."
-shareDisabledHint = "File sharing isn't enabled on this server. Ask your admin to enable it."
 shareManage = "Manage sharing"
 showDetails = "Show details"
 signInRequired = "Sign in to use cloud storage."
@@ -4862,7 +5020,6 @@ unmount = "Unmount"
 unmountFolderBody = "Unmount \"{{name}}\"? The folder and its files stay on your disk."
 unmountFolderTitle = "Unmount from Stirling?"
 upload = "Upload"
-uploadFromMobile = "Upload from Mobile"
 versionActions = "Version actions"
 versionCollapse = "Collapse middle versions"
 versionHistory = "Version history"
@@ -5211,8 +5368,6 @@ title = "What does 'Flatten only forms' mean?"
 title = "About Flattening PDFs"
 
 [footer]
-discord = "Discord"
-issues = "GitHub"
 
 [formFill]
 allSaved = "All saved"
@@ -5694,7 +5849,6 @@ title = "Merge"
 
 [home.mobile]
 brandAlt = "Stirling PDF logo"
-openFiles = "Open files"
 swipeHint = "Swipe left or right to switch views"
 tools = "Tools"
 toolsSlide = "Tool selection panel"
@@ -5705,7 +5859,7 @@ workspace = "Workspace"
 [home.multiTool]
 desc = "Merge, Rotate, Rearrange, Split, and Remove pages"
 tags = "multiple,tools,multi-tool,all-in-one,swiss army,page organizer,page editor,edit pages,manage pages,organize,reorganize"
-title = "PDF Multi Tool"
+title = "Organize Pages"
 
 [home.ocr]
 desc = "Cleanup scans and detects text from images within a PDF and re-adds it as text."
@@ -5747,9 +5901,9 @@ tags = "view,open,display,read,viewer,PDF viewer,PDF reader,open PDF,view PDF,di
 title = "Read"
 
 [home.redact]
-desc = "Redacts (blacks out) a PDF based on selected text, drawn shapes and/or selected page(s)"
+desc = "Identify and redact sensitive information in PDFs, Word documents, and images using aliases, masks, or manual regions."
 tags = "censor,blackout,hide,redact,redaction,black out,block out,remove sensitive,hide text,privacy,confidential,GDPR,PII,sensitive data,permanently remove,cover up,legal redaction"
-title = "Redact"
+title = "File redaction"
 
 [home.removeAnnotations]
 desc = "Removes all comments/annotations from a PDF"
@@ -6021,11 +6175,9 @@ tags = "markup,web-content,transformation,convert,md"
 title = "Markdown To PDF"
 
 [merge]
-goToFileEditor = "Go to file editor"
 submit = "Merge"
 tags = "merge,Page operations,Back end,server side"
 title = "Merge"
-viewerModeHint = "Merge needs 2 or more files. Head to the file editor to add them."
 
 [merge.error]
 failed = "An error occurred while merging the PDFs."
@@ -6150,7 +6302,7 @@ title = "Upload from Mobile"
 
 [multiTool]
 tags = "Multi Tool,Multi operation,UI,click drag,front end,client side,interactive,intractable,move,delete,migrate,divide"
-title = "PDF Multi Tool"
+title = "Organize Pages"
 
 [navFooter]
 openEditor = "Open PDF Editor"
@@ -6587,7 +6739,6 @@ selectAll = "Check All"
 
 [pageEditor]
 dragPreviewAlt = "Dragging"
-filePosition = "Position {{position}}"
 pageLabel = "Page {{page}}"
 title = "Page Editor"
 
@@ -6627,8 +6778,8 @@ toggleSplits_one = "Toggle {{count}} split position"
 toggleSplits_other = "Toggle {{count}} split positions"
 
 [pageEditor.emptyState]
-body = "Add files to start editing pages"
-title = "No PDF files loaded"
+body = "Select PDF files using the checkboxes on the left to start editing pages."
+title = "No PDF files selected"
 
 [pageEditor.fileDropdown]
 addFile = "Add File"
@@ -6636,10 +6787,15 @@ selectedCount = "{{selected}}/{{total}} files selected"
 untitled = "Untitled"
 
 [pageEditor.toolbar]
+completeSelectedSplits = "Complete Selected Splits"
 delete = "Delete Selected"
+insertBlankPages = "Insert Blank Pages"
 redo = "Redo"
+removeAllSelectedSplits = "Remove All Selected Splits"
+removeSelectedSplits = "Remove Selected Splits"
 rotateLeft = "Rotate Selected Left"
 rotateRight = "Rotate Selected Right"
+splitSelected = "Split Selected"
 undo = "Undo"
 
 [pageExtracter]
@@ -7597,10 +7753,8 @@ tags = "automate,sequence,scripted,batch-process"
 title = "Pipeline"
 
 [plan]
-contact = "Contact Us"
 current = "Current Plan"
 featureComparison = "Feature Comparison"
-fetchError = "Failed to fetch pricing data"
 from = "From"
 hideComparison = "Hide Feature Comparison"
 licensedSeats = "Licensed: {{count}} seats"
@@ -7614,12 +7768,6 @@ upgrade = "Upgrade"
 withServer = "+ Team plan"
 
 [plan.api]
-large = "5,000 Credits"
-medium = "1,000 Credits"
-perCredit = "{{price}} per credit"
-perCreditWithDiscount = "{{price}} per credit • {{discount}}% discount"
-small = "500 Credits"
-xsmall = "100 Credits"
 
 [plan.availablePlans]
 currency = "Billing currency"
@@ -7627,20 +7775,9 @@ subtitle = "Choose the plan that fits your needs"
 title = "Available Plans"
 
 [plan.enterprise]
-highlight1 = "Custom pricing"
-highlight2 = "Dedicated support"
-highlight3 = "Latest features"
-name = "Enterprise"
 requiresServer = "Requires Team plan"
-requiresServerMessage = "Please upgrade to the Team plan first before upgrading to Enterprise."
 
 [plan.feature]
-api = "API Access"
-automation = "Automate tool workflows"
-customPricing = "Custom Pricing"
-fileSize = "File Size Limit"
-pdfTools = "Basic PDF Tools"
-priority = "Priority Support"
 title = "Feature"
 
 [plan.features]
@@ -7665,11 +7802,7 @@ usersLimitedToSeats = "Users limited to seats"
 
 [plan.free]
 forever = "Forever free"
-highlight1 = "Limited Tool Usage Per week"
-highlight2 = "Access to all tools"
-highlight3 = "Community support"
 included = "Included"
-name = "Free"
 
 [plan.freeLimit]
 cta = "View Processor Plan"
@@ -7698,10 +7831,6 @@ month = "month"
 year = "year"
 
 [plan.pro]
-highlight1 = "Unlimited Tool Usage"
-highlight2 = "Advanced PDF tools"
-highlight3 = "No watermarks"
-name = "Pro"
 
 [plan.spendCap]
 cta = "View Spending Limit"
@@ -7709,33 +7838,11 @@ dismiss = "Not Now"
 message = "You've made the most of this month's cap. That's a load of automation, AI and API work! Bump it up whenever you like to keep going."
 title = "You're on a Roll!"
 
-[plan.static]
-activateLicense = "Activate Your License"
-contactToUpgrade = "Contact us to upgrade or customize your plan"
-getLicense = "Get the Team plan"
-monthlyBilling = "Monthly Billing"
-selectPeriod = "Select Billing Period"
-upgradeToEnterprise = "Upgrade to Enterprise"
-upTo = "Up to"
-yearlyBilling = "Yearly Billing"
-
 [plan.static.billingPortal]
-message = "You will need to verify your email address in the Stripe billing portal. Check your email for a login link."
-title = "Email Verification Required"
 
 [plan.static.licenseActivation]
-activate = "Activate License"
-checkoutOpened = "Checkout Opened in New Tab"
-doLater = "I'll do this later"
-enterKey = "Enter your license key below to activate your plan:"
-instructions = "Complete your purchase in the Stripe tab. Once your payment is complete, you will receive an email with your license key."
-keyDescription = "Paste the license key from your email"
-success = "License Activated!"
-successMessage = "Your license has been successfully activated. You can now close this window."
 
 [plan.team]
-maxUsers = "100 users"
-name = "Team"
 
 [policies.activity]
 outputsUnavailable = "Policy outputs are no longer available to download."
@@ -11091,23 +11198,12 @@ label = "SMTP Username"
 
 [quickAccess]
 allTools = "Tools"
-automate = "Automate"
 config = "Config"
-files = "Files"
 
 [quickNav]
-account = "Account"
-annotate = "Annotate"
-docs = "Documentation"
 editor = "Editor"
 home = "Stirling"
-invite = "Invite"
 landmark = "Quick navigation"
-noProcessorAccess = "Ask an admin for processor access"
-notifications = "Notifications"
-processor = "Processor"
-reader = "Reader"
-signInToUse = "Sign in to use this"
 
 [read]
 tags = "view,open,display,read,viewer,PDF viewer,PDF reader,open PDF,view PDF,display PDF,preview,browse"
@@ -11126,9 +11222,8 @@ switchDocument = "Switch document"
 thumbnails = "Pages"
 
 [redact]
-submit = "Redact"
 tags = "Redact,Hide,black out,black,marker,hidden,auto redact,manual redact"
-title = "Redact"
+title = "File redaction"
 
 [redact.auto]
 colorLabel = "Box Color"
@@ -11138,8 +11233,6 @@ useRegexLabel = "Use Regex"
 wholeWordSearchLabel = "Whole Word Search"
 
 [redact.auto.settings]
-advancedTitle = "Advanced"
-title = "Redaction Settings"
 
 [redact.auto.wordsToRedact]
 add = "Add"
@@ -11154,7 +11247,6 @@ failed = "An error occurred while redacting the PDF."
 apply = "Apply"
 applyWarning = "⚠️ Permanent application, cannot be undone and the data underneath will be deleted"
 colorLabel = "Redaction Color"
-controlsTitle = "Manual Redaction Controls"
 instructions = "Select text or draw areas on the PDF to mark content for redaction."
 notImplemented = "Manual redaction interface will be available here when implemented."
 title = "Redaction Tools"
@@ -11164,7 +11256,6 @@ automatic = "Automatic"
 automaticDisabledTooltip = "Select files in the file manager to redact multiple files at once"
 manual = "Manual"
 mode = "Mode"
-title = "Redaction Method"
 
 [redact.tooltip.advanced.color]
 text = "Customize the appearance of redaction boxes. Black is standard, but you can choose any color. Padding adds extra space around the found text."
@@ -11497,23 +11588,7 @@ text = "Rotate your PDF pages clockwise or counterclockwise in 90-degree increme
 [rotate.tooltip.header]
 title = "Rotate Settings Overview"
 
-[ruler]
-clearAll = "Clear all"
-hideAllLabels = "Hide all labels"
-hideSmallLabels = "Hide small labels"
-physicalValues = "Physical"
-scaled = "Scaled"
-showAllLabels = "Show all labels"
-
 [ruler.units]
-cm = "Centimeters (cm)"
-ft = "Feet (ft)"
-in = "Inches (in)"
-km = "Kilometers (km)"
-m = "Meters (m)"
-mi = "Miles (mi)"
-mm = "Millimeters (mm)"
-yd = "Yards (yd)"
 
 [sanitize]
 desc = "Remove potentially harmful elements from PDF files."
@@ -11567,31 +11642,6 @@ tags = "resize,adjust,scale,page size,resize page,scale page,change size,adjust 
 title = "Adjust page-scale"
 
 [scaleSettings]
-activeScale = "Active Scale"
-apply = "Apply Scale"
-applyCalibration = "Apply Calibration"
-calculatedScale = "Calculated scale"
-calibrate = "Calibrate"
-calibrating = "Calibrating"
-calibrationDistanceRequired = "Enter a real-world distance greater than zero"
-calibrationInvalid = "Unable to calculate scale from this measurement"
-calibrationPaperDistance = "Measured page distance: {{distance}}"
-calibrationTitle = "Calibrate Scale"
-calibrationTooltip = "Measure a known distance to calculate the scale automatically"
-customScale = "Custom Scale"
-customUnit = "{{unit}} (custom)"
-noneSet = "No custom scale set"
-presets = "Preset Scales"
-ratio = "Scale Ratio"
-ratioHelp = "Ratio: 1 page unit = X real-world units"
-ratioPlaceholder = "e.g., 100"
-ratioPositive = "Ratio must be greater than zero"
-ratioRequired = "Ratio is required"
-realDistance = "Real-world distance"
-realDistancePlaceholder = "e.g., 5"
-reset = "Reset to Defaults"
-unit = "Unit"
-unitInvalid = "Invalid unit: {{scaleUnit}}"
 
 [scannerEffect]
 tags = "scan,simulate,create,fake scan,look scanned,scanner effect,make look scanned,photocopy effect,simulate scanner,realistic scan"
@@ -11657,7 +11707,6 @@ title = "Your Stirling-PDF server is unreachable"
 toolNotAvailableLocally = "Your Stirling-PDF server is offline and \"{{endpoint}}\" is not available on the local backend."
 
 [session]
-expired = "Your session has expired. Please refresh the page and try again."
 
 [settings]
 backToSections = "All settings"
@@ -11969,7 +12018,7 @@ title = "Legal & privacy"
 appearance = "Appearance"
 description = "How the editor looks and behaves for you, and your account."
 downloads = "Downloads"
-editorDefaults = "Editor defaults"
+editorDefaults = "Reading settings"
 title = "Preferences"
 
 [settings.security]
@@ -12792,9 +12841,8 @@ filesLoading = "Files are still loading, please wait."
 filesLoadingProgress = "{{loaded}} / {{total}} files loading..."
 invalidParams = "Fill in the required settings."
 noFiles = "Add a file to get started."
-scopeFiles = "files"
 scopeThisFile = "this file"
-selectFilesHint = "Select files in Active Files to run this tool"
+selectFilesHint = "Select files using the checkboxes on the left"
 singleFileScope = "Only applying to: {{fileName}}"
 viewerMode = "Switch to the file editor to add multiple files."
 
@@ -12824,15 +12872,36 @@ XML = "an XML file"
 XPS = "an XPS document"
 ZIP = "a ZIP archive"
 
+[toolLibrary]
+add = "Add to sidebar"
+added = "Added {{name}} to sidebar"
+addTool = "Add {{name}} to sidebar"
+backToSidebar = "Back to sidebar tools"
+clearSearch = "Clear search"
+inSidebar = "In sidebar"
+manageSidebar = "Manage sidebar tools"
+noResults = "No matching tools"
+remove = "Remove"
+removed = "Removed {{name}} from sidebar"
+removeTool = "Remove {{name}} from sidebar"
+searchHint = "Try a different tool name or keyword."
+searchResults = "Search results"
+sidebarCount = "{{count}} tools in sidebar"
+sidebarEmpty = "Add tools from the tool library to get started."
+title = "Tool library"
+
+[toolLibrary.groups]
+conversion = "Conversion & optimization"
+editing = "Content editing"
+pages = "Page organization"
+security = "Security & signatures"
+
 [toolLoading]
 generic = "Loading tool..."
 named = "Loading {{toolName}}..."
 
 [toolPanel]
 alpha = "Alpha"
-backToAllTools = "Back to all tools"
-goBack = "Go back"
-pdfTools = "PDF Tools"
 placeholder = "Choose a tool to get started"
 premiumFeature = "Premium feature:"
 searchTools = "Search tools"
@@ -12843,8 +12912,6 @@ viewAllTools = "View all tools"
 comingSoon = "Coming soon:"
 favorite = "Add to favorites"
 favorites = "Favorites"
-heading = "All tools (fullscreen view)"
-noResults = "Try adjusting your search or toggle descriptions to find what you need."
 recommended = "Recommended"
 selfHostedOffline = "Requires your Stirling-PDF server (currently offline):"
 showDetails = "Show Details"
@@ -13424,6 +13491,7 @@ noFile = "No file loaded"
 previewUnavailable = "Preview not available for this file type"
 renderMarkdown = "Render markdown"
 sortedBy = "Sorted by: {{column}}"
+spreadsheetValuesPreview = "Cell values only. Uses saved formula results, or shows the formula when no result is saved. Charts and images are not displayed."
 textStats = "{{lines}} lines · {{size}}"
 
 [viewer.nonPdf.fileType]
@@ -13628,7 +13696,6 @@ none = "Your previous files are no longer stored on this device."
 partial = "Restored {{restored}} of {{total}} files. The rest are no longer stored on this device."
 
 [workbenchBar]
-activeFiles = "Active Files"
 annotations = "Annotations"
 applyRedactionsFirst = "Apply redactions first"
 closeAll = "Close All Files"
@@ -13636,23 +13703,22 @@ closePdf = "Close PDF"
 deleteSelected = "Delete Selected Pages"
 deselectAll = "Deselect All"
 downloadAll = "Download All"
-exitRedaction = "Exit Redaction Mode"
+edit = "Edit"
 exportAll = "Export PDF"
 exportSelected = "Export Selected Pages"
 formFill = "Form Editor"
 hideToolbar = "Hide toolbar"
 moreActions = "More actions"
-multiTool = "Multi-Tool"
+organize = "Organize"
 panMode = "Pan Mode"
 print = "Print PDF"
+read = "Read"
 readAloud = "Read Aloud"
 readAloudLanguage = "Language"
 readAloudSpeed = "Speed"
-redact = "Redact"
+redact = "File redaction"
 rotateLeft = "Rotate Left"
 rotateRight = "Rotate Right"
-ruler = "Ruler / Measure"
-rulerSettings = "Scale Settings"
 save = "Save"
 saveAll = "Save All"
 saveAs = "Save As"
@@ -13671,7 +13737,6 @@ toggleBookmarks = "Bookmarks (Table of Contents)"
 toggleComments = "Comments"
 toggleLayers = "Toggle Layers"
 toggleSidebar = "Toggle Sidebar"
-viewer = "Viewer"
 
 [workflow.participant]
 accessExpired = "Your access to this document has expired."
@@ -13718,11 +13783,22 @@ title = "Workspace"
 description = "Manage workspace members and their permissions"
 
 [workspace.people.license]
-users_one = "user"
-users_other = "users"
 
 [workspace.teams]
 description = "Manage teams and organize workspace members"
+
+[workspaceFiles]
+all = "All files"
+dragToReorder = "Drag to change merge order"
+fileCount = "{{count}} files"
+filter = "File filter"
+moveDown = "Move {{fileName}} down"
+moveUp = "Move {{fileName}} up"
+noneSelected = "No files selected"
+openFileHint = "Click a filename on the left to open the file you want to process."
+selectedCount = "Selected {{count}}"
+selectFile = "Select {{fileName}} for processing"
+selectionHint = "Switch to All files and select the files you want to process."
 
 [zipWarning]
 cancel = "Cancel"

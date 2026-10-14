@@ -49,26 +49,49 @@ const navigationReducer = (
   action: NavigationAction,
 ): NavigationContextState => {
   switch (action.type) {
-    case "SET_WORKBENCH":
-      return { ...state, workbench: action.payload.workbench };
+    case "SET_WORKBENCH": {
+      const workbench =
+        action.payload.workbench === "fileEditor"
+          ? "viewer"
+          : action.payload.workbench;
+      if (state.workbench === workbench) return state;
+      return {
+        ...state,
+        workbench,
+      };
+    }
 
     case "SET_SELECTED_TOOL":
+      if (state.selectedTool === action.payload.toolId) return state;
       return { ...state, selectedTool: action.payload.toolId };
 
-    case "SET_TOOL_AND_WORKBENCH":
+    case "SET_TOOL_AND_WORKBENCH": {
+      const workbench =
+        action.payload.workbench === "fileEditor"
+          ? "viewer"
+          : action.payload.workbench;
+      if (
+        state.selectedTool === action.payload.toolId &&
+        state.workbench === workbench
+      )
+        return state;
       return {
         ...state,
         selectedTool: action.payload.toolId,
-        workbench: action.payload.workbench,
+        workbench,
       };
+    }
 
     case "SET_UNSAVED_CHANGES":
+      if (state.hasUnsavedChanges === action.payload.hasChanges) return state;
       return { ...state, hasUnsavedChanges: action.payload.hasChanges };
 
     case "SET_PENDING_NAVIGATION":
+      if (state.pendingNavigation === action.payload.navigationFn) return state;
       return { ...state, pendingNavigation: action.payload.navigationFn };
 
     case "SHOW_NAVIGATION_WARNING":
+      if (state.showNavigationWarning === action.payload.show) return state;
       return { ...state, showNavigationWarning: action.payload.show };
 
     default:
@@ -140,6 +163,14 @@ export interface NavigationContextActionsValue {
 const NavigationStateContext = createContext<
   NavigationContextStateValue | undefined
 >(undefined);
+const SelectedToolContext = createContext<ToolId | null | undefined>(undefined);
+type NavigationGuardState = Pick<
+  NavigationContextState,
+  "pendingNavigation" | "showNavigationWarning" | "hasUnsavedChanges"
+>;
+const NavigationGuardStateContext = createContext<
+  NavigationGuardState | undefined
+>(undefined);
 /**
  * Exported like {@link FileActionsContext}: a component mounting in both shells must ask whether
  * these exist, and {@link useNavigationActions} throws when they do not.
@@ -155,6 +186,10 @@ export const NavigationProvider: React.FC<{
 }> = ({ children }) => {
   const [state, dispatch] = useReducer(navigationReducer, initialState);
   const { allTools: toolRegistry } = useToolRegistry();
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const toolRegistryRef = useRef(toolRegistry);
+  toolRegistryRef.current = toolRegistry;
   const unsavedChangesCheckerRef = React.useRef<(() => boolean) | null>(null);
   const viewDerivedFromPathRef = useRef<string | null>(null);
   const navigationWarningHandlersRef = useRef<NavigationWarningHandlers | null>(
@@ -162,73 +197,72 @@ export const NavigationProvider: React.FC<{
   );
 
   // Memoize individual callbacks
-  const setWorkbench = useCallback(
-    (workbench: WorkbenchType) => {
-      // Check for unsaved changes using registered checker or state
-      const hasUnsavedChanges =
-        unsavedChangesCheckerRef.current?.() || state.hasUnsavedChanges;
-      console.log("[NavigationContext] setWorkbench:", {
-        from: state.workbench,
-        to: workbench,
-        hasChecker: !!unsavedChangesCheckerRef.current,
-        hasUnsavedChanges,
-      });
+  const setWorkbench = useCallback((workbench: WorkbenchType) => {
+    const state = stateRef.current;
+    workbench = workbench === "fileEditor" ? "viewer" : workbench;
+    // Check for unsaved changes using registered checker or state
+    const hasUnsavedChanges =
+      unsavedChangesCheckerRef.current?.() || state.hasUnsavedChanges;
+    console.log("[NavigationContext] setWorkbench:", {
+      from: state.workbench,
+      to: workbench,
+      hasChecker: !!unsavedChangesCheckerRef.current,
+      hasUnsavedChanges,
+    });
 
-      // If we're leaving pageEditor, viewer, or custom workbench and have unsaved changes, request navigation
-      const leavingWorkbenchWithChanges =
-        (state.workbench === "pageEditor" &&
-          workbench !== "pageEditor" &&
-          hasUnsavedChanges) ||
-        (state.workbench === "viewer" &&
-          workbench !== "viewer" &&
-          hasUnsavedChanges) ||
-        (state.workbench.startsWith("custom:") &&
-          workbench !== state.workbench &&
-          hasUnsavedChanges);
+    // If we're leaving pageEditor, viewer, or custom workbench and have unsaved changes, request navigation
+    const leavingWorkbenchWithChanges =
+      (state.workbench === "pageEditor" &&
+        workbench !== "pageEditor" &&
+        hasUnsavedChanges) ||
+      (state.workbench === "viewer" &&
+        workbench !== "viewer" &&
+        hasUnsavedChanges) ||
+      (state.workbench.startsWith("custom:") &&
+        workbench !== state.workbench &&
+        hasUnsavedChanges);
 
-      if (leavingWorkbenchWithChanges) {
-        // Update state to reflect unsaved changes so modal knows
-        if (!state.hasUnsavedChanges) {
-          dispatch({
-            type: "SET_UNSAVED_CHANGES",
-            payload: { hasChanges: true },
-          });
-        }
-        const performWorkbenchChange = () => {
-          // When leaving a custom workbench, clear the selected tool
-          console.log("[NavigationContext] performWorkbenchChange executing", {
-            from: state.workbench,
-            to: workbench,
-            isCustom: state.workbench.startsWith("custom:"),
-          });
-          if (state.workbench.startsWith("custom:")) {
-            console.log(
-              "[NavigationContext] Clearing tool and changing workbench to:",
-              workbench,
-            );
-            dispatch({
-              type: "SET_TOOL_AND_WORKBENCH",
-              payload: { toolId: null, workbench },
-            });
-          } else {
-            console.log(
-              "[NavigationContext] Just changing workbench to:",
-              workbench,
-            );
-            dispatch({ type: "SET_WORKBENCH", payload: { workbench } });
-          }
-        };
+    if (leavingWorkbenchWithChanges) {
+      // Update state to reflect unsaved changes so modal knows
+      if (!state.hasUnsavedChanges) {
         dispatch({
-          type: "SET_PENDING_NAVIGATION",
-          payload: { navigationFn: performWorkbenchChange },
+          type: "SET_UNSAVED_CHANGES",
+          payload: { hasChanges: true },
         });
-        dispatch({ type: "SHOW_NAVIGATION_WARNING", payload: { show: true } });
-      } else {
-        dispatch({ type: "SET_WORKBENCH", payload: { workbench } });
       }
-    },
-    [state.workbench, state.hasUnsavedChanges],
-  );
+      const performWorkbenchChange = () => {
+        // When leaving a custom workbench, clear the selected tool
+        console.log("[NavigationContext] performWorkbenchChange executing", {
+          from: state.workbench,
+          to: workbench,
+          isCustom: state.workbench.startsWith("custom:"),
+        });
+        if (state.workbench.startsWith("custom:")) {
+          console.log(
+            "[NavigationContext] Clearing tool and changing workbench to:",
+            workbench,
+          );
+          dispatch({
+            type: "SET_TOOL_AND_WORKBENCH",
+            payload: { toolId: null, workbench },
+          });
+        } else {
+          console.log(
+            "[NavigationContext] Just changing workbench to:",
+            workbench,
+          );
+          dispatch({ type: "SET_WORKBENCH", payload: { workbench } });
+        }
+      };
+      dispatch({
+        type: "SET_PENDING_NAVIGATION",
+        payload: { navigationFn: performWorkbenchChange },
+      });
+      dispatch({ type: "SHOW_NAVIGATION_WARNING", payload: { show: true } });
+    } else {
+      dispatch({ type: "SET_WORKBENCH", payload: { workbench } });
+    }
+  }, []);
 
   const restoreWorkbench = useCallback((workbench: WorkbenchType) => {
     dispatch({ type: "SET_WORKBENCH", payload: { workbench } });
@@ -240,6 +274,8 @@ export const NavigationProvider: React.FC<{
 
   const setToolAndWorkbench = useCallback(
     (toolId: ToolId | null, workbench: WorkbenchType) => {
+      const state = stateRef.current;
+      workbench = workbench === "fileEditor" ? "viewer" : workbench;
       // Check for unsaved changes using registered checker or state
       const hasUnsavedChanges =
         unsavedChangesCheckerRef.current?.() || state.hasUnsavedChanges;
@@ -275,7 +311,7 @@ export const NavigationProvider: React.FC<{
         });
       }
     },
-    [state.workbench, state.hasUnsavedChanges],
+    [],
   );
 
   const setHasUnsavedChanges = useCallback((hasChanges: boolean) => {
@@ -321,23 +357,22 @@ export const NavigationProvider: React.FC<{
     dispatch({ type: "SHOW_NAVIGATION_WARNING", payload: { show } });
   }, []);
 
-  const requestNavigation = useCallback(
-    (navigationFn: () => void) => {
-      const hasUnsavedChanges =
-        unsavedChangesCheckerRef.current?.() || state.hasUnsavedChanges;
-      if (!hasUnsavedChanges) {
-        navigationFn();
-        return;
-      }
+  const requestNavigation = useCallback((navigationFn: () => void) => {
+    const state = stateRef.current;
+    const hasUnsavedChanges =
+      unsavedChangesCheckerRef.current?.() || state.hasUnsavedChanges;
+    if (!hasUnsavedChanges) {
+      navigationFn();
+      return;
+    }
 
-      dispatch({ type: "SET_UNSAVED_CHANGES", payload: { hasChanges: true } });
-      dispatch({ type: "SET_PENDING_NAVIGATION", payload: { navigationFn } });
-      dispatch({ type: "SHOW_NAVIGATION_WARNING", payload: { show: true } });
-    },
-    [state.hasUnsavedChanges],
-  );
+    dispatch({ type: "SET_UNSAVED_CHANGES", payload: { hasChanges: true } });
+    dispatch({ type: "SET_PENDING_NAVIGATION", payload: { navigationFn } });
+    dispatch({ type: "SHOW_NAVIGATION_WARNING", payload: { show: true } });
+  }, []);
 
   const confirmNavigation = useCallback(() => {
+    const state = stateRef.current;
     console.log("[NavigationContext] confirmNavigation called", {
       hasPendingNav: !!state.pendingNavigation,
       currentWorkbench: state.workbench,
@@ -353,7 +388,7 @@ export const NavigationProvider: React.FC<{
     });
     dispatch({ type: "SHOW_NAVIGATION_WARNING", payload: { show: false } });
     console.log("[NavigationContext] confirmNavigation completed");
-  }, [state.pendingNavigation, state.workbench, state.selectedTool]);
+  }, []);
 
   const cancelNavigation = useCallback(() => {
     dispatch({
@@ -370,61 +405,60 @@ export const NavigationProvider: React.FC<{
     });
   }, []);
 
-  const handleToolSelect = useCallback(
-    (toolId: string) => {
-      const performToolSelect = () => {
-        if (toolId === "allTools") {
-          dispatch({
-            type: "SET_TOOL_AND_WORKBENCH",
-            payload: { toolId: null, workbench: getDefaultWorkbench() },
-          });
-          return;
-        }
-
-        if (toolId === "read" || toolId === "view-pdf") {
-          dispatch({
-            type: "SET_TOOL_AND_WORKBENCH",
-            payload: { toolId: null, workbench: "viewer" },
-          });
-          return;
-        }
-
-        // Look up the tool in the registry to get its proper workbench.
-        // Regular tools have no workbench preference — keep the current view so
-        // opening a tool doesn't unexpectedly switch the user to the viewer.
-        const tool = isValidToolId(toolId) ? toolRegistry[toolId] : null;
-        const workbench =
-          tool && tool.workbench ? tool.workbench : state.workbench;
-
-        // Validate toolId and convert to ToolId type
-        const validToolId = isValidToolId(toolId) ? toolId : null;
+  const handleToolSelect = useCallback((toolId: string) => {
+    const state = stateRef.current;
+    const toolRegistry = toolRegistryRef.current;
+    const performToolSelect = () => {
+      if (toolId === "allTools") {
         dispatch({
           type: "SET_TOOL_AND_WORKBENCH",
-          payload: { toolId: validToolId, workbench },
+          payload: { toolId: null, workbench: getDefaultWorkbench() },
         });
-      };
-
-      // Check for unsaved changes using registered checker or state
-      const hasUnsavedChanges =
-        unsavedChangesCheckerRef.current?.() || state.hasUnsavedChanges;
-
-      // If switching away from current tool and have unsaved changes, show warning
-      if (
-        hasUnsavedChanges &&
-        state.selectedTool &&
-        state.selectedTool !== toolId
-      ) {
-        dispatch({
-          type: "SET_PENDING_NAVIGATION",
-          payload: { navigationFn: performToolSelect },
-        });
-        dispatch({ type: "SHOW_NAVIGATION_WARNING", payload: { show: true } });
-      } else {
-        performToolSelect();
+        return;
       }
-    },
-    [toolRegistry, state.hasUnsavedChanges, state.selectedTool],
-  );
+
+      if (toolId === "read" || toolId === "view-pdf") {
+        dispatch({
+          type: "SET_TOOL_AND_WORKBENCH",
+          payload: { toolId: null, workbench: "viewer" },
+        });
+        return;
+      }
+
+      // Look up the tool in the registry to get its proper workbench.
+      // Regular tools have no workbench preference — keep the current view so
+      // opening a tool doesn't unexpectedly switch the user to the viewer.
+      const tool = isValidToolId(toolId) ? toolRegistry[toolId] : null;
+      const workbench =
+        tool && tool.workbench ? tool.workbench : state.workbench;
+
+      // Validate toolId and convert to ToolId type
+      const validToolId = isValidToolId(toolId) ? toolId : null;
+      dispatch({
+        type: "SET_TOOL_AND_WORKBENCH",
+        payload: { toolId: validToolId, workbench },
+      });
+    };
+
+    // Check for unsaved changes using registered checker or state
+    const hasUnsavedChanges =
+      unsavedChangesCheckerRef.current?.() || state.hasUnsavedChanges;
+
+    // If switching away from current tool and have unsaved changes, show warning
+    if (
+      hasUnsavedChanges &&
+      state.selectedTool &&
+      state.selectedTool !== toolId
+    ) {
+      dispatch({
+        type: "SET_PENDING_NAVIGATION",
+        payload: { navigationFn: performToolSelect },
+      });
+      dispatch({ type: "SHOW_NAVIGATION_WARNING", payload: { show: true } });
+    } else {
+      performToolSelect();
+    }
+  }, []);
 
   // Memoize the actions object to prevent unnecessary context updates
   // This is critical to avoid infinite loops when effects depend on actions
@@ -467,13 +501,19 @@ export const NavigationProvider: React.FC<{
     ],
   );
 
-  const stateValue: NavigationContextStateValue = {
-    workbench: state.workbench,
-    selectedTool: state.selectedTool,
-    hasUnsavedChanges: state.hasUnsavedChanges,
-    pendingNavigation: state.pendingNavigation,
-    showNavigationWarning: state.showNavigationWarning,
-  };
+  const stateValue: NavigationContextStateValue = state;
+  const guardState = useMemo(
+    () => ({
+      pendingNavigation: state.pendingNavigation,
+      showNavigationWarning: state.showNavigationWarning,
+      hasUnsavedChanges: state.hasUnsavedChanges,
+    }),
+    [
+      state.pendingNavigation,
+      state.showNavigationWarning,
+      state.hasUnsavedChanges,
+    ],
+  );
 
   // Also memoize the context value to prevent unnecessary re-renders
   const actionsValue: NavigationContextActionsValue = useMemo(
@@ -485,9 +525,13 @@ export const NavigationProvider: React.FC<{
 
   return (
     <NavigationStateContext.Provider value={stateValue}>
-      <NavigationActionsContext.Provider value={actionsValue}>
-        {children}
-      </NavigationActionsContext.Provider>
+      <SelectedToolContext.Provider value={state.selectedTool}>
+        <NavigationGuardStateContext.Provider value={guardState}>
+          <NavigationActionsContext.Provider value={actionsValue}>
+            {children}
+          </NavigationActionsContext.Provider>
+        </NavigationGuardStateContext.Provider>
+      </SelectedToolContext.Provider>
     </NavigationStateContext.Provider>
   );
 };
@@ -513,6 +557,14 @@ export const useNavigationActions = () => {
   return context;
 };
 
+/** Subscribe to tool changes without refreshing on workbench or dirty-state changes. */
+export const useSelectedTool = () => {
+  const tool = useContext(SelectedToolContext);
+  if (tool === undefined)
+    throw new Error("useSelectedTool must be used within NavigationProvider");
+  return tool;
+};
+
 // Combined hook for convenience
 export const useNavigation = () => {
   const state = useNavigationState();
@@ -522,7 +574,11 @@ export const useNavigation = () => {
 
 // Navigation guard hook (equivalent to old useFileNavigation)
 export const useNavigationGuard = () => {
-  const state = useNavigationState();
+  const state = useContext(NavigationGuardStateContext);
+  if (!state)
+    throw new Error(
+      "useNavigationGuard must be used within NavigationProvider",
+    );
   const { actions } = useNavigationActions();
 
   return {

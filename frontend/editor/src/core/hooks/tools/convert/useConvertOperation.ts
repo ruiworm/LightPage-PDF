@@ -31,6 +31,11 @@ import {
   FIT_OPTIONS,
 } from "@app/constants/convertConstants";
 import { useToolCloudStatus } from "@app/hooks/useToolCloudStatus";
+import {
+  extractErrorMessage,
+  isSignupRequiredError,
+} from "@app/utils/toolErrorHandler";
+import { wasCancelled } from "@app/services/failureReporting";
 
 // Static function that can be used by both the hook and automation executor
 export const shouldProcessFilesSeparately = (
@@ -273,6 +278,9 @@ export const convertProcessor = async (
 ): Promise<CustomProcessorResult> => {
   const parameters = withoutCrossFileAltText(rawParameters, selectedFiles);
   const processedFiles: File[] = [];
+  const successfulInputs: File[] = [];
+  const failedInputs: NonNullable<CustomProcessorResult["failedInputs"]> = [];
+  const unprocessedInputs: File[] = [];
 
   // Map PDF/X to use PDF/A endpoint
   const actualToExtension =
@@ -292,25 +300,40 @@ export const convertProcessor = async (
 
   if (isSeparateProcessing) {
     // Individual processing for complex cases (PDF→image, smart detection, etc.)
-    for (const file of selectedFiles) {
+    for (const [index, file] of selectedFiles.entries()) {
       try {
         const formData = buildConvertFormData(parameters, [file]);
         const response = await apiClient.post(endpoint, formData, {
           responseType: "blob",
         });
-
         const convertedFile = createFileFromResponse(
           response.data,
           response.headers,
           file.name,
           actualToExtension === "pdfa" ? "pdfx" : parameters.toExtension,
         );
-
+        if (convertedFile.size === 0)
+          throw new Error("Conversion returned an empty output");
         processedFiles.push(convertedFile);
+        successfulInputs.push(file);
       } catch (error) {
-        console.warn(`Failed to convert file ${file.name}:`, error);
+        if (isSignupRequiredError(error) || wasCancelled(error)) {
+          if (processedFiles.length === 0) throw error;
+          unprocessedInputs.push(...selectedFiles.slice(index));
+          break;
+        }
+        failedInputs.push({ file, error });
       }
     }
+    if (processedFiles.length === 0 && failedInputs.length > 0)
+      throw new AggregateError(
+        failedInputs.map(({ error }) => error),
+        failedInputs
+          .map(
+            ({ file, error }) => `${file.name}: ${extractErrorMessage(error)}`,
+          )
+          .join("\n"),
+      );
   } else {
     // Batch processing for simple cases (image→PDF combine)
     const formData = buildConvertFormData(parameters, selectedFiles);
@@ -337,6 +360,11 @@ export const convertProcessor = async (
   return {
     files: processedFiles,
     consumedAllInputs: isCombiningMultiple,
+    ...(isSeparateProcessing && {
+      successfulInputs,
+      failedInputs,
+      unprocessedInputs,
+    }),
   };
 };
 

@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Drawer, Menu, Tooltip } from "@mantine/core";
 import { ActionIcon } from "@app/ui/ActionIcon";
+import { Button } from "@app/ui/Button";
 import { useMediaQuery } from "@mantine/hooks";
 import { FilesToolbarBulkMenu } from "@app/components/filesPage/FilesToolbarBulkMenu";
 import { FilesToolbarCount } from "@app/components/filesPage/FilesToolbarCount";
@@ -196,6 +197,10 @@ export default function FileManagerView() {
     closeDeleteFolderDialog,
     setFolderAppearance,
   } = filesPage;
+
+  useEffect(() => {
+    if (localLibrary && originFilter !== "all") setOriginFilter("all");
+  }, [localLibrary, originFilter, setOriginFilter]);
 
   const deleteDialogFiles = useMemo(
     () =>
@@ -1089,7 +1094,7 @@ export default function FileManagerView() {
         selectedCount={selectedFiles.length}
         onAddToWorkspace={() => handleAddToWorkspace(selectedFiles)}
         onSaveToServer={
-          localOnlySelectedStubs.length > 0
+          !localLibrary && localOnlySelectedStubs.length > 0
             ? () => setSaveToServerTarget(localOnlySelectedStubs)
             : undefined
         }
@@ -1244,6 +1249,7 @@ export default function FileManagerView() {
               {!mobileSelection && (
                 <>
                   <LibraryToolbar
+                    hideOriginFilter={localLibrary}
                     isMobile={isMobile}
                     availableTypes={availableTypes}
                     originFilter={originFilter}
@@ -1257,6 +1263,28 @@ export default function FileManagerView() {
                     viewMode={viewMode}
                     setViewMode={setViewMode}
                   />
+                  {!isMobile && (
+                    <div className="files-page-toolbar-create">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        leftSection={<Icon name="plus" size={20} />}
+                        onClick={openFilePicker}
+                      >
+                        {t("fileSidebar.addFiles", "Add files")}
+                      </Button>
+                      <NewFolderButton
+                        label={t("filesPage.newFolder", "New folder")}
+                        disabledReason={newFolderDisabledReason}
+                        serverDisabledReason={serverFolderDisabledReason}
+                        rootFolderKind={rootFolderKind}
+                        currentFolderId={folders.currentFolderId}
+                        canAddLocalFolder={canPickDirectory}
+                        onAddLocalFolder={() => void addLocalFolder()}
+                        onOpenDialog={openNewFolderDialog}
+                      />
+                    </div>
+                  )}
                 </>
               )}
             </div>
@@ -1345,7 +1373,11 @@ export default function FileManagerView() {
                   }),
                 )
               }
-              onSaveToServer={(file) => setSaveToServerTarget([file])}
+              onSaveToServer={
+                localLibrary
+                  ? undefined
+                  : (file) => setSaveToServerTarget([file])
+              }
               onVersionHistory={(file) => setVersionHistoryFile(file)}
               onDownloadFile={handleDownloadFile}
               onRenameFile={setRenameTarget}
@@ -1400,7 +1432,9 @@ export default function FileManagerView() {
             onAddToWorkspace={handleAddToWorkspace}
             onMove={promptMoveFiles}
             onRemove={handleRemoveFiles}
-            onSaveToServer={(files) => setSaveToServerTarget(files)}
+            onSaveToServer={
+              localLibrary ? undefined : (files) => setSaveToServerTarget(files)
+            }
             saveToServerDisabledReason={saveToServerDisabledReason}
           />
         )}
@@ -1450,7 +1484,11 @@ export default function FileManagerView() {
               onAddToWorkspace={handleAddToWorkspace}
               onMove={promptMoveFiles}
               onRemove={handleRemoveFiles}
-              onSaveToServer={(files) => setSaveToServerTarget(files)}
+              onSaveToServer={
+                localLibrary
+                  ? undefined
+                  : (files) => setSaveToServerTarget(files)
+              }
               saveToServerDisabledReason={saveToServerDisabledReason}
               compactVersions
               onOpenVersionHistory={() => {
@@ -1484,7 +1522,6 @@ export default function FileManagerView() {
             await moveFolderTo(moveDialog.folderId, target);
           }
         }}
-
         onCreateFolder={
           serverFolderDisabledReason === null
             ? (name, parentFolderId) =>

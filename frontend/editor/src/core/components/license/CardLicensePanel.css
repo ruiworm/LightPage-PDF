@@ -1,0 +1,133 @@
+.card-license-panel {
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--c-border-subtle);
+  color: var(--c-text);
+}
+
+.card-license-heading,
+.card-license-summary,
+.card-license-machine,
+.card-license-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.card-license-heading h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.card-license-status {
+  margin-left: auto;
+  color: var(--c-text-muted);
+  font-size: 0.8125rem;
+}
+
+.card-license-status[data-active="true"] {
+  color: var(--c-success);
+}
+
+.card-license-description,
+.card-license-message {
+  color: var(--c-text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  margin: var(--space-3) 0;
+  overflow-wrap: anywhere;
+}
+
+.card-license-summary {
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  margin-block: var(--space-4);
+}
+
+.card-license-form {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.card-license-form .mantine-InputWrapper-root {
+  flex: 1;
+  min-width: 0;
+}
+.card-license-form .mantine-Input-input {
+  min-height: 2.5rem;
+  background: var(--c-input-bg);
+  border: 1px solid var(--c-border-subtle);
+  border-radius: var(--radius-lg);
+  caret-color: var(--c-text);
+}
+
+.card-license-form .mantine-Input-input:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+.card-license-form > button {
+  min-height: 2.5rem;
+}
+
+.card-license-machine {
+  font-size: 0.75rem;
+  color: var(--c-text-muted);
+  margin-top: var(--space-4);
+}
+
+.card-license-machine code {
+  color: var(--c-text);
+  user-select: text;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-license-error {
+  margin-top: var(--space-3);
+  color: var(--c-danger);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.card-license-actions {
+  margin-top: var(--space-3);
+  font-size: 0.75rem;
+  color: var(--c-text-muted);
+}
+.card-license-gate {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  min-height: 25rem;
+  overflow: auto;
+  background: var(--c-bg);
+}
+.card-license-gate-content {
+  width: min(36rem, calc(100% - 2rem));
+  margin-block: var(--space-8);
+}
+.card-license-gate-content > h1 {
+  font-size: 1.5rem;
+  margin: 0 0 var(--space-6);
+  color: var(--c-text);
+}
+.card-license-gate-content .card-license-panel {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+@media (max-width: 30rem) {
+  .card-license-panel {
+    padding: var(--space-4);
+  }
+  .card-license-form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

@@ -20,10 +20,7 @@ export interface AboutSectionProps {
  * Backend licences come last: it is the only card here that fetches, and the
  * only one that can render an error in place of its list.
  */
-export default function AboutSection({
-  isAdmin,
-  onRequestClose,
-}: AboutSectionProps) {
+export default function AboutSection(_props: AboutSectionProps) {
   const { t } = useTranslation();
   return (
     <div className="settings-section-container">

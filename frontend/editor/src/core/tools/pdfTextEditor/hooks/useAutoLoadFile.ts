@@ -3,6 +3,7 @@ import { useAllFiles, useFileSelection } from "@app/contexts/FileContext";
 import type { FileId } from "@app/types/file";
 import { useNavigationState } from "@app/contexts/NavigationContext";
 import { useViewer } from "@app/contexts/ViewerContext";
+import { useViewActive } from "@app/components/layout/RetainedView";
 
 type Loader = (file: File) => unknown;
 // The workbench fileId is what lets save write the edit back to the
@@ -13,7 +14,7 @@ type WorkbenchFile = File & { fileId?: FileId; quickKey?: string };
 
 function fileKey(file: File): string {
   const f = file as WorkbenchFile;
-  return f.fileId ?? f.quickKey ?? `${f.name}|${f.size}|${f.lastModified}`;
+  return `${f.fileId ?? f.quickKey ?? f.name}|${f.size}|${f.lastModified}`;
 }
 
 interface AutoLoad {
@@ -28,21 +29,16 @@ export interface EditorLoadState {
   hasDocument: boolean;
   loading: boolean;
   error: string | null;
+  dirty?: boolean;
 }
 
 /**
  * Open the file the user most likely wants.
  *
- * Auto-opening only ever fires while the editor holds nothing: the selection
- * moves on its own (the Active Files view trims a multi-file selection down to
- * its last entry to honour the tool's one-file limit), and following it would
- * swap the open document, and any unsaved edits, out from under the user.
- *
- * "Holds nothing" is the store's own state, not a memory of having opened
- * something. The store is a module singleton that drops its document when the
- * canvas unmounts, while this hook's refs belong to the panel - so the two
- * disagree whenever one outlives the other, and a hook that stood down on its
- * own memory left the editor empty with no way back in.
+ * Selection changes alone do not replace the open document. A clean retained
+ * session follows a deliberate reader file change on re-entry, and reloads
+ * changed source bytes. Dirty edits are left alone. An empty store can recover
+ * after the entire editor workspace has released its document resources.
  */
 export function useAutoLoadFile(
   load: Loader,
@@ -53,6 +49,7 @@ export function useAutoLoadFile(
   /** The editor's live state, so "is a document open" is asked, not remembered. */
   editor: EditorLoadState,
 ): AutoLoad {
+  const viewActive = useViewActive();
   const navigationState = useNavigationState();
   const { selectedFiles } = useFileSelection();
   const { files: allFiles } = useAllFiles();
@@ -84,6 +81,7 @@ export function useAutoLoadFile(
     !allFiles.some((f) => (f as WorkbenchFile).fileId === currentFileId);
 
   const lastKeyRef = useRef<string | null>(null);
+  const lastReaderFileRef = useRef<string | null | undefined>(undefined);
   const adopt = useCallback((file: File) => {
     lastKeyRef.current = fileKey(file);
   }, []);
@@ -97,13 +95,42 @@ export function useAutoLoadFile(
   );
 
   useEffect(() => {
-    if (!autoLoadFile || hold) return;
+    if (!viewActive || !autoLoadFile || hold) return;
     if (navigationState.selectedTool !== "pdfTextEditor") return;
+    if (editor.loading) return;
+    const readerChanged =
+      lastReaderFileRef.current !== undefined &&
+      activeFileId !== lastReaderFileRef.current;
+    lastReaderFileRef.current = activeFileId;
+    // While the editor is retained, another PDF can be opened in Reading. On
+    // re-entry follow that deliberate file change, but never replace dirty edits.
+    if (readerChanged && activeFileId && !editor.dirty) {
+      const readerFile = allFiles.find(
+        (file) => (file as WorkbenchFile).fileId === activeFileId,
+      );
+      if (
+        readerFile &&
+        (readerFile as WorkbenchFile).fileId !== currentFileId
+      ) {
+        openFile(readerFile);
+        return;
+      }
+    }
+    const currentFile = allFiles.find(
+      (file) => (file as WorkbenchFile).fileId === currentFileId,
+    );
+    if (
+      editor.hasDocument &&
+      currentFile &&
+      !editor.dirty &&
+      lastKeyRef.current &&
+      lastKeyRef.current !== fileKey(currentFile)
+    ) {
+      openFile(currentFile);
+      return;
+    }
     // A document is open: leave it, and the user's unsaved edits, alone.
     if (editor.hasDocument && !documentGone) return;
-    // An open is already in flight; landing it is what clears hasDocument.
-    if (editor.loading) return;
-
     // Recovery: the store dropped a document this hook had already opened.
     // Re-open THAT file, and do it quietly - no pin, no filename change. The
     // canvas can be dropped because the user went to Active Files, and pinning
@@ -127,9 +154,11 @@ export function useAutoLoadFile(
     if (editor.error && lastKeyRef.current === fileKey(autoLoadFile)) return;
     openFile(autoLoadFile);
   }, [
+    viewActive,
     autoLoadFile,
     documentGone,
     editor.error,
+    editor.dirty,
     editor.hasDocument,
     editor.loading,
     hold,
@@ -137,6 +166,7 @@ export function useAutoLoadFile(
     openFile,
     adopt,
     allFiles,
+    activeFileId,
     currentFileId,
     load,
   ]);

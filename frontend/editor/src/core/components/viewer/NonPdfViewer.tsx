@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, lazy, Suspense } from "react";
 import { Box, Center, Stack, Text } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { Button } from "@app/ui/Button";
@@ -18,6 +18,22 @@ import { CsvViewer } from "@app/components/viewer/nonpdf/CsvViewer";
 import { JsonViewer } from "@app/components/viewer/nonpdf/JsonViewer";
 import { TextViewer } from "@app/components/viewer/nonpdf/TextViewer";
 import { HtmlViewer } from "@app/components/viewer/nonpdf/HtmlViewer";
+import { WordPreviewLoading } from "@app/components/viewer/nonpdf/WordPreviewLoading";
+import { useOptionalFileRedaction } from "@app/contexts/FileRedactionContext";
+import { isStirlingFile } from "@app/types/fileContext";
+
+const NonPdfRedactionPreview = lazy(
+  () => import("@app/components/tools/redact/NonPdfRedactionPreview"),
+);
+const DocxViewer = lazy(
+  () => import("@app/components/viewer/nonpdf/DocxViewer"),
+);
+const LegacyWordViewer = lazy(
+  () => import("@app/components/viewer/nonpdf/LegacyWordViewer"),
+);
+const OfficeTableViewer = lazy(
+  () => import("@app/components/viewer/nonpdf/OfficeTableViewer"),
+);
 
 export interface ViewerProps {
   onClose?: () => void;
@@ -32,9 +48,17 @@ export function NonPdfViewer({ file }: NonPdfViewerProps) {
   const { t } = useTranslation();
   const fileType = useMemo(() => detectNonPdfFileType(file), [file]);
 
-  const { handleToolSelect, toolAvailability } = useToolWorkflow();
+  const { handleToolSelect, toolAvailability, selectedToolKey } =
+    useToolWorkflow();
+  const redaction = useOptionalFileRedaction();
+  const redactionDocument =
+    selectedToolKey === "redact" && isStirlingFile(file)
+      ? redaction?.documents.find((entry) => entry.id === file.fileId)
+      : undefined;
 
   const fileExtension = detectFileExtension(file.name);
+  const showConversionBanner =
+    fileExtension !== "doc" && fileExtension !== "docx";
   // Only show convert when the extension has an explicit entry in the conversion matrix
   // (skip the 'any'/'image' wildcard fallbacks that would match everything)
   const isConvertAvailable =
@@ -47,6 +71,30 @@ export function NonPdfViewer({ file }: NonPdfViewerProps) {
   }, [handleToolSelect]);
 
   const renderContent = () => {
+    if (redactionDocument)
+      return (
+        <Suspense fallback={null}>
+          <NonPdfRedactionPreview document={redactionDocument} />
+        </Suspense>
+      );
+    if (fileExtension === "docx")
+      return (
+        <Suspense fallback={<WordPreviewLoading />}>
+          <DocxViewer key={file.name} file={file} />
+        </Suspense>
+      );
+    if (fileExtension === "doc")
+      return (
+        <Suspense fallback={<WordPreviewLoading />}>
+          <LegacyWordViewer key={file.name} file={file} />
+        </Suspense>
+      );
+    if (fileExtension === "xlsx" || fileExtension === "csv")
+      return (
+        <Suspense fallback={null}>
+          <OfficeTableViewer key={file.name} file={file} />
+        </Suspense>
+      );
     switch (fileType) {
       case "image":
         return <ImageViewer file={file} fileName={file.name} />;
@@ -106,11 +154,16 @@ export function NonPdfViewer({ file }: NonPdfViewerProps) {
         position: "relative",
         // The Convert button floats over the content; viewers that draw their
         // own top bar read this to keep their text clear of it.
-        "--nonpdf-action-inset": isConvertAvailable ? "11rem" : "0rem",
+        "--nonpdf-action-inset":
+          isConvertAvailable && showConversionBanner ? "11rem" : "0rem",
       }}
     >
       <NonPdfBanner
-        onConvertToPdf={isConvertAvailable ? handleConvertToPdf : undefined}
+        onConvertToPdf={
+          isConvertAvailable && showConversionBanner
+            ? handleConvertToPdf
+            : undefined
+        }
       />
       <Box
         style={{
@@ -131,10 +184,12 @@ export function NonPdfViewer({ file }: NonPdfViewerProps) {
 export function NonPdfViewerWrapper(props: ViewerProps) {
   const { t } = useTranslation();
   const { files: activeFiles } = useAllFiles();
-  const { activeFileIndex } = useViewer();
+  const { activeFileId } = useViewer();
 
   const file =
-    props.previewFile ?? activeFiles[activeFileIndex] ?? activeFiles[0] ?? null;
+    props.previewFile ??
+    activeFiles.find((file) => file.fileId === activeFileId) ??
+    null;
 
   if (!file) {
     return (

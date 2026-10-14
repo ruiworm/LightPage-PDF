@@ -2,6 +2,7 @@ use tauri::{AppHandle, Emitter, Manager, RunEvent, WindowEvent};
 use tauri_plugin_window_state::StateFlags;
 
 mod utils;
+mod card_license;
 pub mod commands;
 mod state;
 mod directory_drop;
@@ -219,6 +220,9 @@ pub fn run() {
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![
+      commands::card_license::card_license_state,
+      commands::card_license::card_license_verify,
+      commands::card_license::card_license_clear,
       start_backend,
       get_backend_port,
       get_opened_files,

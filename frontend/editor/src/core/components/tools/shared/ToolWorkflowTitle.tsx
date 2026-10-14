@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex, Text, Divider } from "@mantine/core";
+import { ActionIcon } from "@app/ui/ActionIcon";
 import { Icon } from "@app/ui/Icon";
 import { Tooltip } from "@app/components/shared/Tooltip";
 import { TooltipTip } from "@app/types/tips";
@@ -22,51 +22,31 @@ export function ToolWorkflowTitle({
   tooltip,
   description,
 }: ToolWorkflowTitleProps) {
-  const titleContent = (
-    <Flex align="center" gap="xs" onClick={(e) => e.stopPropagation()}>
-      <Text fw={500} size="lg" p="xs">
-        {title}
-      </Text>
-      {tooltip && (
-        <Icon
-          name="info"
-          size="1.25rem"
-          style={{ color: "var(--icon-files-color)" }}
-        />
-      )}
-    </Flex>
-  );
-
   return (
-    <>
-      {tooltip ? (
-        <Flex justify="center" w="100%">
+    <div className="tool-workflow-intro">
+      <div className="tool-settings-group__header">
+        <h3>{title}</h3>
+        {tooltip && (
           <Tooltip
             content={tooltip.content}
             tips={tooltip.tips}
             header={tooltip.header}
             sidebarTooltip={true}
           >
-            {titleContent}
+            <ActionIcon
+              variant="quiet"
+              accent="neutral"
+              size="sm"
+              aria-label={title}
+            >
+              <Icon name="info" size={16} />
+            </ActionIcon>
           </Tooltip>
-        </Flex>
-      ) : (
-        titleContent
+        )}
+      </div>
+      {description && (
+        <p className="tool-settings-group__help">{description}</p>
       )}
-
-      <Text
-        size="sm"
-        mb="md"
-        p="sm"
-        style={{
-          borderRadius: "var(--mantine-radius-md)",
-          background: "var(--color-gray-200)",
-          color: "var(--mantine-color-text)",
-        }}
-      >
-        {description}
-      </Text>
-      <Divider mb="sm" />
-    </>
+    </div>
   );
 }

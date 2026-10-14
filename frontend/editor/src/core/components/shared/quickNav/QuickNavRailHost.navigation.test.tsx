@@ -18,7 +18,11 @@ vi.mock("@app/components/shared/quickNav/AppNavigationBar", () => ({
   AppNavigationBar: ({ entries }: { entries: QuickNavEntry[] }) => (
     <nav>
       {entries.map((entry) => (
-        <button key={entry.id} onClick={entry.onClick}>
+        <button
+          key={entry.id}
+          onClick={entry.onClick}
+          aria-current={entry.current ? "page" : undefined}
+        >
           {entry.label}
         </button>
       ))}
@@ -58,7 +62,7 @@ it.each(["/files", "/annotate"])(
 
     expect(
       screen.getAllByRole("button").map((button) => button.textContent),
-    ).toEqual(["File library", "Editor"]);
+    ).toEqual(["File library", "Editor", "Tool library"]);
     fireEvent.click(screen.getByRole("button", { name: "Editor" }));
 
     expect(goToDefaultState).toHaveBeenCalledOnce();
@@ -66,14 +70,43 @@ it.each(["/files", "/annotate"])(
   },
 );
 
-it("enters the editor home from settings without selecting annotation", () => {
+it.each(["/settings/general", "/tools"])(
+  "enters the editor home from %s without selecting annotation",
+  (path) => {
+    const selectTool = vi.fn();
+    setup(path, { selectTool });
+
+    fireEvent.click(screen.getByRole("button", { name: "Editor" }));
+
+    expect(screen.getByLabelText("Current path").textContent).toBe(
+      EDITOR_BASENAME,
+    );
+    expect(selectTool).not.toHaveBeenCalled();
+  },
+);
+
+it("opens the tool library as a peer page without selecting or resetting a tool", () => {
   const selectTool = vi.fn();
-  setup("/settings/general", { selectTool });
-
-  fireEvent.click(screen.getByRole("button", { name: "Editor" }));
-
-  expect(screen.getByLabelText("Current path").textContent).toBe(
-    EDITOR_BASENAME,
-  );
+  const goToDefaultState = vi.fn();
+  setup("/editor", { selectTool, goToDefaultState });
+  fireEvent.click(screen.getByRole("button", { name: "Tool library" }));
+  expect(screen.getByLabelText("Current path").textContent).toBe("/tools");
+  expect(
+    screen
+      .getByRole("button", { name: "Tool library" })
+      .getAttribute("aria-current"),
+  ).toBe("page");
+  expect(
+    screen.getByRole("button", { name: "Editor" }).getAttribute("aria-current"),
+  ).toBeNull();
   expect(selectTool).not.toHaveBeenCalled();
+  expect(goToDefaultState).not.toHaveBeenCalled();
+});
+
+it("navigates from the tool library to files rather than calling a stale editor view callback", () => {
+  const showFileLibrary = vi.fn();
+  setup("/tools", { showFileLibrary });
+  fireEvent.click(screen.getByRole("button", { name: "File library" }));
+  expect(screen.getByLabelText("Current path").textContent).toBe("/files");
+  expect(showFileLibrary).not.toHaveBeenCalled();
 });

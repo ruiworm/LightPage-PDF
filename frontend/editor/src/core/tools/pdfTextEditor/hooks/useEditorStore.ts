@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react";
 import { EditorStore } from "@app/tools/pdfTextEditor/store/EditorStore";
 
 let __singleton: EditorStore | null = null;
 let __disposeTimer: ReturnType<typeof setTimeout> | null = null;
+let __subscribers = 0;
 
 // The store is a module-level singleton, so a hot update to EditorStore.ts
 // swaps the CLASS but leaves this instance - built from the old code - running.
@@ -26,18 +27,26 @@ export function useEditorStore(): {
     if (!__singleton) __singleton = new EditorStore();
     return __singleton;
   }, []);
-  const [state, setState] = useState(store.getState());
+  // Read one current snapshot even if a PDF replacement occurs between render
+  // and subscription. A stale page list must never reach a new PDFium document.
+  const subscribe = useCallback(
+    (notify: () => void) => store.subscribe(notify),
+    [store],
+  );
+  const getSnapshot = useCallback(() => store.getState(), [store]);
+  const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   useEffect(() => {
+    __subscribers++;
     // A pending disposal means we just remounted within the grace window
     // (StrictMode / sidebar toggle) - cancel it so the open doc survives.
     if (__disposeTimer) {
       clearTimeout(__disposeTimer);
       __disposeTimer = null;
     }
-    setState(store.getState());
-    const unsubscribe = store.subscribe(setState);
     return () => {
-      unsubscribe();
+      __subscribers--;
+      // The sidebar and canvas share ownership; one unmount cannot close both.
+      if (__subscribers > 0) return;
       // Defer disposal: if the component remounts (the effect above runs again)
       // the timer is cancelled.
       if (__disposeTimer) clearTimeout(__disposeTimer);
@@ -52,6 +61,8 @@ export function useEditorStore(): {
 
 /** Test-only - drop the singleton so the next mount starts fresh. */
 export function __resetEditorStoreForTests(): void {
+  if (__disposeTimer) clearTimeout(__disposeTimer);
+  __disposeTimer = null;
   if (__singleton) {
     __singleton.dispose();
     __singleton = null;

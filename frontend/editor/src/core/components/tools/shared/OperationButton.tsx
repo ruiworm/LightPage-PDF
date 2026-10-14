@@ -105,6 +105,7 @@ const OperationButton = ({
 
   const button = (
     <Button
+      className="tool-operation-button"
       type={type}
       onClick={onClick}
       fullWidth={fullWidth || !!tooltipLabel}
@@ -146,6 +147,7 @@ const OperationButton = ({
     return (
       <Tooltip content={tooltipLabel} position="top" arrow>
         <Box
+          className="tool-operation-placeholder"
           mr="md"
           ml="md"
           mt={mt}

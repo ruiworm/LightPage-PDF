@@ -17,6 +17,23 @@ void i18n.init({
 
 installFailOnConsole();
 
+// Tool component tests isolate backend reachability; the monitor's suite uses the real service.
+vi.mock("@app/services/backendHealthMonitor", () => {
+  const state = {
+    status: "healthy",
+    message: null,
+    error: null,
+    isOnline: true,
+  };
+  return {
+    backendHealthMonitor: {
+      getSnapshot: () => state,
+      getServerSnapshot: () => state,
+      subscribe: () => () => {},
+    },
+  };
+});
+
 // Mock localStorage for tests
 class LocalStorageMock implements Storage {
   private store: Record<string, string> = {};

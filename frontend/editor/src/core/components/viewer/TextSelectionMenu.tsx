@@ -7,7 +7,6 @@ import { Icon } from "@app/ui/Icon";
 import type { SelectionSelectionMenuProps } from "@embedpdf/plugin-selection/react";
 import { useSelectionCapability } from "@embedpdf/plugin-selection/react";
 import { useAnnotation } from "@embedpdf/plugin-annotation/react";
-import { RedactionMode } from "@embedpdf/plugin-redaction";
 import {
   PdfAnnotationSubtype,
   PdfActionType,
@@ -16,12 +15,10 @@ import {
 } from "@embedpdf/models";
 import { useActiveDocumentId } from "@app/components/viewer/useActiveDocumentId";
 import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
-import { useRedaction } from "@app/contexts/RedactionContext";
+import { useFileRedaction } from "@app/contexts/FileRedactionContext";
+import { useViewer } from "@app/contexts/ViewerContext";
+import { useAllFiles } from "@app/contexts/FileContext";
 import { useNavigationActions } from "@app/contexts/NavigationContext";
-import {
-  defaultParameters,
-  RedactParameters,
-} from "@app/hooks/tools/redact/useRedactParameters";
 import { MARKUP_ANNOTATION_COLORS } from "@app/components/viewer/annotationDefaults";
 import { alert } from "@app/components/toast";
 import { getExternalHref } from "@app/utils/externalUrl";
@@ -53,14 +50,9 @@ function TextSelectionMenuInner({
   const { provides: annotationProvides } = useAnnotation(documentId ?? "");
 
   const { handleToolSelectForced, setLeftPanelView } = useToolWorkflow();
-  const {
-    setRedactionMode,
-    activateRedact,
-    setRedactionConfig,
-    redactionApiRef,
-    isBridgeReady,
-    manualRedactColor,
-  } = useRedaction();
+  const { analyse } = useFileRedaction();
+  const viewer = useViewer();
+  const { files } = useAllFiles();
   const { actions: navActions } = useNavigationActions();
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -71,19 +63,6 @@ function TextSelectionMenuInner({
 
   const [linkPopoverOpen, setLinkPopoverOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
-  const [pendingRedactActivation, setPendingRedactActivation] = useState(false);
-
-  // The redact tool bridge mounts after its panel opens, so activation waits
-  // for bridge readiness instead of guessing a timeout.
-  useEffect(() => {
-    if (!pendingRedactActivation || !isBridgeReady) return;
-    setPendingRedactActivation(false);
-    const currentType = redactionApiRef?.current?.getActiveType?.();
-    if (currentType !== RedactionMode.Redact) {
-      activateRedact?.();
-    }
-  }, [pendingRedactActivation, isBridgeReady, redactionApiRef, activateRedact]);
-
   const setRef = useCallback(
     (node: HTMLDivElement | null) => {
       wrapperRef.current = node;
@@ -241,48 +220,49 @@ function TextSelectionMenuInner({
     [documentId, selection, annotationProvides, navActions, openAnnotateUi],
   );
 
-  const handleRedact = useCallback(() => {
-    if (!documentId) return;
+  const handleRedact = useCallback(async () => {
+    const fileId = viewer.activeFileId;
+    const file = files.find((entry) => entry.fileId === fileId);
+    if (!file || !fileId) return;
     const selections = selection?.getFormattedSelection(documentId) ?? [];
-    for (const sel of selections) {
-      annotationProvides?.createAnnotation(sel.pageIndex, {
-        type: PdfAnnotationSubtype.REDACT,
-        strokeColor: manualRedactColor,
-        color: manualRedactColor,
-        overlayColor: manualRedactColor,
-        fillColor: manualRedactColor,
-        interiorColor: manualRedactColor,
-        backgroundColor: manualRedactColor,
-        opacity: 1,
-        rect: sel.rect,
-        segmentRects: sel.segmentRects,
-        pageIndex: sel.pageIndex,
-        created: new Date(),
-        id: uuidV4(),
+    const regions = selections.flatMap((entry) =>
+      (entry.segmentRects.length ? entry.segmentRects : [entry.rect]).map(
+        (rect) => ({
+          pageIndex: entry.pageIndex,
+          rect: {
+            x: rect.origin.x,
+            y: rect.origin.y,
+            width: rect.size.width,
+            height: rect.size.height,
+          },
+        }),
+      ),
+    );
+    if (!regions.length) return;
+    try {
+      const saved = await viewer.exportActions?.saveAsCopy?.();
+      const source = saved
+        ? new File([saved], file.name, { type: "application/pdf" })
+        : file;
+      selection?.clear(documentId);
+      navActions.setToolAndWorkbench("redact", "viewer");
+      setLeftPanelView("toolContent");
+      await analyse([{ file: source, id: fileId }], regions);
+    } catch {
+      alert({
+        alertType: "error",
+        title: t("fileRedaction.errors.READ_FAILED"),
       });
     }
-    selection?.clear(documentId);
-
-    // Bring the full Redact tool UI
-    const manualConfig: RedactParameters = {
-      ...defaultParameters,
-      mode: "manual",
-    };
-    setRedactionConfig?.(manualConfig);
-    setRedactionMode?.(true);
-    navActions?.setHasUnsavedChanges(true);
-    navActions?.setToolAndWorkbench("redact", "viewer");
-    setLeftPanelView?.("toolContent");
-    setPendingRedactActivation(true);
   }, [
+    analyse,
     documentId,
     selection,
-    annotationProvides,
-    manualRedactColor,
-    setRedactionConfig,
-    setRedactionMode,
+    viewer,
+    files,
     navActions,
     setLeftPanelView,
+    t,
   ]);
 
   const portalContent =

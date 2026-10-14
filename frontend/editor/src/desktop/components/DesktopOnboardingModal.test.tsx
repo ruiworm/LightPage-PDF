@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router-dom";
 import { DesktopOnboardingModal } from "@app/components/DesktopOnboardingModal";
@@ -77,10 +77,11 @@ describe("DesktopOnboardingModal", () => {
     automationEnabled.mockReturnValue(false);
   });
 
-  it("shows onboarding to a new desktop user", async () => {
-    renderModal();
-
-    expect(await screen.findByRole("dialog")).toBeInTheDocument();
+  it("keeps onboarding disabled for a new desktop user", async () => {
+    await act(async () => {
+      renderModal();
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("honours the shared onboarding bypass", async () => {
@@ -93,28 +94,29 @@ describe("DesktopOnboardingModal", () => {
     );
   });
 
-  it("requires the sign-in prompt before skipping and withholds the demo", async () => {
+  it("keeps an unsigned local user out of sign-in prompts and demos", async () => {
     isAuthenticated.mockResolvedValue(false);
-    renderModal();
-    fireEvent.click(await screen.findByText("Continue"));
-    expect(screen.getByText("Sign in to a server")).toBeInTheDocument();
-    fireEvent.click(screen.getByText("Skip sign-in"));
+    await act(async () => {
+      renderModal();
+    });
+    expect(screen.queryByText("Sign in to a server")).not.toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(
-      localStorage.getItem("stirling-desktop-classification-demo-seen"),
-    ).toBeNull();
+    expect(switchToLocal).not.toHaveBeenCalled();
   });
 
-  it("offers the deferred demo after a skipped user later signs in", async () => {
+  it("does not reopen a classification demo when policy availability changes", async () => {
     localStorage.setItem("stirling-desktop-onboarding-seen.v2", "true");
-    const view = renderModal();
+    let view: ReturnType<typeof renderModal>;
+    await act(async () => {
+      view = renderModal();
+    });
     expect(screen.queryByText("Downloads demo")).not.toBeInTheDocument();
     automationEnabled.mockReturnValue(true);
-    view.rerender(
+    view!.rerender(
       <MemoryRouter>
         <DesktopOnboardingModal />
       </MemoryRouter>,
     );
-    expect(await screen.findByText("Downloads demo")).toBeInTheDocument();
+    expect(screen.queryByText("Downloads demo")).not.toBeInTheDocument();
   });
 });

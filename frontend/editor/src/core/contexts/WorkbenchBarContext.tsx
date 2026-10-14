@@ -24,6 +24,17 @@ interface WorkbenchBarContextValue {
 const WorkbenchBarContext = createContext<WorkbenchBarContextValue | undefined>(
   undefined,
 );
+type WorkbenchBarActions = Pick<
+  WorkbenchBarContextValue,
+  | "registerButtons"
+  | "unregisterButtons"
+  | "setAction"
+  | "setAllButtonsDisabled"
+  | "clear"
+>;
+const WorkbenchBarActionsContext = createContext<
+  WorkbenchBarActions | undefined
+>(undefined);
 
 export function WorkbenchBarProvider({
   children,
@@ -75,6 +86,7 @@ export function WorkbenchBarProvider({
 
   const setAction = useCallback((id: string, action?: WorkbenchBarAction) => {
     setActions((prev) => {
+      if (prev[id] === action) return prev;
       if (!action) {
         if (!(id in prev)) return prev;
         const next = { ...prev };
@@ -93,6 +105,23 @@ export function WorkbenchBarProvider({
     setButtons([]);
     setActions({});
   }, []);
+
+  const registrationActions = useMemo(
+    () => ({
+      registerButtons,
+      unregisterButtons,
+      setAction,
+      setAllButtonsDisabled,
+      clear,
+    }),
+    [
+      registerButtons,
+      unregisterButtons,
+      setAction,
+      setAllButtonsDisabled,
+      clear,
+    ],
+  );
 
   const value = useMemo<WorkbenchBarContextValue>(
     () => ({
@@ -119,7 +148,9 @@ export function WorkbenchBarProvider({
 
   return (
     <WorkbenchBarContext.Provider value={value}>
-      {children}
+      <WorkbenchBarActionsContext.Provider value={registrationActions}>
+        {children}
+      </WorkbenchBarActionsContext.Provider>
     </WorkbenchBarContext.Provider>
   );
 }
@@ -129,4 +160,14 @@ export function useWorkbenchBar() {
   if (!ctx)
     throw new Error("useWorkbenchBar must be used within WorkbenchBarProvider");
   return ctx;
+}
+
+/** Registration does not subscribe document canvases to toolbar-state updates. */
+export function useWorkbenchBarActions() {
+  const actions = useContext(WorkbenchBarActionsContext);
+  if (!actions)
+    throw new Error(
+      "useWorkbenchBarActions must be used within WorkbenchBarProvider",
+    );
+  return actions;
 }

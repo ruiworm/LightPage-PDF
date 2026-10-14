@@ -98,7 +98,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         defaultColorScheme={colorScheme}
         forceColorScheme={colorScheme}
       >
-        <div style={{ minHeight: "100vh" }}>
+        <div style={{ minHeight: "var(--app-body-h, 100dvh)" }}>
           <ToastProvider>
             <ToastPortalBinder />
             {children}

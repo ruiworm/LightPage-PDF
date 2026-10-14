@@ -31,7 +31,7 @@ export const PreferencesProvider: React.FC<{
       preferencesService.setPreference(key, value);
       setPreferences((prev) => ({
         ...prev,
-        [key]: value,
+        [key]: preferencesService.getPreference(key),
       }));
     },
     [],

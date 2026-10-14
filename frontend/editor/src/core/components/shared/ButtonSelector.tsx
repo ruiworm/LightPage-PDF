@@ -1,5 +1,4 @@
 import { Stack, Text, Tooltip } from "@mantine/core";
-import FitText from "@app/components/shared/FitText";
 import { SegmentedControl } from "@app/ui/SegmentedControl";
 
 export interface ButtonOption<T> {
@@ -32,14 +31,13 @@ const ButtonSelector = <T extends string | number>({
 
   const segmentedOptions = options.map((option) => {
     const isDisabled = disabled || option.disabled;
-    const fitText = (
-      <FitText
-        text={option.label}
-        lines={1}
-        minimumFontScale={0.5}
-        fontSize={10}
+    const label = (
+      <span
         className={textClassName}
-      />
+        style={{ fontSize: "inherit", whiteSpace: "normal" }}
+      >
+        {option.label}
+      </span>
     );
 
     return {
@@ -48,10 +46,10 @@ const ButtonSelector = <T extends string | number>({
       label:
         option.tooltip && isDisabled ? (
           <Tooltip label={option.tooltip} position="top" withArrow>
-            <span>{fitText}</span>
+            <span>{label}</span>
           </Tooltip>
         ) : (
-          fitText
+          label
         ),
     };
   });

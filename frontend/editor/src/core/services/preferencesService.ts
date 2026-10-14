@@ -2,6 +2,7 @@ import {
   type ToolPanelMode,
   DEFAULT_TOOL_PANEL_MODE,
 } from "@app/constants/toolPanel";
+import type { ToolId } from "@app/types/toolId";
 import { type ThemeMode } from "@app/constants/theme";
 
 export type PdfRenderMode = "normal" | "dark" | "sepia";
@@ -23,6 +24,7 @@ export interface UserPreferences {
   autoUnzip: boolean;
   autoUnzipFileLimit: number;
   defaultToolPanelMode: ToolPanelMode;
+  sidebarToolIds: ToolId[] | null;
   defaultStartupView: StartupView;
   defaultViewerZoom: ViewerZoomSetting;
   theme: ThemeMode;
@@ -41,11 +43,12 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   autoUnzip: true,
   autoUnzipFileLimit: 4,
   defaultToolPanelMode: DEFAULT_TOOL_PANEL_MODE,
-  defaultStartupView: "tools",
+  sidebarToolIds: null,
+  defaultStartupView: "read",
   defaultViewerZoom: "auto",
   theme: "system",
-  toolPanelModePromptSeen: false,
-  hasSelectedToolPanelMode: false,
+  toolPanelModePromptSeen: true,
+  hasSelectedToolPanelMode: true,
   showLegacyToolDescriptions: false,
   hasCompletedOnboarding: false,
   hasSeenIntroOnboarding: false,
@@ -57,6 +60,15 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
 
 const STORAGE_KEY = "stirlingpdf_preferences";
 
+const FIXED_PREFERENCES = {
+  defaultToolPanelMode: DEFAULT_PREFERENCES.defaultToolPanelMode,
+  toolPanelModePromptSeen: DEFAULT_PREFERENCES.toolPanelModePromptSeen,
+  hasSelectedToolPanelMode: DEFAULT_PREFERENCES.hasSelectedToolPanelMode,
+  defaultStartupView: DEFAULT_PREFERENCES.defaultStartupView,
+  hideUnavailableTools: DEFAULT_PREFERENCES.hideUnavailableTools,
+  hideUnavailableConversions: DEFAULT_PREFERENCES.hideUnavailableConversions,
+};
+
 class PreferencesService {
   private serverDefaults: Partial<UserPreferences> = {};
 
@@ -65,6 +77,7 @@ class PreferencesService {
   }
 
   getPreference<K extends keyof UserPreferences>(key: K): UserPreferences[K] {
+    if (key in FIXED_PREFERENCES) return DEFAULT_PREFERENCES[key];
     // Explicitly re-read every time in case preferences have changed in another tab etc.
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -91,7 +104,8 @@ class PreferencesService {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       const preferences = stored ? JSON.parse(stored) : {};
-      preferences[key] = value;
+      preferences[key] =
+        key in FIXED_PREFERENCES ? DEFAULT_PREFERENCES[key] : value;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
     } catch (error) {
       console.error("Error writing preference:", key, error);
@@ -108,13 +122,18 @@ class PreferencesService {
           ...DEFAULT_PREFERENCES,
           ...this.serverDefaults,
           ...preferences,
+          ...FIXED_PREFERENCES,
         };
       }
     } catch (error) {
       console.error("Error reading preferences", error);
     }
     // Merge server defaults with hardcoded defaults
-    return { ...DEFAULT_PREFERENCES, ...this.serverDefaults };
+    return {
+      ...DEFAULT_PREFERENCES,
+      ...this.serverDefaults,
+      ...FIXED_PREFERENCES,
+    };
   }
 
   clearAllPreferences(): void {

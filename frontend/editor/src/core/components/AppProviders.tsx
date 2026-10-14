@@ -32,12 +32,14 @@ import ErrorBoundary from "@app/components/shared/ErrorBoundary";
 import { useAppInitialization } from "@app/hooks/useAppInitialization";
 import { useLogoAssets } from "@app/hooks/useLogoAssets";
 import AppConfigLoader from "@app/components/shared/AppConfigLoader";
-import { UpdateStartupPopup } from "@app/components/shared/UpdateStartupPopup";
 import { RedactionProvider } from "@app/contexts/RedactionContext";
+import { FileRedactionProvider } from "@app/contexts/FileRedactionContext";
 import { FormFillProvider } from "@app/tools/formFill/FormFillContext";
 import { FolderProvider } from "@app/contexts/FolderContext";
 import { WorkbenchSessionPersistence } from "@app/components/session/WorkbenchSessionPersistence";
 import { retireLegacyFolderWorker } from "@app/services/retireLegacyFolderWorker";
+import { CardLicenseProvider } from "@app/contexts/CardLicenseContext";
+import { CardLicenseGate } from "@app/components/license/CardLicensePanel";
 
 // Component to run app-level initialization (must be inside AppProviders for context access)
 function AppInitializer() {
@@ -117,63 +119,66 @@ export function AppProviders({
     <QueryClientProvider client={queryClient}>
       <PreferencesProvider>
         <ThemeProvider>
-          <ErrorBoundary>
-            <BannerProvider>
-              <AppConfigProvider
-                retryOptions={appConfigRetryOptions}
-                {...appConfigProviderProps}
-              >
-                <AppConfigLoader />
-                <ServerDefaultsSync />
-                {/* Auto-popup on startup when a newer Stirling-PDF release is available.
-                  No-ops inside Tauri — the desktop popup handles that flow. */}
-                <UpdateStartupPopup />
-                <FileContextProvider
-                  enableUrlSync={true}
-                  enablePersistence={true}
-                >
-                  <FolderProvider>
-                    <AppInitializer />
-                    <BrandingAssetManager />
-                    <ToolRegistryProvider>
-                      <NavigationProvider>
-                        <FilesModalProvider>
-                          <ToolWorkflowProvider>
-                            <HotkeyProvider>
-                              <SidebarProvider>
-                                <ViewerProvider>
-                                  <PageEditorProvider>
-                                    <SignatureProvider>
-                                      <SigningOverlayProvider>
-                                        <RedactionProvider>
-                                          <FormFillProvider>
-                                            <AnnotationProvider>
-                                              <WorkbenchBarProvider>
-                                                <TourOrchestrationProvider>
-                                                  <AdminTourOrchestrationProvider>
-                                                    <WorkbenchSessionPersistence />
-                                                    {children}
-                                                  </AdminTourOrchestrationProvider>
-                                                </TourOrchestrationProvider>
-                                              </WorkbenchBarProvider>
-                                            </AnnotationProvider>
-                                          </FormFillProvider>
-                                        </RedactionProvider>
-                                      </SigningOverlayProvider>
-                                    </SignatureProvider>
-                                  </PageEditorProvider>
-                                </ViewerProvider>
-                              </SidebarProvider>
-                            </HotkeyProvider>
-                          </ToolWorkflowProvider>
-                        </FilesModalProvider>
-                      </NavigationProvider>
-                    </ToolRegistryProvider>
-                  </FolderProvider>
-                </FileContextProvider>
-              </AppConfigProvider>
-            </BannerProvider>
-          </ErrorBoundary>
+          <CardLicenseProvider>
+            <CardLicenseGate>
+              <ErrorBoundary>
+                <BannerProvider>
+                  <AppConfigProvider
+                    retryOptions={appConfigRetryOptions}
+                    {...appConfigProviderProps}
+                  >
+                    <AppConfigLoader />
+                    <ServerDefaultsSync />
+                    <FileContextProvider
+                      enableUrlSync={true}
+                      enablePersistence={true}
+                    >
+                      <FolderProvider>
+                        <AppInitializer />
+                        <BrandingAssetManager />
+                        <ToolRegistryProvider>
+                          <NavigationProvider>
+                            <ViewerProvider>
+                              <FilesModalProvider>
+                                <ToolWorkflowProvider>
+                                  <HotkeyProvider>
+                                    <SidebarProvider>
+                                      <PageEditorProvider>
+                                        <SignatureProvider>
+                                          <SigningOverlayProvider>
+                                            <RedactionProvider>
+                                              <FileRedactionProvider>
+                                                <FormFillProvider>
+                                                  <AnnotationProvider>
+                                                    <WorkbenchBarProvider>
+                                                      <TourOrchestrationProvider>
+                                                        <AdminTourOrchestrationProvider>
+                                                          <WorkbenchSessionPersistence />
+                                                          {children}
+                                                        </AdminTourOrchestrationProvider>
+                                                      </TourOrchestrationProvider>
+                                                    </WorkbenchBarProvider>
+                                                  </AnnotationProvider>
+                                                </FormFillProvider>
+                                              </FileRedactionProvider>
+                                            </RedactionProvider>
+                                          </SigningOverlayProvider>
+                                        </SignatureProvider>
+                                      </PageEditorProvider>
+                                    </SidebarProvider>
+                                  </HotkeyProvider>
+                                </ToolWorkflowProvider>
+                              </FilesModalProvider>
+                            </ViewerProvider>
+                          </NavigationProvider>
+                        </ToolRegistryProvider>
+                      </FolderProvider>
+                    </FileContextProvider>
+                  </AppConfigProvider>
+                </BannerProvider>
+              </ErrorBoundary>
+            </CardLicenseGate>
+          </CardLicenseProvider>
         </ThemeProvider>
       </PreferencesProvider>
     </QueryClientProvider>

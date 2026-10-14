@@ -14,26 +14,15 @@ import { SearchInterface } from "@app/components/viewer/SearchInterface";
 import ViewerAnnotationControls from "@app/components/viewer/ViewerAnnotationControls";
 import { useSidebarContext } from "@app/contexts/SidebarContext";
 import { useWorkbenchBarTooltipSide } from "@app/hooks/useWorkbenchBarTooltipSide";
-import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
+import { useToolWorkflowActions } from "@app/contexts/ToolWorkflowContext";
 import {
-  useNavigationState,
-  useNavigationGuard,
+  useSelectedTool,
+  useNavigationActions,
 } from "@app/contexts/NavigationContext";
 import { stripBasePath, withBasePath } from "@app/constants/app";
 import { useRedaction, useRedactionMode } from "@app/contexts/RedactionContext";
 import { useViewerReadAloud } from "@app/components/viewer/useViewerReadAloud";
-import { RulerScaleSettingsButton } from "@app/components/viewer/RulerScaleSettingsButton";
-import type { MeasureScale } from "@app/utils/measurementTypes";
-
-export function useViewerWorkbenchBarButtons(
-  isRulerActive?: boolean,
-  setIsRulerActive?: (v: boolean) => void,
-  customScale?: MeasureScale | null,
-  setCustomScale?: (scale: MeasureScale | null) => void,
-  isScaleCalibrationActive?: boolean,
-  startScaleCalibration?: () => void,
-  cancelScaleCalibration?: () => void,
-) {
+export function useViewerWorkbenchBarButtons() {
   const { t, i18n } = useTranslation();
   const viewer = useViewer();
   const {
@@ -54,9 +43,11 @@ export function useViewerWorkbenchBarButtons(
     12,
   );
   const { handleToolSelect, handleToolSelectForced, handleBackToTools } =
-    useToolWorkflow();
-  const { selectedTool } = useNavigationState();
-  const { requestNavigation } = useNavigationGuard();
+    useToolWorkflowActions();
+  const selectedTool = useSelectedTool();
+  const {
+    actions: { requestNavigation },
+  } = useNavigationActions();
   const { redactionsApplied, activeType: redactionActiveType } = useRedaction();
   const { pendingCount } = useRedactionMode();
   const {
@@ -122,35 +113,10 @@ export function useViewerWorkbenchBarButtons(
   const commentsLabel = t("workbenchBar.toggleComments", "Comments");
   const annotationsLabel = t("workbenchBar.annotations", "Annotations");
   const formFillLabel = t("workbenchBar.formFill", "Form Editor");
-  const rulerLabel = t("workbenchBar.ruler", "Ruler / Measure");
-  const rulerSettingsLabel = t("workbenchBar.rulerSettings", "Scale Settings");
   const readAloudLabel = t("workbenchBar.readAloud", "Read Aloud");
   const readAloudSpeedLabel = t("workbenchBar.readAloudSpeed", "Speed");
 
   const isFormFillActive = (selectedTool as string) === "formFill";
-
-  const handleStartScaleCalibration = useCallback(() => {
-    startScaleCalibration?.();
-    setIsRulerActive?.(true);
-    if (isPanning) {
-      viewer.panActions.disablePan();
-    }
-  }, [isPanning, setIsRulerActive, startScaleCalibration, viewer.panActions]);
-
-  const handleCancelScaleCalibration = useCallback(() => {
-    cancelScaleCalibration?.();
-  }, [cancelScaleCalibration]);
-
-  const handleApplyRulerScale = useCallback(
-    (scale: MeasureScale) => {
-      setCustomScale?.(scale);
-    },
-    [setCustomScale],
-  );
-
-  const handleResetRulerScale = useCallback(() => {
-    setCustomScale?.(null);
-  }, [setCustomScale]);
 
   // Filter languages based on available voices
   const filteredLanguages = useMemo(
@@ -240,51 +206,8 @@ export function useViewerWorkbenchBarButtons(
           !isPanning && pendingCount > 0 && redactionActiveType !== null,
         onClick: () => {
           viewer.panActions.togglePan();
-          if (!isPanning && isRulerActive) setIsRulerActive?.(false);
         },
       },
-      {
-        id: "viewer-ruler",
-        icon: <Icon name="ruler" size={"1rem"} />,
-        tooltip: rulerLabel,
-        ariaLabel: rulerLabel,
-        section: "top" as const,
-        order: 25,
-        active: Boolean(isRulerActive),
-        onClick: () => {
-          const next = !isRulerActive;
-          setIsRulerActive?.(next);
-          if (next && isPanning) {
-            viewer.panActions.disablePan();
-          }
-        },
-      },
-      // Ruler scale settings button - only visible when ruler is active
-      ...(isRulerActive
-        ? [
-            {
-              id: "viewer-ruler-settings",
-              icon: <Icon name="settings" size={"1.5rem"} />,
-              tooltip: rulerSettingsLabel,
-              ariaLabel: rulerSettingsLabel,
-              section: "top" as const,
-              order: 25.5,
-              render: ({ disabled }: { disabled?: boolean }) => (
-                <RulerScaleSettingsButton
-                  disabled={disabled}
-                  label={rulerSettingsLabel}
-                  tooltipPosition={tooltipPosition}
-                  currentScale={customScale}
-                  onApplyScale={handleApplyRulerScale}
-                  onResetScale={handleResetRulerScale}
-                  onStartCalibration={handleStartScaleCalibration}
-                  onCancelCalibration={handleCancelScaleCalibration}
-                  isCalibrationActive={isScaleCalibrationActive}
-                />
-              ),
-            },
-          ]
-        : []),
       {
         id: "viewer-rotate-left",
         icon: <Icon name="rotate-ccw" size="1rem" />,
@@ -312,8 +235,8 @@ export function useViewerWorkbenchBarButtons(
         icon: <Icon name="rows-2" size="1rem" />,
         tooltip: sidebarLabel,
         ariaLabel: sidebarLabel,
-        section: "top" as const,
-        order: 50,
+        section: "tool-lead" as const,
+        order: 0,
         active: isThumbnailSidebarVisible,
         onClick: () => {
           viewer.toggleThumbnailSidebar();
@@ -591,16 +514,6 @@ export function useViewerWorkbenchBarButtons(
     redactionActiveType,
     formFillLabel,
     isFormFillActive,
-    rulerLabel,
-    rulerSettingsLabel,
-    isRulerActive,
-    setIsRulerActive,
-    handleStartScaleCalibration,
-    handleCancelScaleCalibration,
-    handleApplyRulerScale,
-    handleResetRulerScale,
-    customScale,
-    isScaleCalibrationActive,
     readAloudLabel,
     readAloudSpeedLabel,
     isReadingAloud,

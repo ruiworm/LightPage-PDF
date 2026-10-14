@@ -7,11 +7,11 @@ export interface StartupNavigationAction {
   activeFileIndex?: number;
 }
 
-/** Several files means the file editor; one or none the viewer. */
+/** File count does not change the editor view. */
 export function getDefaultWorkbenchForFileCount(
-  fileCount: number,
+  _fileCount: number,
 ): WorkbenchType {
-  return fileCount > 1 ? "fileEditor" : getDefaultWorkbench();
+  return getDefaultWorkbench();
 }
 
 export function getStartupNavigationAction(

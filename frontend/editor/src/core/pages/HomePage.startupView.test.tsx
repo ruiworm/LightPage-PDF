@@ -11,8 +11,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, useLocation, useNavigate } from "react-router-dom";
 import { MantineProvider } from "@mantine/core";
 import { AppProviders } from "@app/components/AppProviders";
-import HomePage from "@app/pages/HomePage";
-import SettingsPage from "@app/pages/SettingsPage";
+import { AppRoot } from "@app/components/layout/AppRoot";
 import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
 import {
   useNavigationActions,
@@ -60,14 +59,12 @@ function Probe() {
 // does until its auth check settles.
 function Page({ late }: { late: boolean }) {
   const [shown, setShown] = useState(!late);
-  const { pathname } = useLocation();
   showPage = () => setShown(true);
   return (
     <>
       <Probe />
       <NavigationWarningModal />
-      {shown &&
-        (pathname.startsWith("/settings") ? <SettingsPage /> : <HomePage />)}
+      {shown && <AppRoot />}
     </>
   );
 }
@@ -175,6 +172,10 @@ describe("default startup view: Reader", () => {
     await waitFor(() => expect(seen.readerMode).toBe(false));
     act(() => goToSettings());
     await waitFor(() => expect(seen.pathname).toBe("/settings/general"));
+    await screen.findByRole("heading", { name: "settings.title" });
+    expect(
+      screen.queryByRole("complementary", { name: "settings.title" }),
+    ).toBeNull();
 
     fireEvent.click(document.querySelector(".app-navigation-bar__brand")!);
     await expectSettledInReader();

@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useMemo } from "react";
+import React, { createContext, useContext, useMemo, useId } from "react";
+import { useTranslation } from "react-i18next";
+import { ActionIcon } from "@app/ui/ActionIcon";
 import { Text, Stack, Flex, Divider } from "@mantine/core";
 import { Icon } from "@app/ui/Icon";
 import { Tooltip } from "@app/components/shared/Tooltip";
@@ -15,6 +17,8 @@ import {
 interface ToolStepContextType {
   visibleStepCount: number;
   forceStepNumbers?: boolean;
+  presentation?: "steps" | "groups";
+  expandGroups?: boolean;
 }
 
 const ToolStepContext = createContext<ToolStepContextType | null>(null);
@@ -91,6 +95,8 @@ const ToolStep = ({
   tooltip,
 }: ToolStepProps) => {
   const parent = useContext(ToolStepContext);
+  const { t } = useTranslation();
+  const headingId = useId();
 
   // Auto-detect if we should show numbers based on sibling count or force option
   const shouldShowNumber = useMemo(() => {
@@ -102,6 +108,56 @@ const ToolStep = ({
   if (!isVisible) return null;
 
   const stepNumber = _stepNumber;
+
+  if (parent?.presentation === "groups") {
+    const collapsed = isCollapsed && !parent.expandGroups;
+    return (
+      <section className="tool-settings-group" aria-labelledby={headingId}>
+        <div className="tool-settings-group__header">
+          <h3 id={headingId}>
+            {collapsed && onCollapsedClick ? (
+              <button
+                type="button"
+                className="tool-settings-group__edit"
+                onClick={onCollapsedClick}
+              >
+                {title}
+                <Icon name="pencil" size={14} />
+              </button>
+            ) : (
+              title
+            )}
+          </h3>
+          {tooltip && (!collapsed || alwaysShowTooltip) && (
+            <Tooltip
+              content={tooltip.content}
+              tips={tooltip.tips}
+              header={tooltip.header}
+              sidebarTooltip
+              pinOnClick
+            >
+              <ActionIcon
+                variant="quiet"
+                accent="neutral"
+                size="sm"
+                aria-label={`${t("help", "Help")}: ${title}`}
+              >
+                <Icon name="info" size={16} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+        </div>
+        {!collapsed && (
+          <div className="tool-settings-group__body">
+            {helpText && (
+              <p className="tool-settings-group__help">{helpText}</p>
+            )}
+            {children}
+          </div>
+        )}
+      </section>
+    );
+  }
 
   return (
     <div>
@@ -228,10 +284,15 @@ export function createToolSteps() {
 export function ToolStepProvider({
   children,
   forceStepNumbers,
+  presentation,
+  expandGroups,
 }: {
   children: React.ReactNode;
   forceStepNumbers?: boolean;
+  presentation?: "steps" | "groups";
+  expandGroups?: boolean;
 }) {
+  const parent = useContext(ToolStepContext);
   // Count visible steps from children that are ToolStep elements
   const visibleStepCount = useMemo(() => {
     let count = 0;
@@ -250,8 +311,17 @@ export function ToolStepProvider({
     () => ({
       visibleStepCount,
       forceStepNumbers,
+      presentation: presentation ?? parent?.presentation,
+      expandGroups: expandGroups ?? parent?.expandGroups,
     }),
-    [visibleStepCount, forceStepNumbers],
+    [
+      visibleStepCount,
+      forceStepNumbers,
+      presentation,
+      expandGroups,
+      parent?.presentation,
+      parent?.expandGroups,
+    ],
   );
 
   return (

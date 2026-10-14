@@ -28,6 +28,13 @@ async function makeStore(): Promise<EditorStore> {
 }
 
 describe("EditorStore recovery from a failed apply", () => {
+  it("invalidates an in-flight load when its document is closed", () => {
+    const store = new EditorStore();
+    const token = store.beginLoad();
+    store.clearDocument();
+    expect(store.isCurrentLoad(token)).toBe(false);
+    store.dispose();
+  });
   it("does not throw out of dispatch when a command's apply fails", async () => {
     const store = await makeStore();
     expect(() =>

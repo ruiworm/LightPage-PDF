@@ -26,7 +26,10 @@ export function usePageDocument(): PageDocumentHook {
 
   // Use PageEditorContext's fileOrder instead of FileContext's global order
   // This ensures the page editor respects its own workspace ordering
-  const allFileIds = fileOrder;
+  const allFileIds = useMemo(
+    () => fileOrder.filter((id) => state.ui.selectedFileIds.includes(id)),
+    [fileOrder, state.ui.selectedFileIds],
+  );
 
   // Derive selected file IDs directly from FileContext (single source of truth)
   // Filter to only include PDF files (PageEditor only supports PDFs)
@@ -35,7 +38,7 @@ export function usePageDocument(): PageDocumentHook {
   const selectedFileIdsKey = [...state.ui.selectedFileIds].sort().join(",");
   const activeFilesSignature = selectors.getFilesSignature();
 
-  // Get ALL PDF files (selected or not) for document building with placeholders
+  // Build pages only for the workspace selection, including files still loading.
   const activeFileIds = useMemo(() => {
     return allFileIds.filter((id) => {
       const stub = selectors.getStirlingFileStub(id);
@@ -455,7 +458,8 @@ export function usePageDocument(): PageDocumentHook {
   }, [mergedPdfDocument?.totalPages]);
 
   // Loading state
-  const isLoading = globalProcessing && !mergedPdfDocument;
+  const isLoading =
+    activeFileIds.length > 0 && globalProcessing && !mergedPdfDocument;
 
   return {
     document: mergedPdfDocument,

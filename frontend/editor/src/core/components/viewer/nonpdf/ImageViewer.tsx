@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box } from "@mantine/core";
+import { ZoomablePreview } from "@app/components/viewer/nonpdf/ZoomablePreview";
 
 interface ImageViewerProps {
   file: File;
@@ -8,6 +8,7 @@ interface ImageViewerProps {
 
 export function ImageViewer({ file, fileName }: ImageViewerProps) {
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
+  const [width, setWidth] = useState<number>();
 
   useEffect(() => {
     const url = URL.createObjectURL(file);
@@ -16,29 +17,16 @@ export function ImageViewer({ file, fileName }: ImageViewerProps) {
   }, [file]);
 
   return (
-    <Box
-      style={{
-        flex: 1,
-        overflow: "hidden",
-        background: "var(--mantine-color-gray-1)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <ZoomablePreview key={objectUrl} width={width}>
       {objectUrl && (
         <img
           src={objectUrl}
           alt={fileName}
           draggable={false}
-          style={{
-            maxWidth: "100%",
-            maxHeight: "100%",
-            objectFit: "contain",
-            display: "block",
-          }}
+          onLoad={(event) => setWidth(event.currentTarget.naturalWidth)}
+          style={{ width: "100%" }}
         />
       )}
-    </Box>
+    </ZoomablePreview>
   );
 }

@@ -2,11 +2,6 @@
 /* Horizontal toolbar at the top of the workbench area. */
 
 .workbench-bar {
-  /* Flex-wrap layout that reflows by content width (measured in JS, which sets
-     data-wrapped). Roomy: row 1 is [views | search | globals] and the tool
-     icons sit on their own full-width row below. Crowded (data-wrapped): the
-     search bumps to its own row, leaving [views | globals] on row 1 and the
-     tools on row 3 — three rows total. `order` drives the reflow. */
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -31,7 +26,25 @@
   border-top: none;
 }
 
-/* ---- View switcher (left) ---- */
+/* Equal side columns keep the view switcher centered within the document pane. */
+.workbench-bar-top-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.workbench-bar-leading,
+.workbench-bar-strip-views {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  overflow: hidden;
+}
+
 /* Follows the view switcher, which claims order 1 in the bar's reflow. */
 .workbench-bar-lead {
   order: 2;
@@ -44,7 +57,6 @@
 }
 
 .workbench-bar-views {
-  order: 1;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -200,6 +212,15 @@
   gap: 2px;
 }
 
+.workbench-bar-tool-lead {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+}
+
 /* Retract / reopen handle for the viewer tool row. */
 .workbench-bar-toolbar-handle {
   display: inline-flex;
@@ -240,7 +261,8 @@
   gap: 2px;
   min-width: 0;
   height: 38px;
-  margin-left: auto;
+  margin-inline-start: auto;
+  justify-self: end;
 }
 
 /* Crowded: globals stays on row 1, moving up beside the views. */
@@ -369,6 +391,15 @@
     gap: 4px;
   }
 
+  .workbench-bar-center:has(.workbench-bar-tool-lead) {
+    padding-left: 56px;
+  }
+
+  .workbench-bar-tool-lead {
+    top: 2px;
+    transform: none;
+  }
+
   .workbench-bar[data-wrapped="true"] .workbench-bar-search {
     order: 2;
     flex: 1 1 0;
@@ -415,5 +446,26 @@
   .workbench-bar-toolbar-handle-expand {
     flex-shrink: 0;
     align-self: flex-start;
+  }
+}
+
+@media (max-width: 48rem) {
+  .workbench-bar-top-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .workbench-bar-top-row > .workbench-bar-views {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+
+  .workbench-bar-top-row > .workbench-bar-leading {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .workbench-bar-top-row > .workbench-bar-globals {
+    grid-column: 2;
+    grid-row: 2;
   }
 }

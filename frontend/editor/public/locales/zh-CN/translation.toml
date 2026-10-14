@@ -17,11 +17,11 @@ confirmCloseDiscard = "放弃更改并关闭"
 confirmCloseMessage = "确定要关闭此文件吗？"
 confirmCloseSave = "保存并关闭"
 confirmCloseSaveFailed_one = "保存时出现错误。{{count}} 个文件无法保存。"
-confirmCloseSaveFailed_other = "Saved with errors. {{count}} files could not be saved."
+confirmCloseSaveFailed_other = "保存时出现错误，{{count}} 个文件未能保存。"
 confirmCloseSaveFailedTitle = "保存失败"
 confirmCloseUnsaved = "此文件有未保存的更改。"
 confirmCloseUnsavedList_one = "您有 {{count}} 个文件存在未保存的更改。\n\n{{fileList}}"
-confirmCloseUnsavedList_other = "You have {{count}} files with unsaved changes.\n\n{{fileList}}"
+confirmCloseUnsavedList_other = "有 {{count}} 个文件尚未保存更改。\n\n{{fileList}}"
 custom = "自定义..."
 customPosition = "自定义位置"
 customTextTooltip = "可选的自定义页码格式。使用 {n} 作为数字占位符。例如：“第 {n} 页”将显示“第 1 页”“第 2 页”等。"
@@ -36,16 +36,16 @@ editSecret = "编辑此值"
 editYourNewFiles = "编辑您的新文件"
 exportAndContinue = "导出并继续"
 false = "错"
-fileChangedOnDisk = "自你编辑后已在磁盘上更改"
+fileChangedOnDisk = "磁盘上的原文件在编辑期间发生了变化"
 fileDiskUnavailable = "无法访问磁盘上的文件"
 fileNotSavedToDisk = "未保存到磁盘"
-fileOriginalDeleted = "原始文件已删除 - 保存以保留副本"
+fileOriginalDeleted = "原文件已删除，请保存当前副本"
 fileSavedToDisk = "文件已保存到磁盘"
 fileSelected = "已选：{{filename}}"
 filesSelected = "{{count}} 个文件"
 font = "字体"
-fontSizeTooltip = "页码文本的点数大小。数值越大文字越大。"
-fontTypeTooltip = "页码的字体族。根据文档风格选择。"
+fontSizeTooltip = "页码文字的字号，单位为点。数值越大，文字越大。"
+fontTypeTooltip = "选择页码文字使用的字体。"
 green = "绿色"
 help = "帮助"
 incorrectPasswordMessage = "当前密码不正确。"
@@ -62,31 +62,31 @@ marginTooltip = "页码与页面边缘的距离。"
 moreOptions = "更多选项"
 never = "从不"
 no = "否"
-noFileSelected = "未选择文件，请上传一个文件。"
+noFileSelected = "尚未选择文件，请先添加文件。"
 noFilesToUndo = "无法撤销：上一次操作未处理任何文件"
 noOperationToUndo = "没有可撤销的操作"
 nothingToUndo = "没有可撤销的操作"
 noValidFiles = "没有可处理的有效文件"
 oops = "哎呀！"
 openInNewWindow = "在新窗口中打开"
-openInViewer = "在查看器中打开"
+openInViewer = "在阅读器中打开"
 operationCancelled = "操作已取消"
 page = "页面"
 pageNum = "页码"
-pageOrderPrompt = "页面顺序（输入逗号分隔的页码列表或函数）："
+pageOrderPrompt = "页面排列顺序（用英文逗号分隔页码或范围）"
 pages = "页码"
-pageSelectionPrompt = "自定义页面选择（输入以逗号分隔的页码列表或函数：1,5,6、2n+1）："
+pageSelectionPrompt = "要处理的页面（例如：1,5,6 或 2n+1）"
 password = "密码"
 pin = "固定文件（在工具运行后保持激活）"
 pro = "专业版"
 processingComplete = "您的文件已就绪。"
 processingCompleteMultiple = "{{count}} 个文件已就绪。"
-property = "资产"
+property = "属性"
 quickPosition = "快速定位"
 red = "红色"
 remove = "移除"
 reset = "重置"
-review = "审核"
+review = "查看结果"
 save = "保存"
 saveUnavailable = "此项目无法保存"
 size = "大小"
@@ -105,8 +105,8 @@ undoStorageError = "已撤销，但部分文件无法保存到存储中"
 undoSuccess = "已成功撤销操作"
 unknown = "未知"
 unpin = "取消固定文件（在工具运行后替换）"
-unsavedChanges = "您的 PDF 有未保存的更改。您想做什么?"
-unsavedChangesBody = "You have unsaved changes to your PDF. Are you sure you want to leave?"
+unsavedChanges = "PDF 有未保存的更改，请选择如何处理。"
+unsavedChangesBody = "PDF 有未保存的更改，离开后会丢失。确定离开？"
 unsavedChangesTitle = "未保存的更改"
 unsupported = "不受支持"
 username = "用户名"
@@ -196,28 +196,28 @@ title = "功能说明"
 title = "关于添加附件"
 
 [addImage]
-applySignatures = "应用图片"
+applySignatures = "保存图片到 PDF"
 header = "添加图片到 PDF"
 tags = "图像、JPG、图片、照片"
-title = "添加图像"
+title = "添加图片"
 
 [addImage.canvas]
-colorPickerTitle = "Choose stroke colour"
+colorPickerTitle = "选择笔画颜色"
 
 [addImage.error]
 failed = "向 PDF 添加图片时发生错误。"
 
 [addImage.image]
-hint = "Supports PNG, JPEG, GIF, BMP, TIFF, and SVG files. SVG files will be converted to PNG for embedding."
+hint = "支持 PNG、JPEG、GIF、BMP、TIFF 和 SVG。SVG 会转为 PNG 后嵌入 PDF。"
 label = "图片文件"
 name = "图片"
 placeholder = "上传图片"
 
 [addImage.instructions]
-noSignature = "请先在上方上传图片以启用放置。"
+noSignature = "先选择图片，再点击页面放置。"
 paused = "放置已暂停"
-resumeHint = "继续放置后点击添加图片。"
-text = "在上方上传图片后，点击 PDF 任意位置进行放置。"
+resumeHint = "点击“继续放置”，再点击页面添加图片。"
+text = "选择图片后，点击 PDF 页面上要放置的位置。"
 title = "如何添加图片"
 
 [addImage.mode]
@@ -227,7 +227,7 @@ place = "放置图片"
 resume = "继续放置"
 
 [addImage.results]
-title = "添加图片结果"
+title = "已添加图片"
 
 [addImage.saved]
 defaultCanvasLabel = "Drawing signature"
@@ -254,10 +254,10 @@ text = "Text"
 [addImage.step]
 createDesc = "上传要添加的图片"
 place = "放置图片"
-placeDesc = "在 PDF 上点击以添加图片"
+placeDesc = "点击 PDF 页面，放置图片。"
 
 [addImage.steps]
-configure = "配置图片"
+configure = "选择图片"
 
 [addImage.text]
 colorLabel = "Text colour"
@@ -268,26 +268,26 @@ placeholder = "Enter text"
 
 [addImage.type]
 canvas = "Canvas"
-image = "Image"
+image = "图片"
 saved = "Saved"
 text = "Text"
 
 [addPageNumbers]
 customize = "自定义外观"
-customNumberDesc = "默认为 {n}，也可以接受“第 {n} 页/共 {total} 页”，“文本-{n}”，“{filename}-{n}”"
-fontName = "字体名称"
-fontSize = "字体大小"
-numberPagesDesc = "要添加页码的页数，默认为“所有”，也可以接受1-5或2,5,9等"
+customNumberDesc = "用 {n} 显示页码，用 {total} 显示总页数。示例：第 {n} 页、文本-{n}、{filename}-{n}（文件名与页码）。"
+fontName = "字体"
+fontSize = "字号"
+numberPagesDesc = "填写页码或范围，例如 1,3,5-8；留空表示全部页面。"
 pagePreviewAlt = "页面预览"
 pagesAndStarting = "页面与起始编号"
 positionAndPages = "位置与页面"
 preview = "位置选择"
-previewDisclaimer = "预览为近似效果。最终输出可能因 PDF 字体度量而有所不同。"
+previewDisclaimer = "预览仅供参考，实际位置和文字大小请以导出的 PDF 为准。"
 submit = "添加页码"
 tags = "number,pagination,count,add page numbers,page numbering,page numbers,footer,header,number pages,sequential,pagination tool"
 title = "添加页码"
-zeroPad = "Zero‑pad Width (Bates Stamping)"
-zeroPadTooltip = "Zero‑pad (Bates Stamp) page numbers to this width (e.g., 3 ⇒ 001). Set 0 to disable."
+zeroPad = "编号位数（前补 0）"
+zeroPadTooltip = "用 0 补齐编号位数。例如设为 3 时显示 001；设为 0 时不补 0。"
 
 [addPageNumbers.error]
 failed = "添加页码操作失败"
@@ -298,19 +298,19 @@ title = "页码结果"
 [addPageNumbers.selectText]
 2 = "边距大小"
 4 = "起始页码"
-5 = "添加页码的页数"
-6 = "自定义文本"
+5 = "要添加页码的页面"
+6 = "页码显示格式"
 
 [addPassword]
 desc = "使用密码加密您的 PDF 文档。"
-submit = "加密"
+submit = "设置密码保护"
 tags = "encrypt,password,lock,secure,protect,security,encryption,safeguard,confidential,private,restrict access"
 title = "添加密码"
 
 [addPassword.encryption.keyLength]
 128bit = "128 位（标准）"
-256bit = "256 位（高）"
-40bit = "40 位（低）"
+256bit = "256 位（较强）"
+40bit = "40 位（兼容旧版）"
 label = "加密密钥长度"
 
 [addPassword.error]
@@ -320,12 +320,12 @@ failed = "加密 PDF 时发生错误。"
 stepTitle = "密码与加密"
 
 [addPassword.passwords.owner]
-label = "所有者密码"
-placeholder = "输入所有者密码"
+label = "权限密码（所有者）"
+placeholder = "输入用于管理权限的密码"
 
 [addPassword.passwords.user]
-label = "用户密码"
-placeholder = "输入用户密码"
+label = "打开密码（用户）"
+placeholder = "输入打开 PDF 所需的密码"
 
 [addPassword.results]
 title = "已加密的 PDF"
@@ -341,13 +341,13 @@ title = "加密级别"
 title = "密码保护概览"
 
 [addPassword.tooltip.passwords]
-bullet1 = "用户密码：打开 PDF 时需要"
-bullet2 = "所有者密码：控制文档权限（并非所有查看器都支持）"
-text = "用户密码限制打开文档；所有者密码控制打开后可执行的操作。您可以同时设置或仅设置其中之一。"
+bullet1 = "打开密码：阅读文件前需要输入"
+bullet2 = "权限密码：管理打印、复制和编辑等权限，部分阅读器可能不遵循这些限制"
+text = "打开密码控制能否阅读文件；权限密码控制打开后允许的操作。可设置其中一种，也可同时设置。"
 title = "密码类型"
 
 [addPassword.tooltip.permissions]
-text = "这些权限控制用户对 PDF 的操作。与所有者密码配合时效果最佳。"
+text = "选择允许或限制的操作，并设置权限密码来管理这些权限。"
 title = "更改权限"
 
 [addStamp]
@@ -422,32 +422,32 @@ pageNumberFooter = "Page Number Footer"
 timestamp = "Timestamp"
 
 [addText]
-applySignatures = "应用文本"
-header = "向PDF添加文本"
+applySignatures = "保存文字到 PDF"
+header = "添加文字到 PDF"
 tags = "文本,注释,标签"
-title = "添加文本"
+title = "添加文字"
 
 [addText.canvas]
-colorPickerTitle = "Choose stroke colour"
+colorPickerTitle = "选择笔画颜色"
 
 [addText.error]
-failed = "向PDF添加文本时发生错误。"
+failed = "添加文字失败，请重试。"
 
 [addText.instructions]
-noSignature = "先在上方输入文本以启用放置。"
+noSignature = "先输入文字，再点击页面放置。"
 paused = "放置已暂停"
-resumeHint = "恢复放置以点击并添加文本。"
-text = "在上方输入文本后，点击PDF任意位置进行放置。"
-title = "如何添加文本"
+resumeHint = "点击“继续放置”，再点击页面添加文字。"
+text = "输入文字后，点击页面上要放置的位置。"
+title = "如何添加文字"
 
 [addText.mode]
-move = "移动文本"
+move = "移动文字"
 pause = "暂停放置"
-place = "放置文本"
-resume = "恢复放置"
+place = "放置文字"
+resume = "继续放置"
 
 [addText.results]
-title = "添加文本结果"
+title = "已添加文字"
 
 [addText.saved]
 defaultCanvasLabel = "Drawing signature"
@@ -472,26 +472,26 @@ image = "Upload"
 text = "Text"
 
 [addText.step]
-createDesc = "输入要添加的文本"
-place = "放置文本"
-placeDesc = "在PDF上点击以添加文本"
+createDesc = "输入要添加的文字，并设置样式。"
+place = "放置文字"
+placeDesc = "点击 PDF 页面，放置文字。"
 
 [addText.steps]
-configure = "配置文本"
+configure = "文字与样式"
 
 [addText.text]
-colorLabel = "文本颜色"
+colorLabel = "文字颜色"
 fontLabel = "字体"
-fontSizeLabel = "字体大小"
-fontSizePlaceholder = "输入或选择字体大小（8-200）"
-name = "文本内容"
-placeholder = "输入要添加的文本"
+fontSizeLabel = "字号"
+fontSizePlaceholder = "输入或选择字号（8-200）"
+name = "文字内容"
+placeholder = "输入要添加的文字"
 
 [addText.type]
 canvas = "Canvas"
 image = "Image"
 saved = "Saved"
-text = "Text"
+text = "文字"
 
 [adjust-contrast]
 tags = "颜色校正、调节、修改、增强"
@@ -1971,46 +1971,46 @@ changeColor = "更改颜色"
 chooseColor = "选择颜色"
 circle = "圆形"
 clearBackground = "移除背景"
-clearDocumentAnnotations = "清除所有注释"
+clearDocumentAnnotations = "清除所有批注"
 clearDocumentAnnotationsConfirm = "全部清除"
-clearDocumentAnnotationsDescription = "这将移除当前在编辑器中加载的所有注释。请保存更改以将其写入 PDF。"
-clearDocumentAnnotationsEmptyBody = "编辑器中当前未加载任何注释。"
-clearDocumentAnnotationsEmptyTitle = "没有可清除的注释"
-clearDocumentAnnotationsErrorTitle = "无法清除注释"
-clearDocumentAnnotationsSuccessBody = "请保存更改以将注释的移除写入 PDF。"
-clearDocumentAnnotationsSuccessTitle = "已清除所有注释"
-clearDocumentAnnotationsTitle = "要清除所有注释吗？"
-clearDocumentAnnotationsUnavailableBody = "注释图层仍在加载中。请稍后重试。"
-clearDocumentAnnotationsUnavailableTitle = "注释尚未就绪"
+clearDocumentAnnotationsDescription = "清除当前文档中的全部批注。保存后才会写入 PDF。"
+clearDocumentAnnotationsEmptyBody = "当前文档没有可清除的批注。"
+clearDocumentAnnotationsEmptyTitle = "没有可清除的批注"
+clearDocumentAnnotationsErrorTitle = "无法清除批注"
+clearDocumentAnnotationsSuccessBody = "批注已清除，请保存更改。"
+clearDocumentAnnotationsSuccessTitle = "已清除所有批注"
+clearDocumentAnnotationsTitle = "清除所有批注？"
+clearDocumentAnnotationsUnavailableBody = "批注仍在加载，请稍后重试。"
+clearDocumentAnnotationsUnavailableTitle = "批注尚未加载完成"
 color = "颜色"
-comment = "评论"
-comments = "评论"
-contents = "文本"
+comment = "批注留言"
+comments = "批注留言"
+contents = "文字内容"
 delete = "删除"
-deleted = "注释已删除"
+deleted = "批注已删除"
 drawing = "绘图"
-editSelectDescription = "单击现有注释以编辑其颜色、不透明度、文本或大小。"
+editSelectDescription = "点击已有批注，修改颜色、不透明度、文字或大小。"
 editText = "编辑文本框"
 fillColor = "填充颜色"
 fillOpacity = "填充不透明度"
-fontSize = "字体大小"
-freehandHighlighter = "手绘高亮"
+fontSize = "字号"
+freehandHighlighter = "自由高亮"
 highlight = "高亮"
 imagePreview = "预览"
-insertText = "插入文本"
+insertText = "建议插入文字"
 line = "直线"
 lineArrow = "箭头"
 moreActions = "更多操作"
 noBackground = "无背景"
-note = "便笺"
-notesStamps = "便笺与图章"
+note = "便签"
+notesStamps = "便签与图章"
 opacity = "不透明度"
 pen = "画笔"
 polygon = "多边形"
 polyline = "折线"
-properties = "属性"
+properties = "批注属性"
 rectangle = "矩形"
-replaceText = "替换文本"
+replaceText = "建议替换文字"
 saveChanges = "保存更改"
 select = "选择"
 selectAndMove = "选择并编辑"
@@ -2018,7 +2018,7 @@ settings = "设置"
 shapes = "形状"
 square = "正方形"
 squiggly = "波浪线"
-stamp = "添加图像"
+stamp = "添加图片"
 stampSettings = "图章设置"
 strikeout = "删除线"
 strokeColor = "描边颜色"
@@ -2026,8 +2026,8 @@ strokeOpacity = "描边不透明度"
 strokeWidth = "线宽"
 text = "文本框"
 textAlignment = "文本对齐"
-textMarkup = "文本标注"
-title = "注释"
+textMarkup = "文字标记"
+title = "添加批注"
 underline = "下划线"
 undoDelete = "撤销"
 width = "宽度"
@@ -2396,7 +2396,7 @@ description = "此工具将基于内容自动重命名 PDF 文件。它会分析
 tags = "auto-detect,header-based,organize,relabel,auto rename,automatic rename,smart rename,rename by content,filename,file naming,detect title"
 
 [autoRotate]
-submit = "自动旋转"
+submit = "校正页面方向"
 tags = "auto rotate,fix orientation,upside down,sideways,straighten,orient,detect orientation,correct rotation,auto orient,scanned,OSD"
 
 [autoRotate.confidenceThreshold]
@@ -2404,15 +2404,15 @@ title = "置信度阈值"
 
 [autoRotate.detectionMode]
 auto = "自动"
-osd = "仅 OCR"
-text = "仅文本"
-title = "检测方法"
+osd = "使用 OCR 检测"
+text = "读取文字方向"
+title = "方向识别方式"
 
 [autoRotate.error]
 failed = "自动旋转 PDF 时发生错误。"
 
 [autoRotate.inferUndetected]
-title = "旋转低置信度页面以匹配"
+title = "未识别页面跟随其他页面"
 
 [autoRotate.report]
 applied = "{{degrees}}° 顺时针"
@@ -2423,7 +2423,7 @@ summary = "{{total}} 页中已旋转 {{rotated}} 页，{{unchanged}} 页保持�
 title = "检测报告"
 
 [autoRotate.report.method]
-inferred = "已匹配"
+inferred = "跟随其他页面"
 none = "已跳过"
 osd = "OCR"
 text = "文本"
@@ -2432,35 +2432,35 @@ text = "文本"
 belowThreshold = "低于阈值"
 blankPage = "页面为空白"
 inferredFromDocument = "与其他页面相同"
-noDominantDirection = "文本方向混合"
+noDominantDirection = "文字方向不一致"
 osdFailed = "未找到可读文本"
-osdNoVerdict = "无法判断朝向"
+osdNoVerdict = "无法判断页面方向"
 tesseractUnavailable = "未安装 OCR"
 tooFewGlyphs = "文本过少"
 
 [autoRotate.results]
-title = "自动旋转结果"
+title = "方向校正结果"
 
 [autoRotate.settings]
 title = "设置"
 
 [autoRotate.tooltip.confidenceThreshold]
-text = "在旋转页面前，检测结果需要达到的确定程度。降低它可旋转更多页面，提高它可让更多页面保持不变。"
+text = "识别结果达到此置信度才会旋转。调低会处理更多页面；调高会跳过更多不确定的页面。"
 title = "置信度阈值"
 
 [autoRotate.tooltip.description]
 text = "判断每个页面应朝向哪边，并将其旋转到正确方向。已经正向的页面会保持不变。"
 
 [autoRotate.tooltip.detectionMode]
-text = "自动会先读取页面上的文本，如果不足，再将页面作为图像检查。仅文本会跳过图像检查，适合从未扫描过的文档且速度最快。仅 OCR 会将每个页面都视为图像。"
-title = "检测方法"
+text = "“自动”先读取文字方向，文字不足时再用 OCR 分析页面图片。纯文字文档可只读取文字方向；扫描件可使用 OCR 检测。"
+title = "方向识别方式"
 
 [autoRotate.tooltip.header]
-title = "自动旋转"
+title = "自动校正方向"
 
 [autoRotate.tooltip.inferUndetected]
-text = "空白或几乎空白的页面无法单独检查。当所有可读取页面都需要相同旋转时，这些页面也会旋转以匹配它们。"
-title = "旋转低置信度页面以匹配"
+text = "空白页或文字太少的页面可能无法判断方向。如果其他可识别页面都需要旋转相同角度，这些页面也会跟随旋转。"
+title = "未识别页面的处理方式"
 
 [autoSizeSplitPDF]
 tags = "pdf、拆分、文件、组织"
@@ -2627,14 +2627,14 @@ headline = "全部清除"
 [bulkSelection]
 selectedPages_one = "已选择：{{count}} 页（{{pages}}）"
 selectedPages_other = "已选择：{{count}} 页（{{pages}}）"
-syntaxError = "存在语法问题。请参阅页面选择提示以获得帮助。"
+syntaxError = "选页规则格式不正确，请参考选页示例修改。"
 
 [bulkSelection.advanced]
 title = "高级"
 
 [bulkSelection.everyNthPage]
 placeholder = "步长"
-title = "每 N 页"
+title = "每 N 页选一页"
 
 [bulkSelection.examples]
 combineSets = "合并集合"
@@ -2663,7 +2663,7 @@ text = "AND 优先级高于逗号。NOT 在文档范围内生效。"
 title = "运算符"
 
 [bulkSelection.operators.and]
-title = "合并选择（两个条件都必须为真）"
+title = "只选同时满足两个条件的页面"
 
 [bulkSelection.operators.descriptions]
 and = "AND: & 或 \"and\" - 需同时满足两个条件（例如，1-50 & even）"
@@ -2680,7 +2680,7 @@ title = "从选择中排除"
 title = "选择所有奇数页（1、3、5、7…）"
 
 [bulkSelection.operators.or]
-title = "添加到选择（任一条件为真即可）"
+title = "选中满足任一条件的页面"
 
 [bulkSelection.pageSelection]
 title = "页面选择"
@@ -2709,10 +2709,10 @@ choosePrivateKey = "选择私钥文件"
 declined = "已拒绝"
 fetchFailed = "加载签署数据失败"
 finalized = "已最终确定"
-location = "位置"
-logoTitle = "Logo"
-name = "名称"
-noLogo = "无 Logo"
+location = "签署地点"
+logoTitle = "标志图片"
+name = "签署人姓名"
+noLogo = "不显示标志"
 pageNumber = "页码"
 password = "证书密码"
 passwordOptional = "如无密码则留空"
@@ -2720,9 +2720,9 @@ pemCertificateLabel = "证书 (.pem / .crt)"
 pemPrivateKeyLabel = "私钥 (.pem / .key)"
 pending = "待处理"
 readyToFinalize = "可最终确定"
-reason = "原因"
+reason = "签署原因"
 serverCertMessage = "使用服务器证书 - 无需文件或密码"
-showLogo = "显示 Logo"
+showLogo = "显示标志图片"
 signatureProgress = "{{signedCount}}/{{totalCount}} 个签名"
 signed = "已签署"
 tags = "身份验证、PEM、P12、官方、加密"
@@ -2730,10 +2730,10 @@ title = "证书签名"
 viewed = "已查看"
 
 [certSign.appearance]
-invisible = "不可见"
+invisible = "不显示签名框"
 stepTitle = "签名外观"
-visibility = "可见性"
-visible = "可见"
+visibility = "签名显示方式"
+visible = "显示签名框"
 
 [certSign.appearance.options]
 title = "签名详情"
@@ -2742,10 +2742,10 @@ title = "签名详情"
 title = "关于签名外观"
 
 [certSign.appearance.tooltip.invisible]
-bullet1 = "在不改变视觉的情况下提供安全性"
-bullet2 = "满足数字签名的法律要求"
+bullet1 = "数字签名仍可通过签名验证工具检查"
+bullet2 = "签名信息保存在 PDF 中"
 bullet3 = "不影响文档版式或设计"
-text = "签名会添加到 PDF 中以提升安全性，但在查看文档时不可见。适合满足合规要求而不改变外观的场景。"
+text = "添加数字签名，但不在页面上显示签名框，文档外观保持原样。"
 title = "不可见签名"
 
 [certSign.appearance.tooltip.visible]
@@ -2753,7 +2753,7 @@ bullet1 = "在文档上显示签署人姓名与日期"
 bullet2 = "可包含签署原因与地点"
 bullet3 = "可选择放置签名的页面"
 bullet4 = "可选添加徽标"
-text = "在 PDF 上显示包含您的姓名、日期和可选信息的签名块。用于让读者清楚看到文档已签署。"
+text = "在页面上显示签名框，包含姓名、日期和可选的签署原因、地点或标志。"
 title = "可见签名"
 
 [certSign.certFiles]
@@ -2761,20 +2761,20 @@ stepTitle = "证书文件"
 
 [certSign.certType.tooltip.convert]
 text = "使用 keytool 将文件转换为 Java 密钥库（.jks），然后选择 JKS。"
-title = "未看到密钥？"
+title = "格式不匹配？"
 
 [certSign.certType.tooltip.header]
 title = "关于证书类型"
 
 [certSign.certType.tooltip.what]
-text = "它是您签名的安全身份标识，证明是您签署。除非要求使用证书签名，我们建议使用“键入、手写或上传”等其他安全方式。"
+text = "证书与私钥用于生成数字签名，供阅读器验证签名。若只需要在页面上放置手写或图片签名，可使用“添加签名”工具。"
 title = "什么是证书？"
 
 [certSign.certType.tooltip.which]
-bullet1 = "PKCS#12（.p12 / .pfx）— 合并文件（最常见）"
-bullet2 = "PFX（.pfx）— 微软的 PKCS12 版本"
-bullet3 = "PEM — 独立的私钥与证书 .pem 文件"
-bullet4 = "JKS — 面向开发/CI-CD 的 Java .jks 密钥库"
+bullet1 = "PKCS#12（.p12 / .pfx）：证书和私钥保存在同一个文件中"
+bullet2 = "PFX（.pfx）：常见于 Windows，属于 PKCS#12 格式"
+bullet3 = "PEM：分别提供证书文件和私钥文件"
+bullet4 = "JKS：Java 密钥库文件（.jks）"
 text = "选择与您的证书文件格式相匹配的选项："
 title = "我该选哪种格式？"
 
@@ -2961,7 +2961,7 @@ stepTitle = "此设备"
 failed = "处理签名时发生错误。"
 
 [certSign.format]
-pkcs11 = "USB 令牌"
+pkcs11 = "USB 安全令牌"
 windowsStore = "Windows 证书存储"
 
 [certSign.hardware]
@@ -3000,32 +3000,32 @@ results = "已签名 PDF"
 submit = "签署 PDF"
 
 [certSign.signMode.tooltip.auto]
-text = "使用服务器<b>自签名</b>证书签署。提供相同的<b>防篡改封印</b>与<b>审计追踪</b>；在查看器中通常显示为<b>未验证</b>。"
-title = "自动——零配置，系统即时封印"
-use = "适用场景：需要快速、且在内部评审与归档中保持一致身份。"
+text = "使用服务器的<b>自签名</b>证书生成签名，可检查<b>文档完整性</b>并保留<b>签署记录</b>；阅读器通常会提示<b>签署人身份未验证</b>。"
+title = "使用服务器证书"
+use = "适合使用统一的服务器证书签署。"
 
 [certSign.signMode.tooltip.header]
 title = "关于 PDF 签名"
 
 [certSign.signMode.tooltip.manual]
-text = "使用您自己的证书文件以符合品牌身份。当 CA/链被识别时可显示<b>受信任</b>。"
-title = "手动——自带证书"
-use = "适用：面向客户、法律、合规场景。"
+text = "使用自己的证书签名。阅读器认可对应的证书链时，可将签名标记为<b>受信任</b>。"
+title = "使用自己的证书"
+use = "适合需要使用指定证书的场景。"
 
 [certSign.signMode.tooltip.overview]
-text = "两种模式都会为文档加封（任何编辑都会被标记为篡改），并记录签署人/时间/方式以供审计。查看器的信任状态取决于证书链。"
+text = "数字签名用于检查签署后的内容是否改变，并记录签署信息。阅读器是否信任签名，取决于证书链。"
 title = "签名工作原理"
 
 [certSign.signMode.tooltip.rule]
-text = "需要收件人显示<b>受信任</b>？选<b>手动</b>。需要零配置、快速的防篡改封印与审计追踪？选<b>自动</b>。"
-title = "经验法则"
+text = "需要使用自己的证书时选<b>手动</b>；希望直接使用服务器证书时选<b>自动</b>。签名是否<b>受信任</b>取决于阅读器是否认可证书链。"
+title = "如何选择证书来源"
 
 [certSign.source]
 device = "此设备"
 noOtherSources = "没有其他可用的证书来源。"
 server = "服务器"
 stepTitle = "证书来源"
-upload = "上传"
+upload = "选择证书文件"
 
 [changeCreds]
 changeUsername = "更新您的用户名。更新后您将被登出。"
@@ -3626,13 +3626,13 @@ saturation = "Saturation and brightness"
 title = "选择颜色"
 
 [common]
-actions = "Actions"
+actions = "操作"
 back = "返回"
 cancel = "取消"
 change = "更改"
-clearFilters = "清除筛选器"
+clearFilters = "清除筛选"
 close = "关闭"
-codeSample = "Code sample"
+codeSample = "代码示例"
 collapse = "折叠"
 confirm = "确认"
 continue = "继续"
@@ -3641,7 +3641,7 @@ copy = "复制"
 copyCode = "复制代码"
 dismiss = "关闭"
 done = "完成"
-enterValue = "Enter value"
+enterValue = "请输入内容"
 error = "错误"
 expand = "展开"
 filterEmpty = "没有可筛选的内容"
@@ -3651,7 +3651,7 @@ moreInformation = "更多信息"
 next = "下一页"
 noData = "无数据"
 nOfTotal = "{{current}} / {{total}}"
-open = "Open"
+open = "打开"
 preview = "预览"
 previous = "上一页"
 refresh = "刷新"
@@ -3659,114 +3659,114 @@ remaining = "剩余"
 retry = "重试"
 save = "保存"
 search = "搜索"
-settingsSections = "设置部分"
-showAllTotal = "显示全部 {{total}}"
-showLess = "显示更少"
-stepOf = "Step {{current}} of {{total}}"
+settingsSections = "设置分类"
+showAllTotal = "显示全部 {{total}} 项"
+showLess = "收起"
+stepOf = "第 {{current}} 步，共 {{total}} 步"
 
 [compare]
 clearSelected = "清除已选择"
 clearSlot = "移除文件"
-cta = "比较"
-loading = "正在比较..."
+cta = "开始对比"
+loading = "正在对比…"
 newLine = "换行"
 pages = "页面"
 tags = "区分、对比、更改、分析"
-title = "比较"
-workbenchLabel = "比较视图"
+title = "对比 PDF"
+workbenchLabel = "对比结果"
 
 [compare.actions]
-linkScroll = "链接滚动"
-placeSideBySide = "并排放置"
+linkScroll = "同步滚动"
+placeSideBySide = "左右并排"
 resetView = "重置视图"
-stackVertically = "垂直堆叠"
-unlinkScroll = "取消链接滚动"
+stackVertically = "上下排列"
+unlinkScroll = "独立滚动"
 zoomIn = "放大"
 zoomOut = "缩小"
 
 [compare.clear]
 confirm = "清除并返回"
-confirmBody = "这将关闭当前比较并带您返回到“活动文件”。"
-confirmTitle = "清除所选 PDF？"
+confirmBody = "关闭当前对比，返回工作区的文件列表。"
+confirmTitle = "关闭当前对比？"
 
 [compare.dropdown]
 additions = "新增（{{count}}）"
 additionsLabel = "新增"
 deletions = "删除（{{count}}）"
 deletionsLabel = "删除"
-noResults = "未找到更改"
-searchPlaceholder = "搜索更改..."
+noResults = "未发现差异"
+searchPlaceholder = "搜索差异…"
 
 [compare.earlyDissimilarity]
-body = "目前相似之处很少。如果它们并非相关文档，您可以停止比较。"
-stopButton = "停止比较"
+body = "两份文档目前匹配的内容很少。如果不是同一文档的不同版本，可以停止对比。"
+stopButton = "停止对比"
 title = "这些 PDF 看起来差异很大"
 
 [compare.edited]
-label = "已编辑 PDF"
-placeholder = "Select the edited PDF"
+label = "修改后的 PDF"
+placeholder = "选择修改后的 PDF"
 selectBaseFirst = "请先选择原始 PDF"
 
 [compare.error]
 filesMissing = "无法找到所选文件。请重新选择。"
 generic = "无法比较这些文件。"
-selectRequired = "请选择一个原始和一个已编辑文档。"
-title = "比较失败"
+selectRequired = "请选择原始 PDF 和修改后的 PDF。"
+title = "对比失败"
 
 [compare.large.file]
-message = "提供的文件中有一份或两份过大，无法处理。"
+message = "有文件过大，无法完成对比。请缩小文件或减少页面后重试。"
 
 [compare.longJob]
 body = "这些 PDF 总页数超过 2,000。处理可能需要几分钟。"
-title = "大型比较进行中"
+title = "正在对比大型文档"
 
 [compare.no.text]
-message = "所选的 PDF 文件中有一个或两个没有文本内容。请选择包含文本的 PDF 文件进行对比。"
+message = "有文件不包含可读取的文字。文字对比需要带有文字层的 PDF。"
 
 [compare.original]
 label = "原始 PDF"
-placeholder = "Select the original PDF"
+placeholder = "选择原始 PDF"
 
 [compare.pixel]
-base = "原始"
+base = "原始文档"
 changed = "已更改"
-comparison = "已编辑"
+comparison = "修改后文档"
 diff = "差异"
-diffOnly = "仅差异"
-missingInBase = "原始中缺失"
-missingInComparison = "已编辑中缺失"
+diffOnly = "只看差异"
+missingInBase = "仅修改后文档有"
+missingInComparison = "仅原始文档有"
 overall = "总体"
 overlay = "叠加"
 pageLabel = "页面"
 pagesChanged = "页面已更改"
 sideBySide = "并排"
 sizeMismatch = "尺寸不匹配"
-summaryTitle = "像素比较"
+summaryTitle = "页面画面对比"
 
 [compare.pixel.errors]
-canvasContextUnavailable = "无法获取用于像素比较的 2D canvas 上下文。"
+canvasContextUnavailable = "浏览器无法生成页面对比图，请重新加载页面后重试。"
 
 [compare.pixel.warnings]
 noPages = "一个或两个文档没有页面。"
-pageCountMismatch = "页面数量不匹配：原始有 {{base}} 页，已编辑有 {{comparison}} 页。多出的页面将单侧显示，并标记为已完全删除/添加。"
+pageCountMismatch = "页数不同：原始文档 {{base}} 页，修改后文档 {{comparison}} 页。多出的页面会单独显示，并标记为整页新增或删除。"
 
 [compare.rendering]
 complete = "页面渲染完成"
-inProgress = "至少有一个 PDF 体积很大，在渲染完成之前滚动不会很流畅"
-pageNotReadyBody = "某些页面仍在渲染中。它们准备好后导航将自动对齐。"
+inProgress = "文件较大，页面仍在加载，滚动可能暂时不流畅。"
+pageNotReadyBody = "部分页面仍在生成预览，完成后会自动对齐显示。"
 pageNotReadyTitle = "页面尚未渲染"
 pagesRendered = "页已渲染"
 rendering = "正在渲染"
 
 [compare.review]
-title = "比较结果"
+title = "对比结果"
 
 [compare.selection]
-originalEditedTitle = "选择原始和已编辑的 PDF"
+originalEditedTitle = "选择要对比的两份 PDF"
 
 [compare.status]
-complete = "比较已就绪"
-error = "比较失败"
+complete = "对比完成"
+error = "对比失败"
 extracting = "正在提取文本..."
 processing = "正在分析差异..."
 
@@ -3776,13 +3776,13 @@ comparisonHeading = "已编辑文档"
 pageLabel = "页"
 
 [compare.swap]
-confirm = "交换并重新运行"
-confirmBody = "这将重新运行工具。确定要交换原始和已编辑的顺序吗？"
-confirmTitle = "重新运行比较？"
+confirm = "交换并重新对比"
+confirmBody = "交换原始文档和修改后文档的位置，并重新分析差异。"
+confirmTitle = "交换两份文档？"
 label = "交换"
 
 [compare.toasts]
-unlinkedBody = "提示：上/下箭头同时滚动两个窗格；平移只移动活动窗格。"
+unlinkedBody = "上下方向键仍会同时滚动两侧；拖动平移只影响当前一侧。"
 unlinkedTitle = "已启用独立滚动和平移"
 
 [compare.too.dissimilar]
@@ -3790,9 +3790,9 @@ message = "这些文档看起来差异很大。为节省时间，已停止比较
 
 [compress]
 desc = "压缩 PDF 以减小文件大小。"
-submit = "压缩"
+submit = "压缩 PDF"
 tags = "shrink,reduce,optimize,compress,smaller,downsize,file size,reduce size,minimize,make smaller,decrease size,optimize size"
-title = "压缩"
+title = "压缩 PDF"
 
 [compress.compressionLevel]
 range1to3 = "较低的值可保留质量但文件更大"
@@ -3803,52 +3803,52 @@ range7to9 = "较高的值可显著减小体积，但可能降低图像清晰度"
 failed = "压缩 PDF 时发生错误。"
 
 [compress.grayscale]
-label = "应用灰度进行压缩"
+label = "将图片转为灰度"
 
 [compress.linearize]
-label = "线性化 PDF 以加快网页查看"
+label = "优化网页打开速度"
 
 [compress.lineArt]
-description = "使用 ImageMagick 将页面转换为高对比度的黑白，以最大化体积压缩。"
+description = "将页面转为高对比度的黑白线稿，以进一步减小文件体积。"
 detailLevel = "细节级别"
-edgeEmphasis = "边缘强调"
+edgeEmphasis = "轮廓增强"
 edgeHigh = "强"
 edgeLow = "柔和"
 edgeMedium = "均衡"
-label = "将图像转换为线稿"
+label = "将图片转为黑白线稿"
 unavailable = "此服务器未安装或未启用 ImageMagick"
 
 [compress.method]
-filesize = "文件大小"
-quality = "质量"
+filesize = "目标文件大小"
+quality = "压缩强度"
 title = "压缩方式"
 
 [compress.settings]
-desiredSize = "期望的文件大小"
+desiredSize = "目标文件大小"
 desiredSizePlaceholder = "输入大小"
-desiredSizeUnit = "Size unit"
+desiredSizeUnit = "大小单位"
 title = "设置"
 
 [compress.tooltip.description]
-text = "压缩是减小文件大小的简便方法。选择“文件大小”可输入目标大小，我们将为您自动调整质量；选择“质量”可手动设置压缩强度。"
-title = "说明"
+text = "选择“目标文件大小”，由工具自动调整压缩参数；选择“压缩强度”，手动控制体积与图片清晰度的取舍。"
+title = "如何选择压缩方式"
 
 [compress.tooltip.grayscale]
-text = "选择此选项将所有图像转换为黑白，这对扫描 PDF 或图片较多的文档可显著减小体积。"
-title = "灰度"
+text = "将彩色图片转为黑、白、灰色调，可能减小文件体积。适合不需要保留颜色的扫描件。"
+title = "转为灰度"
 
 [compress.tooltip.header]
 title = "压缩设置概览"
 
 [compress.tooltip.lineArt]
-text = "使用 ImageMagick 将页面转换为高对比度黑白。通过细节级别控制有多少内容变为黑色，通过边缘强调控制边缘检测的强度。"
+text = "将页面转为黑白线稿。“细节级别”控制保留的黑色细节，“轮廓增强”控制边缘识别强度。"
 title = "线稿"
 
 [compress.tooltip.qualityAdjustment]
 bullet1 = "较低数值更能保留质量"
 bullet2 = "较高数值能更大幅度减小文件"
 text = "拖动滑块以调整压缩强度。较低值（1-3）可保留质量但文件较大；较高值（7-9）能缩小体积但会降低图像清晰度。"
-title = "质量调整"
+title = "压缩强度"
 
 [compressPdfs]
 tags = "压缩、小、微小"
@@ -4033,86 +4033,86 @@ title = "续期你的服务器登录"
 
 [convert]
 autoRotate = "自动旋转"
-autoRotateDescription = "自动旋转图像以更好地适配 PDF 页面"
+autoRotateDescription = "必要时旋转图片，让它更适合页面尺寸。"
 blackwhite = "黑白"
-cbrDpi = "用于图像渲染的 DPI"
+cbrDpi = "图片渲染分辨率（DPI）"
 cbrOptions = "CBR 选项"
 cbrOutputOptions = "PDF 转 CBR 选项"
 cbrToPdf = "CBR → PDF"
-cbzDpi = "图像渲染的 DPI"
+cbzDpi = "图片渲染分辨率（DPI）"
 cbzOptions = "CBZ 转 PDF 选项"
 cbzOutputOptions = "PDF 转 CBZ 选项"
 cbzToPdf = "CBZ → PDF"
-color = "颜色"
-colorType = "颜色类型"
-combineImages = "合并图像"
-combineImagesDescription = "将所有图像合并为一个 PDF，或为每个图像创建单独的 PDF"
-combineSvgs = "Combine SVGs into single PDF"
-combineSvgsDescription = "Combine all SVG files into one PDF with multiple pages, or create separate PDFs for each SVG"
+color = "彩色"
+colorType = "色彩模式"
+combineImages = "合并为一份 PDF"
+combineImagesDescription = "勾选后将所有图片合为一份 PDF；取消勾选则每张图片分别生成 PDF。"
+combineSvgs = "合并 SVG 为一份 PDF"
+combineSvgsDescription = "勾选后将所有 SVG 合为多页 PDF；取消勾选则每个 SVG 分别生成 PDF。"
 conversionResults = "转换结果"
 convertFiles = "转换文件"
-convertFrom = "转换来源"
+convertFrom = "原文件格式"
 converting = "正在转换…"
-convertTo = "转换为"
-desc = "在不同格式之间转换文件"
-downloadHtml = "下载 HTML 中间文件（而非 PDF）"
+convertTo = "转换后的格式"
+desc = "将 PDF 转为其他格式，或将文档、图片等转为 PDF。"
+downloadHtml = "下载转换过程中的 HTML 文件"
 dpi = "DPI"
 ebookToPdf = "电子书 → PDF"
 emailOptions = "邮件转 PDF 选项"
 emlToPdf = "电子邮件 → PDF"
 errorConversion = "转换文件时发生错误。"
-fileToPdf = "Office/文档 → PDF"
-fillPage = "填充页面"
-fitDocumentToPage = "适配页面"
-fitOption = "适配选项"
+fileToPdf = "办公文档 → PDF"
+fillPage = "铺满页面"
+fitDocumentToPage = "完整放入页面"
+fitOption = "图片在页面上的布局"
 grayscale = "灰度"
-imageOptions = "图像选项"
-includeAllRecipients = "在页眉中包含抄送（CC）与密送（BCC）收件人"
+imageOptions = "图片转换选项"
+includeAllRecipients = "在页眉中显示抄送和密送收件人"
 includeAttachments = "包含邮件附件"
-maintainAspectRatio = "保持纵横比"
+maintainAspectRatio = "保持原始宽高比例"
 maxAttachmentSize = "最大附件大小（MB）"
-multiple = "多个"
-optimizeForEbook = "为电子书阅读器优化 PDF（使用 Ghostscript）"
-output = "输出"
+multiple = "多个文件"
+optimizeForEbook = "优化电子书阅读效果"
+output = "输出设置"
 outputFormat = "输出格式"
 pdfaAccessibleFormat = "{{format}}（无障碍）"
-pdfaDigitalSignatureWarning = "该PDF包含数字签名，下一步将移除该签名。"
-pdfaNote = "PDF/A-1b 兼容性更好，PDF/A-2b 支持的功能更多。"
+pdfaDigitalSignatureWarning = "此 PDF 含数字签名，转换时会移除原有签名。"
+pdfaNote = "PDF/A 用于长期保存文档。PDF/A-1b 兼容性较好；PDF/A-2b 支持更多功能；PDF/A-3b 允许嵌入附件。"
 pdfaOptions = "PDF/A 选项"
 pdfOptions = "PDF 选项"
 pdfToCbr = "PDF → CBR"
 pdfToCbz = "PDF → CBZ"
 pdfToEpub = "PDF → EPUB"
-pdfUaAltTextNotice = "Images need a written description before a document can be certified. Descriptions are never generated automatically, because an invented one passes the checker while telling a screen-reader user nothing. Any image left without one is reported, and the file comes back tagged but not certified."
-pdfUaAltTextScanFailed = "The images could not be listed. Convert anyway and the response reports what is missing."
-pdfUaAltTextSingleFileOnly = "Descriptions belong to one document: an image is identified by its position, which is a different image in every file. Convert these {{fileCount}} files to tag them, then convert one at a time to describe its images."
-pdfUaEmbedFonts = "Embed missing fonts"
-pdfUaEmbedFontsHelp = "PDF/UA requires every font to be embedded. Turning this off is faster but usually prevents conformance."
-pdfUaFigureLabel = "Page {{page}} {{kind}}"
-pdfUaFigurePlaceholder = "What this image tells the reader"
-pdfUaFindImages = "Find images needing a description"
-pdfUaLanguage = "Document language"
-pdfUaLanguageHelp = "A BCP-47 tag such as en-GB. Used only when the document does not already declare its own language."
-pdfUaNoImagesNeedingText = "No image is missing a description."
-pdfUaOptions = "PDF/UA Options"
-pdfUaOverrideLanguage = "Replace the document's own language"
-pdfUaOverrideLanguageHelp = "Only tick this if the language above is right and the document's own is wrong. Relabelling a document into a language it is not written in makes a screen reader unintelligible."
-pdfUaProfile = "Conformance level"
-pdfUaSignatureWarning = "This PDF is digitally signed. Tagging rewrites the page content the signature covers, so the signature will stop verifying. Convert first, then re-sign."
-pdfUaTitle = "Document title"
-pdfUaTitleHelp = "Shown by a reader instead of the filename. Left blank, the first heading is used."
-selectSourceFormatFirst = "请先选择源格式"
+pdfUaAltTextNotice = "通过认证前，需要为图片填写文字说明。工具不会自动编造说明；缺少说明的图片会列在报告中。此时仍会输出已添加结构标签的文件，但不会将其标记为通过认证。"
+pdfUaAltTextScanFailed = "无法列出图片。仍可继续转换，结果会说明缺少的内容。"
+pdfUaAltTextSingleFileOnly = "图片说明需要逐份文档填写，因为图片位置在不同文件中对应不同内容。可先为这 {{fileCount}} 个文件添加结构标签，再逐个转换并补充图片说明。"
+pdfUaEmbedFonts = "嵌入缺失字体"
+pdfUaEmbedFontsHelp = "PDF/UA 要求嵌入所有字体。关闭后转换更快，但通常无法通过合规验证。"
+pdfUaFigureLabel = "第 {{page}} 页 · {{kind}}"
+pdfUaFigurePlaceholder = "描述这张图片要传达的信息"
+pdfUaFindImages = "查找缺少文字说明的图片"
+pdfUaLanguage = "文档语言"
+pdfUaLanguageHelp = "填写 BCP-47 语言代码，例如 zh-CN 或 en-GB。默认仅在文档未设置语言时使用。"
+pdfUaNoImagesNeedingText = "所有图片都已有文字说明。"
+pdfUaOptions = "PDF/UA 无障碍选项"
+pdfUaOverrideLanguage = "覆盖文档原有语言"
+pdfUaOverrideLanguageHelp = "仅当文档原有语言设置有误时勾选。语言必须与实际内容一致，否则屏幕阅读器可能无法正确朗读。"
+pdfUaProfile = "验证标准"
+pdfUaSignatureWarning = "此 PDF 含数字签名。添加结构标签会修改页面内容，使原有签名无法通过验证。请先转换，再重新签名。"
+pdfUaTitle = "文档标题"
+pdfUaTitleHelp = "阅读器可显示此标题代替文件名。留空时使用文档中的第一个标题。"
+selectSourceFormatFirst = "请先选择原文件格式"
 settings = "设置"
-single = "单个"
-sourceFormatPlaceholder = "源格式"
-strictMode = "Strict Mode"
-strictModeDesc = "Error if conversion is not perfect (uses VeraPDF verification)"
-svgPdfOptions = "SVG to PDF Options"
+single = "一个文件"
+sourceFormatPlaceholder = "选择原文件格式"
+strictMode = "严格验证"
+strictModeDesc = "转换后用 VeraPDF 验证；不符合所选标准时，按失败处理。"
+svgPdfOptions = "SVG 转 PDF 选项"
 svgToPdf = "SVG → PDF"
-svgVectorNote = "SVG files are rendered as vector graphics for crisp output at any resolution. Dimensions from the SVG determine the PDF page size."
+svgVectorNote = "SVG 按矢量图形转换，放大后仍可保持清晰。PDF 页面尺寸由 SVG 的尺寸决定。"
 tags = "transform,change,convert,PDF to Word,PDF to Excel,PDF to image,Word to PDF,Excel to PDF,PowerPoint to PDF,HTML to PDF,export,import,file conversion,format change,save as"
-targetFormatPlaceholder = "目标格式"
-title = "转换"
+targetFormatPlaceholder = "选择目标格式"
+title = "格式转换"
 webOptions = "网页转 PDF 选项"
 zoomLevel = "缩放级别"
 
@@ -4124,34 +4124,34 @@ includePageNumbersDesc = "为生成的 PDF 添加页码"
 includeTableOfContents = "包含目录"
 includeTableOfContentsDesc = "在生成的 PDF 中添加自动生成的目录"
 optimizeForEbookPdf = "为电子书阅读器优化"
-optimizeForEbookPdfDesc = "为电子书阅读优化 PDF（更小的文件大小，在 eInk 设备上有更好的渲染）"
+optimizeForEbookPdfDesc = "减小文件体积，并改善电子墨水屏上的阅读效果。"
 
 [convert.epubOptions]
 detectChapters = "检测章节"
-detectChaptersDesc = "检测类似章节的标题并插入 EPUB 分页"
+detectChaptersDesc = "根据章节标题划分 EPUB 的分页位置。"
 kindleEink = "Kindle e-Ink（文本优化）"
 outputFormat = "输出格式"
 outputFormatDesc = "选择电子书的输出格式"
-tabletPhone = "平板/手机（含图像）"
+tabletPhone = "平板或手机（保留图片）"
 targetDevice = "目标设备"
-targetDeviceDesc = "选择为阅读设备优化的输出配置"
+targetDeviceDesc = "按阅读设备选择转换方案。"
 
 [convert.formatGroups]
 archive = "归档"
 document = "文档"
-ebook = "eBook"
+ebook = "电子书"
 email = "电子邮件"
 file = "文件"
-image = "图像"
+image = "图片"
 multipleFiles = "多个文件"
 presentation = "演示文稿"
 spreadsheet = "电子表格"
 text = "文本"
-web = "Web"
+web = "网页"
 
 [convert.formatOptions]
 any = "任意"
-images = "图像"
+images = "图片"
 msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
@@ -4215,10 +4215,10 @@ title = "关于 PDF 作品集"
 
 [crop]
 autoCrop = "自动裁剪空白"
-noFileSelected = "选择一个 PDF 文件开始裁剪"
+noFileSelected = "添加 PDF 后，选择要保留的页面区域。"
 reset = "重置为整页"
-submit = "提交"
-title = "裁剪"
+submit = "应用裁剪"
+title = "裁剪页面"
 
 [crop.automation]
 info = "以 PDF 点为单位输入裁剪坐标。原点 (0,0) 位于左下角。这些值将应用于此自动化中处理的所有 PDF。"
@@ -4237,35 +4237,35 @@ label = "宽度"
 
 [crop.coordinates.x]
 desc = "左边缘（点）"
-label = "X 位置"
+label = "横向位置（X）"
 
 [crop.coordinates.y]
 desc = "下边缘（点）"
-label = "Y 位置"
+label = "纵向位置（Y）"
 
 [crop.error]
 failed = "裁剪 PDF 失败"
 
 [crop.pageNumbers]
-description = "在指定页面裁剪所选区域，或使用 'all' 表示每一页。"
-error = "无效的页面选择。请使用例如 1, 3, 5-8 或 all。"
+description = "输入要裁剪的页码或范围；输入 all 表示全部页面。"
+error = "页码格式不正确，请输入 1,3,5-8 或 all。"
 label = "要裁剪的页面"
 placeholder = "例如 1, 3, 5-8 或 all"
 
 [crop.preview]
-title = "裁剪区域选择"
+title = "要保留的区域"
 
 [crop.results]
 title = "裁剪结果"
 
 [crop.steps]
-selectArea = "选择裁剪区域"
+selectArea = "选择保留区域"
 
 [crop.tooltip]
-description = "通过拖拽并调整缩略图上的蓝色覆盖层选择要裁剪的区域。"
-drag = "拖动覆盖层以移动裁剪区域"
-precision = "使用坐标输入以获得精确位置"
-resize = "拖动角与边的手柄来调整大小"
+description = "拖动蓝色选框，调整裁剪后要保留的区域。选框外的部分不会显示在页面上。"
+drag = "拖动选框，移动保留区域"
+precision = "也可输入坐标和尺寸，精确设置区域"
+resize = "拖动选框的边缘或角点，调整大小"
 title = "如何裁剪 PDF"
 
 [database]
@@ -4370,9 +4370,9 @@ edit = "编辑"
 editSecretValue = "编辑机密值"
 
 [editTableOfContents]
-submit = "应用目录"
+submit = "保存书签目录"
 tags = "bookmarks,contents,edit,table of contents,TOC,outline,navigation,chapters,sections,add bookmarks,edit bookmarks,PDF outline"
-workbenchLabel = "大纲工作区"
+workbenchLabel = "书签目录"
 
 [editTableOfContents.actions]
 clipboardUnavailable = "此浏览器不支持访问剪贴板。"
@@ -4393,7 +4393,7 @@ confirmRemove = "移除此书签及其所有子项？"
 defaultChildTitle = "子书签"
 defaultSiblingTitle = "新书签"
 defaultTitle = "新书签"
-description = "添加、嵌套并重排书签，以创建 PDF 大纲。"
+description = "添加书签并调整顺序、层级和跳转页码，构建文档导航目录。"
 heading = "书签编辑器"
 pagePreview = "第 {{page}} 页"
 untitled = "未命名书签"
@@ -4402,11 +4402,11 @@ untitled = "未命名书签"
 addChild = "添加子书签"
 addSibling = "添加同级书签"
 remove = "移除书签"
-toggle = "切换子项"
+toggle = "展开或收起子书签"
 
 [editTableOfContents.editor.empty]
 action = "添加首个书签"
-description = "导入现有书签或从添加首个条目开始。"
+description = "可从 PDF 或 JSON 导入书签，也可手动添加第一个书签。"
 title = "尚无书签"
 
 [editTableOfContents.editor.field]
@@ -4414,11 +4414,11 @@ page = "目标页码"
 title = "书签标题"
 
 [editTableOfContents.error]
-failed = "更新目录失败"
+failed = "更新书签目录失败。"
 
 [editTableOfContents.info]
-line1 = "每个书签需要描述性标题和打开的目标页。"
-line2 = "使用子书签为章、节或小节构建层级结构。"
+line1 = "为每个书签设置标题，以及点击后要跳转的页码。"
+line2 = "用子书签区分章、节等层级。"
 line3 = "从所选 PDF 或 JSON 文件导入书签以节省时间。"
 
 [editTableOfContents.messages]
@@ -4427,32 +4427,32 @@ copiedBody = "书签 JSON 复制成功。"
 copyFailed = "复制失败"
 exported = "JSON 下载就绪"
 imported = "已导入书签"
-importedBody = "您的 JSON 大纲已替换当前编辑器内容。"
+importedBody = "已用导入的 JSON 书签替换当前列表。"
 importedClipboard = "剪贴板数据已替换当前书签列表。"
 invalidJson = "无效的 JSON 结构"
 invalidJsonBody = "请提供有效的书签 JSON 文件并重试。"
-loadedBody = "已将 PDF 中的现有书签到编辑器中。"
+loadedBody = "已将 PDF 中的书签加载到编辑器。"
 loadedTitle = "已提取书签"
 loadFailed = "无法从所选 PDF 提取书签。"
 noBookmarks = "所选 PDF 中未找到书签。"
 
 [editTableOfContents.results]
 subtitle = "在下方下载处理后的文件或撤销操作。"
-title = "已更新含书签的 PDF"
+title = "已更新书签目录"
 
 [editTableOfContents.settings]
 replaceExisting = "替换现有书签（取消勾选则追加）"
-replaceExistingHint = "禁用时，新大纲将追加在当前书签之后。"
-title = "书签与大纲"
+replaceExistingHint = "取消勾选时，新书签会添加在原有书签之后。"
+title = "书签目录设置"
 
 [editTableOfContents.workbench]
 changeFile = "更换 PDF"
-filePrompt = "从库中选择 PDF 或上传新文件开始。"
+filePrompt = "从文件库选择 PDF，或添加新文件。"
 selectFile = "选择 PDF"
-subtitle = "导入书签、构建层级，并在无需狭窄侧栏的情况下应用大纲。"
+subtitle = "整理书签层级并设置跳转页码，保存为 PDF 的导航目录。"
 
 [editTableOfContents.workbench.empty]
-description = "选择“编辑目录”工具以加载其工作区。"
+description = "打开“编辑书签目录”工具，开始整理文档书签。"
 title = "打开工具开始编辑"
 
 [encryptedPdfUnlock]
@@ -4467,10 +4467,10 @@ successBodyWithName = "已从 {{fileName}} 移除密码"
 successTitle = "已移除密码"
 title = "移除密码以继续"
 unlock = "解锁并继续"
-unlockAll = "用于全部（{{count}}）"
+unlockAll = "用此密码解锁全部（{{count}}）"
 unlockAllPartialFail = "以下项的密码错误：{{names}}"
-unlockAllSuccess_one = "Unlocked {{count}} file."
-unlockAllSuccess_other = "Unlocked {{count}} files."
+unlockAllSuccess_one = "已解锁 {{count}} 个文件。"
+unlockAllSuccess_other = "已解锁 {{count}} 个文件。"
 unlockPrompt = "解锁 PDF 以继续"
 viewerLocked = "此 PDF 受密码保护"
 viewerUnlock = "解锁"
@@ -4488,14 +4488,14 @@ dismissAllErrors = "关闭所有错误"
 generic = "发生错误"
 
 [extractImages]
-allowDuplicates = "保存重复图像"
-selectText = "选择图像格式，将提取的图像转换为"
-submit = "提取"
+allowDuplicates = "保留重复图片"
+selectText = "图片导出格式"
+submit = "导出图片"
 tags = "图片、照片、保存、归档、压缩包、截取、抓取"
-title = "提取图像"
+title = "导出图片"
 
 [extractImages.error]
-failed = "从 PDF 提取图像时发生错误。"
+failed = "导出 PDF 中的图片失败。"
 
 [extractImages.settings]
 title = "设置"
@@ -4556,13 +4556,13 @@ extracted_other = "已从 {{name}} 提取 {{count}} 个文件"
 failed = "未能从 {{name}} 提取文件"
 
 [fileManager]
-addToUpload = "添加至上传"
+addToUpload = "添加到待处理列表"
 clearAll = "全部清除"
-clearSelection = "清除所选"
+clearSelection = "取消选择"
 delete = "删除"
 deleteAll = "删除全部"
 download = "下载"
-downloadSelected = "下载所选"
+downloadSelected = "下载所选文件"
 filesSelected = "个文件已选"
 filesStored = "个文件已存储"
 loadingFiles = "正在加载文件..."
@@ -4571,7 +4571,7 @@ noFilesFound = "未找到与搜索匹配的文件"
 openInFileEditor = "在文件编辑器中打开"
 openInPageEditor = "在页面编辑器中打开"
 reloadFiles = "重新加载文件"
-saveSelected = "保存已选"
+saveSelected = "保存所选文件"
 searchFiles = "搜索文件…"
 share = "共享"
 shared = "共享"
@@ -4582,18 +4582,18 @@ sharedWithYou = "与您共享的"
 showAll = "显示全部"
 showAllCount_one = "显示全部（{{count}} 个文件）"
 showAllCount_other = "显示全部（{{count}} 个文件）"
-sortBy = "Sort files"
+sortBy = "文件排序"
 sortByDate = "按日期排序"
 sortByName = "按名称排序"
 sortBySize = "按大小排序"
 storage = "存储"
-storageUsed = "Storage used"
-title = "上传 PDF 文件"
+storageUsed = "已用存储空间"
+title = "添加文件"
 unsupported = "不支持"
 unzip = "解压"
 updateOnServer = "在服务器上更新"
 uploadToServer = "上传到服务器"
-versionHistory = "Version history"
+versionHistory = "历史版本"
 
 [filePicker]
 add_one = "添加 {{count}} 个文件"
@@ -4609,13 +4609,13 @@ errorTitle = "无法添加文件"
 filesUnavailable = "无法添加：{{names}}"
 fileUnavailable = "{{name}} 不再可用。"
 folderPath = "文件夹路径"
-fromComputer = "从你的计算机"
-fromPhone = "从你的手机"
+fromComputer = "本机文件"
+fromPhone = "手机文件"
 limit = "最多选择 {{count}} 个文件。"
 selectedLimit = "已选择 {{count}} / {{limit}}"
 selectVersion = "选择版本 {{version}}"
 sources = "文件来源"
-subtitle = "从你的库中选择，或添加新内容。"
+subtitle = "从文件库选择已有文件，或添加新文件。"
 title = "添加文件"
 unsupported = "所选工具不支持此文件类型。"
 
@@ -4624,12 +4624,212 @@ loadingThumbnail = "正在加载缩略图..."
 locked = "已锁定"
 previewOf = "{{name}} 的预览"
 
+[fileRedaction]
+addFiles = "添加文件"
+addMatches = "查找并加入脱敏项"
+cancel = "取消"
+categoriesTitle = "识别哪些信息"
+chooseResultFile = "选择已识别的文件"
+contextDetection = "结合字段、页面位置和本机中文模型识别姓名、单位和地址；标为待核对的结果请逐项确认。"
+currentFileUnscanned = "当前打开的文件尚未识别，请先识别或切换到已识别的文件。"
+dictionary = "自定义词库"
+dictionaryLocal = "词库仅保存在本机。保留词跳过自动识别，手动补充仍可处理。"
+dictionaryTooLarge = "词库文件不能超过 1 MB，请拆分后导入。"
+dismiss = "关闭提示"
+downloadResult = "下载脱敏结果"
+drawRegion = "手动框选"
+export = "导出"
+exportAll = "导出全部"
+exportArchive = "文件脱敏结果"
+exported = "已导出 {{count}} 个文件，原文件保留。"
+fileCount = "待处理 {{count}} 个文件"
+filter = "筛选识别结果"
+finishDrawing = "结束框选"
+hitCount = "发现 {{count}} 处，已选 {{selected}} 处"
+intro = "识别敏感信息，核对后导出脱敏副本。"
+local = "全部在本机处理"
+method = "脱敏方式"
+needsReview = "待核对 · 点击确认"
+ner = "增强姓名、单位和地址识别（本机）"
+noHits = "当前没有匹配结果。可调整识别项，或使用搜索补充。"
+occurrences = "{{count}} 处"
+ocr = "识别扫描件和图片中的文字"
+onePerLine = "每行一个词，按原文精确匹配。"
+original = "原文"
+page = "第 {{index}} 页"
+panelTabs = "文件脱敏面板"
+paragraph = "第 {{index}} 段"
+preserve = "加入保留词"
+preservedWords = "保留的词"
+preview = "脱敏预览"
+redo = "重做"
+replacement = "“{{value}}”的替换文字"
+requiredWords = "必须脱敏的词"
+resultFile = "查看识别结果"
+saveToDictionary = "保存到必须脱敏的词"
+scan = "开始识别"
+scanAgain = "重新识别"
+scanFirst = "开始识别后，可在这里核对结果。"
+searchAdded = "已新增 {{count}} 处。"
+searchDescription = "输入需要脱敏的原文，在本次处理的全部文件中查找。已存在的命中项不会重复添加。"
+searchText = "查找内容"
+selectAll = "全部选择"
+selectNone = "全部取消"
+showOccurrences = "逐处核对"
+title = "文件脱敏"
+toggleGroup = "处理所有“{{value}}”"
+toggleOccurrence = "处理第 {{index}} 项"
+uncertain = "不确定，尚未勾选"
+undo = "撤销"
+visualRegions = "印章、指印、人脸和二维码等图像内容，可用右侧工具箱的“手动框选”处理。"
+wordLayoutUnavailable = "版式预览暂不可用，请切换到文字核对。"
+wordOtherPart = "页眉、页脚或注释正文"
+
+[fileRedaction.aliases]
+account = "账户"
+address = "地址"
+amount = "金额"
+caseNumber = "案号"
+company = "单位"
+creditCode = "代码"
+custom = "内容"
+date = "日期"
+documentNumber = "文号"
+email = "邮箱"
+identity = "证件"
+invoice = "发票"
+ip = "地址"
+name = "人员"
+passport = "证件"
+phone = "电话"
+plate = "车牌"
+property = "产权证"
+region = "区域"
+social = "账号"
+url = "网址"
+vin = "车架"
+
+[fileRedaction.categories]
+account = "账户及卡号"
+address = "地址"
+amount = "金额"
+caseNumber = "司法案号"
+company = "单位名称"
+creditCode = "信用代码"
+custom = "自定义内容"
+date = "日期"
+documentNumber = "发文字号"
+email = "邮箱"
+identity = "身份证号"
+invoice = "发票号码"
+ip = "IP 地址"
+name = "姓名"
+passport = "出入境证件号"
+phone = "电话号码"
+plate = "车牌号"
+property = "产权证号"
+region = "手动框选区域"
+social = "社交账号"
+url = "网址"
+vin = "车架号 VIN"
+
+[fileRedaction.errors]
+EXPORT_FAILED = "导出失败，请重试。"
+FILE_TOO_LARGE = "单个文件暂支持 100 MB 以内。"
+FILE_UNSUPPORTED = "请添加 PDF、DOCX、XLSX、CSV 或受支持的图片文件。"
+HIT_COORDINATES_UNAVAILABLE = "部分命中项缺少准确位置，请取消该项并手动框选后导出。"
+IMAGE_TOO_LARGE = "图片尺寸过大，请缩小后再试。"
+LEGACY_WORD_UNAVAILABLE = "本机缺少旧版 DOC 转换组件，请在 Word 中另存为 DOCX 后添加。"
+OCR_COORDINATES_UNAVAILABLE = "识别到了文字，但无法定位，请手动框选补充。"
+PDF_PAGE_UNAVAILABLE = "无法读取此 PDF 页面，请重新识别。"
+READ_FAILED = "文件读取失败，请重新添加文件后再试。"
+TABLE_COMPLEX = "暂不支持含图片、图表、宏、嵌入对象或数据连接的工作簿，请先导出需要脱敏的纯数据表。"
+TABLE_EMPTY = "表格中没有可处理的单元格内容。"
+TABLE_FORMULAS = "暂不支持含公式的工作簿，请在 Excel 中复制并粘贴为值，再另存为 XLSX 后添加。"
+TABLE_INVALID = "表格结构无效、引号未闭合或文件已损坏，请重新另存后添加。"
+TABLE_TOO_LARGE = "表格暂支持 20 MB、5 万个单元格、每表 2 万行和 256 列以内，请拆分后添加。"
+WORD_XML_INVALID = "Word 文档结构无效或文件已损坏。"
+WORD_XML_UNSUPPORTED = "Word 文档结构过大或含不支持的内容。"
+
+[fileRedaction.examples]
+alias = "张三 → 人员1"
+blackout = "移除原文，用黑色区域遮盖"
+full = "张三 → ***"
+partial = "13812345678 → 138****5678"
+
+[fileRedaction.filters]
+all = "全部结果"
+review = "待核对"
+selected = "已选择"
+
+[fileRedaction.groups]
+business = "业务信息"
+optional = "按需开启"
+organization = "单位与地址"
+personal = "个人信息"
+
+[fileRedaction.import]
+preservedWords = "导入保留词"
+requiredWords = "导入脱敏词"
+
+[fileRedaction.methods]
+alias = "代号替换"
+blackout = "永久涂黑"
+full = "完全隐藏"
+partial = "部分隐藏"
+
+[fileRedaction.progress]
+export = "正在生成脱敏副本"
+ocr = "正在识别文字"
+reading = "正在读取"
+recognition = "正在识别敏感信息"
+
+[fileRedaction.sources]
+alias = "单位简称关联"
+dictionary = "词库匹配"
+field = "字段识别"
+manual = "手动补充"
+model = "中文模型识别"
+repeat = "相同内容"
+rule = "规则识别"
+
+[fileRedaction.table]
+apply = "整列脱敏"
+category = "按什么信息处理"
+column = "处理列"
+header = "跳过首行表头"
+help = "点击命中单元格可取消或恢复脱敏，也可指定整列处理。开启右侧脱敏预览后核对替换结果。"
+hidden = "隐藏表"
+next = "下一组行"
+preview = "表格脱敏预览"
+previous = "上一组行"
+sheet = "工作表"
+toggle = "取消或恢复此单元格的脱敏"
+
+[fileRedaction.tabs]
+results = "识别结果"
+search = "搜索补充"
+settings = "脱敏设置"
+
+[fileRedaction.warnings]
+legacyWordPdf = "旧版 DOC 已在本机转换为 PDF，本次将导出脱敏 PDF。"
+nerUnavailable = "本机增强识别服务暂不可用，本次已使用字段和词库识别。请核对姓名、单位和地址，必要时用搜索或手动框选补充。"
+ocrDisabled = "已关闭图片文字识别，请手动检查扫描页和内嵌图片。"
+pdfFlattened = "导出 PDF 会固化页面外观并移除原文字层，不再支持文字选取。"
+tableExport = "表格导出会替换真实单元格内容；XLSX 保留单元格样式并移除批注、文档属性、超链接及数据验证。CSV 导出为 UTF-8，并防止内容被当作公式执行。"
+wordPreview = "Word 预览用于核对内容，复杂排版可能与 Word 略有差异。"
+wordVectorImages = "文档含矢量图片，请在 Word 中转为 PNG/JPG 后识别图中敏感内容。"
+
+[fileRedaction.wordViews]
+layout = "版式预览"
+text = "文字核对"
+
 [files]
 addFiles = "添加文件"
 created = "创建时间"
 notIncludedInToolRun = "未包含在此次工具运行中"
 selectFromWorkbench = "从工作台中选择文件或 "
-selectMultipleFromWorkbench = "从工作台中至少选择 {{count}} 个文件或 "
+selectMultipleFromWorkbench = "勾选左侧至少 {{count}} 个文件，或 "
 size = "文件大小"
 title = "文件"
 upload = "上传"
@@ -4639,8 +4839,8 @@ uploadFiles = "上传文件"
 empty = "没有可用文件"
 placeholder = "选择文件"
 search = "筛选文件…"
-tabListLabel = "已保存文件、工作台、上传"
-upload = "从电脑上传"
+tabListLabel = "文件库、工作区和本机文件"
+upload = "从本机添加"
 
 [fileSelectorPicker.sort]
 dateAsc = "最早的在前"
@@ -4651,71 +4851,71 @@ nameDesc = "Z 到 A"
 nameLabel = "A–Z"
 
 [fileSelectorPicker.tabs]
-saved = "已保存文件"
-upload = "上传"
-workbench = "工作台"
+saved = "文件库"
+upload = "本机文件"
+workbench = "工作区"
 
 [fileSidebar]
 addFiles = "添加文件"
 addingFiles = "正在添加文件…"
 collapse = "折叠侧边栏"
 customizeGroups = "自定义分组"
-dataLostBody = "This browser lost this file's contents. Upload it again to keep working with it."
-dataLostTitle = "File data is unavailable"
-downloadFailed = "Download failed"
+dataLostBody = "此浏览器中的文件内容已丢失，请重新添加原文件后继续。"
+dataLostTitle = "文件内容不可用"
+downloadFailed = "下载失败"
 dropHint = "打开文件以开始"
-dropToAdd = "Drop files to add"
-duplicateFailed = "Could not duplicate file"
+dropToAdd = "拖入文件即可添加"
+duplicateFailed = "复制文件失败"
 expand = "展开侧边栏"
 googleDrive = "Google Drive"
 library = "PDF 库"
 myFiles = "我的文件"
 noFiles = "暂无文件"
-openFileManager = "打开文件管理器"
+openFileManager = "浏览文件和文件夹"
 openFromComputer = "从电脑打开"
 openSettings = "打开设置"
 other = "其他"
 recent = "最近"
 searchFiles = "搜索文件"
 uploadFailedBody = "无法添加所选文件。"
-uploadFailedTitle = "上传失败"
+uploadFailedTitle = "添加文件失败"
 viewAll = "查看全部 {{count}} 个文件"
 
 [fileSidebar.fileItem]
-closeViewer = "关闭查看器"
-dataLost = "Data lost"
-dataLostTooltip = "This browser lost this file's contents. Upload it again to keep working with it."
-delete = "Delete"
-duplicate = "Duplicate"
-moreActions = "More actions"
-openInViewer = "在查看器中打开"
-rename = "Rename"
-savedToServer = "Saved to server"
-updateOnServer = "Update on server"
-uploadToServer = "Upload to server"
-versionHistory = "Version history"
+closeViewer = "关闭阅读器"
+dataLost = "内容丢失"
+dataLostTooltip = "此浏览器中的文件内容已丢失，请重新添加原文件后继续。"
+delete = "删除"
+duplicate = "复制文件"
+moreActions = "更多操作"
+openInViewer = "在阅读器中打开"
+rename = "重命名"
+savedToServer = "已保存到服务器"
+updateOnServer = "更新服务器副本"
+uploadToServer = "保存到服务器"
+versionHistory = "历史版本"
 
 [fileSidebar.groupsModal]
 done = "完成"
-reset = "重置为默认值"
-subtitle = "将文件分组到父类别中。向类别添加现有或新标签、重命名类别，或创建自己的类别。不属于任何类别的文件会显示在“其他”下。"
+reset = "显示所有类别"
+subtitle = "选择文件侧边栏中要显示的类别。"
 title = "侧边栏类别"
 
 [fileSidebar.rename]
-cancel = "Cancel"
-error = "Could not rename the file."
-illegalCharacters = "A file name can't contain \\ / : * ? \" < > |"
-label = "File name"
-save = "Rename"
-title = "Rename file"
+cancel = "取消"
+error = "重命名失败，请重试。"
+illegalCharacters = "文件名不能包含以下字符：\\ / : * ? \" < > |"
+label = "文件名"
+save = "重命名"
+title = "重命名文件"
 
 [filesPage]
-addedToLibrary = "已添加到 Stirling 库"
-addingToLibrary = "正在添加到 Stirling 库…"
-addToLibrary = "添加到 Stirling 库…"
+addedToLibrary = "已添加到文件库"
+addingToLibrary = "正在添加到文件库…"
+addToLibrary = "添加到文件库…"
 addToLibraryFailed = "某些文件无法添加"
 addToWorkspace = "添加到工作区"
-addToWorkspaceCount = "将 {{count}} 个添加到工作区"
+addToWorkspaceCount = "将 {{count}} 个文件添加到工作区"
 allFiles = "所有文件"
 back = "返回"
 backToFolder = "返回 {{folder}}"
@@ -4725,7 +4925,7 @@ breadcrumbsOverflow = "显示父文件夹"
 bulkActions = "操作"
 cancel = "取消"
 classification = "分类"
-clearSelection = "清除选择"
+clearSelection = "取消选择"
 closeDetails = "关闭详情"
 create = "创建"
 cycleBlocked = "无法将文件夹移动到其自身的子文件夹中。"
@@ -4733,37 +4933,37 @@ delete = "删除"
 deleteFilesChoiceBody = "Some of these files are saved both on this device and in the cloud. Where should they be deleted from?"
 deleteFilesCloudBody_one = "Delete 1 file from the cloud? This cannot be undone."
 deleteFilesCloudBody_other = "Delete {{count}} files from the cloud? This cannot be undone."
-deleteFilesError = "Could not delete. Try again."
-deleteFilesLocalBody_one = "Delete 1 file from this device? This cannot be undone."
-deleteFilesLocalBody_other = "Delete {{count}} files from this device? This cannot be undone."
-deleteFilesTitle_one = "Delete 1 file?"
-deleteFilesTitle_other = "Delete {{count}} files?"
+deleteFilesError = "删除失败，请重试。"
+deleteFilesLocalBody_one = "从此设备删除 1 个文件？删除后无法恢复。"
+deleteFilesLocalBody_other = "从此设备删除 {{count}} 个文件？删除后无法恢复。"
+deleteFilesTitle_one = "删除 1 个文件？"
+deleteFilesTitle_other = "删除 {{count}} 个文件？"
 deleteFolder = "删除文件夹"
 deleteFolderBody = "删除文件夹 \"{{name}}\"？"
-deleteFolderContents_one = "Also delete {{count}} file inside the folder"
-deleteFolderContents_other = "Also delete {{count}} files inside the folder"
+deleteFolderContents_one = "同时删除文件夹中的 {{count}} 个文件"
+deleteFolderContents_other = "同时删除文件夹中的 {{count}} 个文件"
 deleteFolderContentsWarning = "文件将被永久移除，无法恢复。"
 deleteFolderError = "无法删除该文件夹。请重试。"
 deleteFolderKeepHint = "其中的文件将移动到“所有文件”。"
 deleteFolderTitle = "删除文件夹？"
-deselectAll = "清除选择"
+deselectAll = "取消全选"
 details = "详情"
-detailsCount_one = "{{count}} file selected"
-detailsCount_other = "{{count}} files selected"
+detailsCount_one = "已选择 {{count}} 个文件"
+detailsCount_other = "已选择 {{count}} 个文件"
 dismissError = "关闭"
 download = "下载"
 downloadAll = "全部下载"
 downloadVersion = "下载此版本"
-dropOverlay = "拖放文件以上传"
-dropOverlaySub = "文件起始于“本地”。使用 '移动到' 或 '保存到云端' 将其整理到文件夹中。"
-dropOverlaySubFolder = "它们将被添加到此文件夹。"
-duplicate = "Duplicate"
+dropOverlay = "拖入文件即可添加"
+dropOverlaySub = "文件会显示在“最近使用”中，可随时移动到文件夹整理。"
+dropOverlaySubFolder = "文件将添加到当前文件夹。"
+duplicate = "复制文件"
 file = "文件"
-fileInfo = "File info"
+fileInfo = "文件信息"
 fileMenu = "文件操作"
 folder = "文件夹"
-folderItems_one = "{{count}} item"
-folderItems_other = "{{count}} items"
+folderItems_one = "{{count}} 项"
+folderItems_other = "{{count}} 项"
 folderMenu = "文件夹操作"
 folderSettings = "文件夹设置"
 inPath = "位于 {{path}}"
@@ -4788,7 +4988,7 @@ open = "打开"
 openVersionInWorkspace = "在工作区中打开"
 originFilter = "按来源筛选"
 recentFiles = "最近使用"
-refresh = "从服务器刷新"
+refresh = "刷新文件列表"
 refreshNeedsConnection = "登录以从服务器刷新。"
 remove = "删除"
 removeLocalFolder = "从 Stirling 卸载"
@@ -4808,22 +5008,22 @@ shareDisabledHint = "此服务器未启用文件共享。请联系您的管理�
 shareManage = "管理共享"
 showDetails = "显示详情"
 signInRequired = "Sign in to use cloud storage."
-summary_one = "{{count}} item"
-summary_other = "{{count}} items"
+summary_one = "{{count}} 项"
+summary_other = "{{count}} 项"
 tree = "文件夹"
 unmount = "卸载"
 unmountFolderBody = "卸载 \"{{name}}\"？该文件夹及其文件会保留在你的磁盘上。"
 unmountFolderTitle = "从 Stirling 卸载？"
-upload = "上传"
+upload = "添加文件"
 uploadFromMobile = "从移动设备上传"
 versionActions = "版本操作"
 versionCollapse = "折叠中间版本"
-versionHistory = "Version history"
-versionHistoryEmpty = "This file has no earlier versions."
+versionHistory = "历史版本"
+versionHistoryEmpty = "此文件没有更早的版本。"
 versionOrigin = "原始上传"
 versionsCount = "{{count}} 个版本"
 versionShowHidden = "显示 {{count}} 个更早的版本"
-viewVersionHistory = "Version journey ({{count}})"
+viewVersionHistory = "历史版本（{{count}}）"
 
 [filesPage.appearance]
 colour = "颜色"
@@ -4872,9 +5072,9 @@ waiting = "已排队"
 waitingHint = "此文件已排队，处理完成后将可用"
 
 [filesPage.empty]
-hint = "将 PDF 拖放到此页面任意位置以上传，或使用“新建文件夹”按钮来整理您的文件。"
+hint = "将文件拖入此页面，或点击“添加文件”。也可新建文件夹，分类整理文件。"
 title = "此文件夹为空"
-uploadCta = "上传文件"
+uploadCta = "添加文件"
 
 [filesPage.empty.cloud]
 hint = "先上传文件，或创建文件夹进行整理。"
@@ -4883,12 +5083,12 @@ offlineTitle = "没有缓存的云端文件"
 title = "尚无云端文件"
 
 [filesPage.empty.noResults]
-hint = "No files in this folder match your filter. Try a different term or clear the filter."
-title = "No matching files"
+hint = "当前文件夹没有符合筛选条件的文件，请更换关键词或清除筛选。"
+title = "没有匹配的文件"
 
 [filesPage.empty.recent]
 hint = "您打开或编辑的文件会出现在这里。"
-title = "尚未有修改"
+title = "暂无最近使用的文件"
 
 [filesPage.empty.shared]
 hint = "当有人通过链接共享文件时，会出现在这里。"
@@ -5060,15 +5260,15 @@ dropFilesHere = "将文件拖到此处或点击上传按钮"
 dropFilesHereOpen = "将文件拖到此处或点击打开按钮"
 filesAvailableCount_one = "{{count}} 个文件可用"
 filesAvailableCount_other = "{{count}} 个文件可用"
-loadFromStorage = "从存储加载"
-noFilesInStorage = "存储中没有可用文件。请先上传。"
-noFilesInStorageOpen = "存储中无可用文件。请先打开一些文件。"
+loadFromStorage = "从文件库添加"
+noFilesInStorage = "文件库为空，请先添加文件。"
+noFilesInStorageOpen = "文件库为空，请先打开文件。"
 open = "打开"
 openFile = "打开文件"
 openFiles = "打开文件"
 selectedCount = "已选择 {{count}} 项"
-selectFile = "Select {{name}}"
-selectFromStorage = "从存储中选择"
+selectFile = "选择 {{name}}"
+selectFromStorage = "从文件库选择"
 upload = "上传"
 uploadFile = "上传文件"
 uploadFiles = "上传文件"
@@ -5141,24 +5341,24 @@ issues = "GitHub"
 
 [formFill]
 allSaved = "全部已保存"
-analyzingFields = "Analysing form fields..."
+analyzingFields = "正在识别表单字段…"
 applyFailed = "无法应用更改"
-extractCsvError = "提取 CSV 失败"
-extractXlsxError = "提取 XLSX 失败"
-filled = "filled"
-flattenAfterFilling = "填写后扁平化"
+extractCsvError = "导出 CSV 失败"
+extractXlsxError = "导出 XLSX 失败"
+filled = "已填写"
+flattenAfterFilling = "填写后固定内容（不再可填写）"
 goToPage = "转到此页面"
-noFields = "No fillable form fields found in this PDF."
+noFields = "此 PDF 没有可填写的表单字段，可切换到“添加字段”创建。"
 page = "页面"
-placeholderEnter = "Enter"
-placeholderSelect = "Select"
+placeholderEnter = "请输入"
+placeholderSelect = "请选择"
 requiredAbbreviation = "必填"
 requiredFieldsError = "请填写所有必填字段"
-rescanFields = "重新扫描字段"
-rescanFormFields = "重新扫描表单字段"
+rescanFields = "重新识别字段"
+rescanFormFields = "重新识别表单字段"
 save = "保存"
 saveShortcut = "按 Ctrl+S 保存"
-selectOptionPlaceholder = "— 选择 —"
+selectOptionPlaceholder = "请选择"
 skippedEdits_one = "无法应用 1 项更改："
 skippedEdits_other = "无法应用 {{count}} 项更改："
 skippedEditsTruncated = "还有 {{count}} 项未列出。"
@@ -5166,13 +5366,13 @@ unsavedChanges = "未保存的更改"
 
 [formFill.create]
 commit = "将 {{count}} 个字段添加到 PDF"
-empty = "尚未绘制任何字段。"
+empty = "尚未添加字段，请先在页面上画出字段区域。"
 failed = "添加字段失败"
 goToField = "转到此字段"
-hint = "选择字段类型，然后在页面上绘制。"
-placing = "在页面上绘制一个 {{type}} 字段。按 Esc 停止。"
+hint = "选择字段类型，然后在页面上拖动画出字段区域。"
+placing = "在页面上拖动画出 {{type}} 字段，按 Esc 结束添加。"
 preview = "按住预览"
-previewHelp = "按住可查看字段添加后的外观，不显示编辑轮廓。"
+previewHelp = "按住此按钮，查看隐藏编辑边框后的实际外观。"
 removeField = "移除字段"
 
 [formFill.editor]
@@ -5181,45 +5381,45 @@ actionHelp = "点击按钮时执行的操作。"
 actionNone = "无"
 actionPrint = "打印"
 actionReset = "重置表单"
-actionSubmit = "提交到 URL"
-actionUri = "打开 URL"
-actionUrl = "URL"
+actionSubmit = "提交到指定网址"
+actionUri = "打开网页"
+actionUrl = "网址"
 actionUrlHelp = "按钮打开或提交到的地址。"
 addOption = "添加选项"
-caption = "按钮标题"
-captionHelp = "显示在按钮表面上的文本。"
+caption = "按钮文字"
+captionHelp = "显示在按钮上的文字。"
 defaultValue = "默认值"
-defaultValueHelp = "在任何人填写之前字段包含的内容。留空表示空字段。"
-fontSize = "字体大小"
-fontSizeHelp = "字段内的文本大小。留空可让阅读器自动调整到合适大小。"
-label = "标签"
-labelHelp = "显示给填写表单者的文字。留空则回退为字段名称。"
-maxLength = "最大长度（分格）"
-maxLengthHelp = "限制可容纳的字符数，并绘制为等距方框。"
+defaultValueHelp = "填写前显示的内容，留空则不预填。"
+fontSize = "字号"
+fontSizeHelp = "字段内的文字大小。留空时，由 PDF 阅读器自动适配。"
+label = "显示名称"
+labelHelp = "填写表单时显示的名称。留空时显示字段名称。"
+maxLength = "字符数上限（分格输入）"
+maxLengthHelp = "限制输入的字符数，并用等宽小格分别显示每个字符。"
 multiline = "多行"
 multilineHelp = "允许多行文本，并在字段边缘自动换行。"
 multiSelect = "允许多选"
 multiSelectHelp = "允许一次选择多个选项。"
 name = "字段名称"
-nameHelp = "字段的内部名称。用于导出数据或从其他系统填写表单，因此请保持唯一且不要包含空格。"
+nameHelp = "用于导出数据或由其他系统填写表单的内部名称。请使用唯一名称，不要包含空格。"
 optionGap = "选项间距"
-optionGapHelp = "按钮之间的间距，以点为单位。留空可使其在框内向下均匀分布。"
+optionGapHelp = "设置选项按钮之间的距离，单位为点。留空时在字段区域内纵向均匀排列。"
 optionPlaceholder = "选项 {{n}}"
 options = "选项"
 optionsEmpty = "至少添加一个选项。"
-optionsHelp = "列表中提供的选择。每一项都会按输入内容存储，因此请保持简短且彼此不同。"
+optionsHelp = "填写者可以选择的项目。每项按输入内容保存，请使用简短且不重复的名称。"
 optionSize = "选项大小"
-optionSizeHelp = "每个按钮的宽度和高度，以点为单位。留空可使其适应你绘制的框。"
+optionSizeHelp = "设置每个选项按钮的宽高，单位为点。留空时按字段区域自动适配。"
 readOnly = "只读"
-readOnlyHelp = "显示值，但阻止任何人编辑。"
+readOnlyHelp = "只显示当前内容，不允许填写者修改。"
 removeOption = "移除选项"
 required = "必填"
 requiredHelp = "在填写此字段之前，表单无法提交。"
-signatureNote = "仅为占位符 - 你不在这里签名。它标记签名应放置的位置，以便 PDF 签名工具（Adobe Acrobat、签名服务等）在文档签名时将签名放在此处。"
+signatureNote = "这里仅添加签名占位框，不会实际签名。使用 PDF 签名软件签署时，可将签名放在此位置。"
 tooltip = "工具提示"
 tooltipHelp = "当有人在 PDF 阅读器中悬停字段时显示的提示。"
 type = "类型"
-typeHelp = "此字段的类型。更改它会重建字段，因此当前值不会保留。"
+typeHelp = "更改类型会重新创建此字段，当前填写的内容不会保留。"
 
 [formFill.fieldTypes]
 button = "按钮"
@@ -5228,14 +5428,14 @@ combobox = "下拉框"
 listbox = "列表框"
 radio = "单选按钮"
 radioGroup = "单选按钮组"
-signature = "签名"
-text = "文本"
+signature = "签名占位框"
+text = "文本框"
 
 [formFill.mode]
-create = "创建"
-fill = "填写"
-label = "表单编辑器模式"
-modify = "修改"
+create = "添加字段"
+fill = "填写表单"
+label = "操作方式"
+modify = "编辑字段"
 
 [formFill.modify]
 commit = "保存 {{count}} 项更改"
@@ -5243,7 +5443,7 @@ delete = "删除"
 empty = "此 PDF 尚无表单字段。"
 failed = "保存更改失败"
 groupSizeHint = "使用选项大小"
-hint = "选择字段以编辑其属性，在页面上拖动它，或将其删除。"
+hint = "选择字段后编辑属性，也可在页面上拖动位置或删除字段。"
 restore = "恢复"
 
 [formFill.sidebar]
@@ -5447,18 +5647,18 @@ tags = "嵌入,附加,包含"
 title = "添加附件"
 
 [home.addImage]
-desc = "将图像添加到 PDF 的指定位置。"
-tags = "插入,嵌入,放置"
-title = "在 PDF 中添加图片"
+desc = "将图片放到 PDF 页面上，并调整大小和位置。"
+tags = "图片,照片,插入图片,嵌入,放置"
+title = "添加图片"
 
 [home.addPageNumbers]
-desc = "在文档的指定位置添加页码"
+desc = "为指定页面添加页码，设置编号、位置和样式。"
 tags = "编号,分页,计数"
 title = "添加页码"
 
 [home.addPassword]
-desc = "使用密码对 PDF 文档进行加密。"
-tags = "encrypt,password,lock,secure,protect,security,encryption,safeguard,confidential,private,restrict access"
+desc = "设置打开密码，或限制打印、复制和编辑等操作。"
+tags = "密码,加密,保护,权限,打开密码,限制,打印,复制,encrypt,password,lock"
 title = "添加密码"
 
 [home.addStamp]
@@ -5467,9 +5667,9 @@ tags = "印章,标记,盖章"
 title = "向 PDF 添加印章"
 
 [home.addText]
-desc = "在 PDF 任意位置添加自定义文本"
-tags = "文本,注释,标签"
-title = "添加文本"
+desc = "在页面上添加新文字，并设置字体、颜色和位置。"
+tags = "文字,文本,新增文字,文本框,标签"
+title = "添加文字"
 
 [home.adjustContrast]
 desc = "调整 PDF 的对比度、饱和度和亮度"
@@ -5477,9 +5677,9 @@ tags = "对比度,亮度,饱和度"
 title = "调整颜色/对比度"
 
 [home.annotate]
-desc = "在查看器中高亮、绘制、添加便笺与形状"
-tags = "注释,高亮,绘制"
-title = "注释"
+desc = "用高亮、画笔、便签和形状标记文档，添加批注留言。"
+tags = "批注,注释,留言,评论,高亮,标记,便签,画笔,绘图"
+title = "添加批注"
 
 [home.autoFormDetection]
 desc = "使用 AI 自动检测表单字段，并使你的 PDF 可填写。"
@@ -5498,9 +5698,9 @@ tags = "自动检测,基于标题,组织,重新标记"
 title = "自动重命名 PDF 文件"
 
 [home.autoRotate]
-desc = "检测每页的方向并自动旋转为正向。"
-tags = "auto rotate,fix orientation,upside down,sideways,straighten,orient,detect orientation,correct rotation,auto orient,scanned,OSD"
-title = "自动旋转"
+desc = "识别文字方向，自动转正侧放或倒置的页面。"
+tags = "自动旋转,转正,方向,校正方向,纠正方向,倒置,扫描,OCR,auto rotate,OSD"
+title = "自动校正方向"
 
 [home.autoSizeSplitPDF]
 tags = "自动,拆分,大小"
@@ -5516,9 +5716,9 @@ tags = "小册子,打印,装订"
 title = "小册子拼版"
 
 [home.certSign]
-desc = "使用证书/密钥（PEM/P12）对PDF进行签名"
+desc = "使用数字证书为 PDF 添加可验证的数字签名。"
 tags = "认证,PEM,P12,官方,加密,签名,证书,PKCS12,JKS,服务器,手动,自动"
-title = "使用证书签名"
+title = "证书签名"
 
 [home.changeMetadata]
 desc = "更改/删除/添加 PDF 文档的元数据。"
@@ -5535,19 +5735,19 @@ desc = "识别此文档的类型并为其添加标签。"
 title = "分类"
 
 [home.compare]
-desc = "比较并显示两个 PDF 文档之间的差异"
-tags = "差异"
-title = "比较"
+desc = "并排查看两份 PDF，找出文字和页面画面的差异。"
+tags = "对比,比较,差异,版本,新增,删除"
+title = "对比 PDF"
 
 [home.compress]
-desc = "压缩 PDF 文件以减小文件大小。"
-tags = "缩小,减少,优化"
-title = "压缩"
+desc = "按目标大小或压缩强度减小 PDF 文件体积。"
+tags = "压缩,文件大小,减小,缩小,体积,优化"
+title = "压缩 PDF"
 
 [home.convert]
-desc = "在不同格式之间转换文件"
-tags = "转换,更改"
-title = "转换"
+desc = "将 PDF 转为其他格式，或把文档、图片等转换为 PDF。"
+tags = "转换,格式转换,转PDF,转图片,转Word,导出"
+title = "格式转换"
 
 [home.createPortfolio]
 desc = "将多个文件打包为 Adobe PDF Portfolio"
@@ -5555,9 +5755,9 @@ tags = "portfolio,collection,package,bundle,combine files,pdf portfolio,adobe po
 title = "创建 Portfolio"
 
 [home.crop]
-desc = "裁剪 PDF 以减小其文件大小（保留文本！）"
+desc = "调整页面保留的区域，或自动裁去四周空白。"
 tags = "裁剪,剪切,调整大小"
-title = "裁剪 PDF"
+title = "裁剪页面"
 
 [home.devAirgapped]
 desc = "跳转至隔离部署指南"
@@ -5580,14 +5780,14 @@ tags = "SSO,single sign-on,authentication,SAML,OAuth,OIDC,login,enterprise,ident
 title = "SSO 指南"
 
 [home.editTableOfContents]
-desc = "为 PDF 文档添加或编辑目录和书签"
-tags = "书签,目录,编辑"
-title = "编辑目录"
+desc = "添加、排序和分级整理书签，让读者能跳转到指定页面。"
+tags = "书签,目录,大纲,章节,导航,跳转,层级"
+title = "编辑书签目录"
 
 [home.extractImages]
-desc = "从 PDF 中提取所有图像并保存到压缩包中。"
-tags = "提取,保存,导出"
-title = "提取图像"
+desc = "从 PDF 中导出嵌入的图片。"
+tags = "提取图片,导出图片,保存图片,图片,照片"
+title = "导出图片"
 
 [home.extractPages]
 desc = "从 PDF 文档中提取特定页面"
@@ -5600,8 +5800,8 @@ tags = "简化,删除,交互式"
 title = "展平"
 
 [home.formFill]
-desc = "使用可视化编辑器交互式填写 PDF 表单字段"
-title = "填写表单"
+desc = "填写表单，或添加、修改和删除表单字段。"
+title = "编辑 PDF 表单"
 
 [home.getPdfInfo]
 desc = "获取 PDF 的所有可能的信息"
@@ -5613,9 +5813,9 @@ tags = "证书,导入,导出"
 title = "管理证书"
 
 [home.merge]
-desc = "轻松将多个 PDF 合并成一个。"
+desc = "按指定顺序将多个 PDF 合并为一个文件。"
 tags = "组合,合并,联合"
-title = "合并"
+title = "合并 PDF"
 
 [home.mobile]
 brandAlt = "Stirling PDF 标志"
@@ -5628,14 +5828,14 @@ workbenchSlide = "工作区面板"
 workspace = "工作区"
 
 [home.multiTool]
-desc = "合并、旋转、重新排列和删除 PDF 页面"
-tags = "多个,工具"
-title = "PDF 多功能工具"
+desc = "在同一工作区合并、拆分、旋转、排序或删除页面。"
+tags = "页面,整理,排序,合并,拆分,旋转,删除,拖动,多功能"
+title = "整理页面"
 
 [home.ocr]
-desc = "清理和识别 PDF 中的图像文本，并将其转换为可编辑文本。"
-tags = "提取,扫描"
-title = "运行 OCR /清理扫描"
+desc = "识别扫描件中的文字，让 PDF 可以搜索和复制文字。"
+tags = "识别文字,文字识别,OCR,扫描件,可搜索,文字层,复制文字"
+title = "识别文字（OCR）"
 
 [home.overlay-pdfs]
 desc = "将一个 PDF 叠加在另一个之上"
@@ -5657,9 +5857,9 @@ tags = "组织,重新排列,重新排序"
 title = "整理"
 
 [home.pdfTextEditor]
-desc = "审阅并编辑 Stirling PDF 导出的 JSON，支持分组文本编辑并重新生成 PDF"
-tags = "edit text,modify text,change text,edit content,update text,rewrite,correct,amend,redline,revise,text editor,content editor"
-title = "PDF 文本编辑器"
+desc = "修改 PDF 中已有的文字和图片。"
+tags = "编辑文字,修改文字,修改文本,编辑内容,编辑图片,替换文字,查找替换,内容编辑,edit text,modify text,text editor"
+title = "编辑 PDF 内容"
 
 [home.pdfToSinglePage]
 desc = "将所有 PDF 页面合并为一个大的单页"
@@ -5672,9 +5872,9 @@ tags = "查看,打开,显示"
 title = "阅读"
 
 [home.redact]
-desc = "根据选定的文本、绘制的形状和/或选定的页面编辑PDF"
-tags = "审查,涂黑,隐藏"
-title = "手动修订"
+desc = "识别并处理 PDF、Word、Excel、CSV 和图片中的敏感信息，支持代号替换、掩码和按列脱敏。"
+tags = "涂黑,遮盖,脱敏,敏感内容,隐私,关键词,隐藏,手动修订,redact"
+title = "文件脱敏"
 
 [home.removeAnnotations]
 desc = "删除 PDF 中的所有标注/评论"
@@ -5682,7 +5882,7 @@ tags = "删除,清理,删除"
 title = "删除标注"
 
 [home.removeBlanks]
-desc = "检测并删除文档中的空白页"
+desc = "识别并删除空白页，可调整空白判定标准。"
 tags = "删除,清理,空白"
 title = "删除空白页"
 
@@ -5702,14 +5902,14 @@ tags = "删除,提取,排除"
 title = "删除"
 
 [home.removePassword]
-desc = "从 PDF 文档中移除密码保护。"
-tags = "解锁"
-title = "删除密码"
+desc = "输入原密码，移除 PDF 的密码保护。"
+tags = "密码,移除密码,删除密码,解密,解锁"
+title = "移除密码"
 
 [home.reorganizePages]
-desc = "通过可视化拖放控制重新排列、复制或删除 PDF 页面。"
-tags = "重新排列,重新排序,组织"
-title = "重组页面"
+desc = "调整页面顺序，复制或删除指定页面。"
+tags = "整理页面,排序,排列,移动,复制页面,删除页面,奇偶页"
+title = "整理页面"
 
 [home.repair]
 desc = "尝试修复损坏/损坏的 PDF"
@@ -5722,9 +5922,9 @@ tags = "replace color,invert color,color replacement,swap colors,change color,in
 title = "替换和反转颜色"
 
 [home.rotate]
-desc = "旋转 PDF。"
+desc = "顺时针或逆时针旋转 PDF 页面。"
 tags = "旋转,翻转,定向"
-title = "旋转"
+title = "旋转页面"
 
 [home.sanitize]
 desc = "移除 PDF 文件中的潜在有害元素"
@@ -5751,14 +5951,14 @@ tags = "javascript,代码,脚本"
 title = "显示 JavaScript"
 
 [home.sign]
-desc = "通过绘图、文字或图像向 PDF 添加签名"
-tags = "签名,亲笔签名"
-title = "签名"
+desc = "手写、输入姓名或上传签名图片，再放置到 PDF 页面上。"
+tags = "签名,手写,姓名,电子签名,签字,签名图片"
+title = "添加签名"
 
 [home.split]
-desc = "将 PDF 拆分为多个文档。"
+desc = "按页码、页数、文件大小或书签章节拆分 PDF。"
 tags = "分割,分离,拆分"
-title = "拆分"
+title = "拆分 PDF"
 
 [home.splitByChapters]
 tags = "拆分,章节,结构"
@@ -5778,20 +5978,20 @@ tags = "时间戳,RFC 3161,TSA,时间戳机构,文档时间戳,存在性证明,�
 title = "为 PDF 添加时间戳"
 
 [home.unlockPDFForms]
-desc = "移除表单字段只读属性"
-tags = "解锁,启用,编辑"
-title = "解锁PDF表单"
+desc = "解除表单字段的只读限制，让原有字段可以填写。"
+tags = "表单,只读,解除只读,解锁,填写,字段"
+title = "解除表单只读"
 
 [home.validateSignature]
-desc = "验证 PDF 文档中的数字签名和证书"
+desc = "检查 PDF 数字签名、证书和签名后的文档完整性。"
 tags = "验证,核实,证书"
-title = "验证 PDF 签名"
+title = "验证数字签名"
 
 [home.viewPdf]
 title = "浏览/编辑 PDF"
 
 [home.watermark]
-desc = "在 PDF 中添加自定义水印。"
+desc = "在页面上添加文字或图片水印。"
 tags = "印章,标记,叠加"
 title = "添加水印"
 
@@ -5946,23 +6146,23 @@ title = "Markdown 转 PDF"
 
 [merge]
 goToFileEditor = "前往文件编辑器"
-submit = "合并"
+submit = "合并 PDF"
 tags = "合并，页面操作，后端，服务器端"
-title = "合并"
-viewerModeHint = "合并需要 2 个或更多文件。请前往文件编辑器选择它们。"
+title = "合并 PDF"
+viewerModeHint = "请切换到文件列表视图，选择至少 2 个 PDF 后再合并。"
 
 [merge.error]
 failed = "合并 PDF 时发生错误。"
 
 [merge.generateTableOfContents]
-label = "在合并的文件中生成目录?"
+label = "生成可点击目录"
 
 [merge.generateTableOfContents.tooltip]
 description = "根据原始文件名和页码，自动在合并后的 PDF 中创建可点击的目录。"
 title = "生成目录"
 
 [merge.removeDigitalSignature]
-label = "在合并的文件中删除数字签名?"
+label = "移除原有数字签名"
 
 [merge.removeDigitalSignature.tooltip]
 description = "合并文件时数字签名会失效。勾选此项以从最终合并的 PDF 中移除它们。"
@@ -5975,13 +6175,13 @@ title = "设置"
 ascending = "升序"
 dateModified = "修改日期"
 descending = "降序"
-description = "文件将按选择顺序合并。您可以拖动重新排序，或在下方进行排序。"
+description = "按下方列表顺序合并。可拖动文件调整顺序，或使用排序选项。"
 filename = "文件名"
 label = "排序方式"
 sort = "排序"
 
 [merge.sortFiles]
-title = "排序文件"
+title = "合并顺序"
 
 [merge.tooltip.header]
 title = "合并设置概览"
@@ -6073,8 +6273,8 @@ sessionCreateError = "创建会话失败"
 title = "从手机上传"
 
 [multiTool]
-tags = "多工具，多操作，用户界面，点击拖动，前端，客户端"
-title = "PDF 多功能工具"
+tags = "页面,整理,排序,合并,拆分,旋转,删除,拖动,多功能"
+title = "整理页面"
 
 [navFooter]
 openEditor = "Open PDF Editor"
@@ -6155,9 +6355,9 @@ phone = "See your phone number"
 profile = "See your basic profile information"
 
 [ocr]
-desc = "清理和识别 PDF 中的图像文本，并将其转换为可编辑文本。"
+desc = "识别扫描件或图片中的文字，生成可搜索、可复制文字的 PDF。"
 tags = "识别、文本、图像、扫描、阅读、识别、检测、可编辑"
-title = "OCR/扫描清理"
+title = "识别文字（OCR）"
 
 [ocr.advanced]
 title = "高级"
@@ -6171,7 +6371,7 @@ loading = "正在加载可用语言…"
 viewSetupGuide = "查看设置指南 →"
 
 [ocr.operation]
-submit = "处理 OCR 并预览"
+submit = "开始识别文字"
 
 [ocr.results]
 title = "OCR 结果"
@@ -6180,66 +6380,66 @@ title = "OCR 结果"
 title = "设置"
 
 [ocr.settings.advancedOptions]
-clean = "清理输入文件"
-cleanFinal = "清理最终输出"
-deskew = "页面纠偏"
+clean = "识别前清理扫描图片"
+cleanFinal = "清理输出页面图片"
+deskew = "校正扫描倾斜"
 label = "处理选项"
-sidecar = "创建文本文件"
+sidecar = "同时导出 TXT 文本"
 
 [ocr.settings.compatibilityMode]
 label = "兼容模式"
 
 [ocr.settings.languages]
-label = "语言"
-placeholder = "选择语言"
+label = "文档中的文字语言"
+placeholder = "选择一种或多种语言"
 
 [ocr.settings.ocrMode]
-auto = "自动（跳过已有文本层）"
-force = "强制（重新识别全部并替换文本）"
-label = "OCR 模式"
-strict = "严格（发现文本即中止）"
+auto = "跳过已有文字的页面"
+force = "重新识别所有页面"
+label = "已有文字的处理方式"
+strict = "发现已有文字时停止"
 
 [ocr.tooltip.advanced.clean]
-text = "在处理前通过去噪、增强对比度和优化图像来提升 OCR 识别效果。"
-title = "清理输入文件"
+text = "识别前清理扫描图片中的噪点等干扰，帮助 OCR 读取文字。"
+title = "识别前清理"
 
 [ocr.tooltip.advanced.cleanFinal]
-text = "在生成的 PDF 上进行后处理，移除 OCR 伪影并优化文本层以提高可读性并减小体积。"
-title = "清理最终输出"
+text = "在输出 PDF 中使用清理后的页面图片，去除扫描噪点等干扰。"
+title = "清理输出页面"
 
 [ocr.tooltip.advanced.compatibility]
-text = "使用 OCR “夹层 PDF” 模式：文件更大，但在某些语言和旧版软件上更可靠。默认使用 hOCR，适合更小、更现代的 PDF。"
+text = "切换为 sandwich PDF 输出方式，保留图片并叠加文字层。对部分语言或旧版阅读器更兼容，但文件可能更大。"
 title = "兼容模式"
 
 [ocr.tooltip.advanced.deskew]
-text = "自动校正倾斜页面以提升 OCR 准确度。适合未完美对齐的扫描文档。"
-title = "页面纠偏"
+text = "转正轻微倾斜的扫描页面，让文字行更平直，帮助识别。"
+title = "校正扫描倾斜"
 
 [ocr.tooltip.advanced.header]
 title = "高级 OCR 处理"
 
 [ocr.tooltip.advanced.sidecar]
-text = "在 PDF 旁生成一个独立的 .txt 文件，包含所有提取的文本，便于访问与处理。"
-title = "创建文本文件"
+text = "除 PDF 外，再生成一个 .txt 文件，保存识别出的文字。"
+title = "另存 TXT 文本"
 
 [ocr.tooltip.header]
 title = "OCR 设置概览"
 
 [ocr.tooltip.languages]
-text = "指定预期语言可提升 OCR 准确度。可选择一种或多种语言以引导识别。"
-title = "语言"
+text = "选择文档实际使用的语言，可提高识别准确度。混合语言文档可选择多种语言。"
+title = "文字语言"
 
 [ocr.tooltip.mode]
-bullet1 = "自动：跳过已包含文本层的页面。"
-bullet2 = "强制：重新识别每一页并替换所有文本。"
-bullet3 = "严格：若发现可选择文本则终止。"
-text = "光学字符识别（OCR）可将扫描或截图页面转换为可搜索、可复制或可高亮的文本。"
-title = "OCR 模式"
+bullet1 = "跳过：保留已有文字层的页面，只识别其余页面。"
+bullet2 = "重新识别：处理所有页面，并替换原有文字层。"
+bullet3 = "停止：发现可选择的文字时中止处理。"
+text = "OCR 会识别图片中的文字并添加文字层，方便搜索、复制和高亮。已有文字的页面可选择跳过或重新识别。"
+title = "已有文字的处理方式"
 
 [ocr.tooltip.output]
-bullet1 = "可搜索 PDF：在原图像背后嵌入文本。"
-bullet2 = "HOCR XML：返回结构化机器可读文件。"
-bullet3 = "纯文本边车：创建包含原始内容的独立 .txt 文件。"
+bullet1 = "可搜索 PDF：保留页面图片，并添加可搜索的文字层。"
+bullet2 = "hOCR XML：导出带文字位置等结构信息的文件。"
+bullet3 = "TXT 文本：另存一份识别出的纯文字。"
 text = "决定文本输出的格式："
 title = "输出"
 
@@ -6517,16 +6717,16 @@ title = "页面编辑器"
 
 [pageEditor.actions]
 deletePage = "删除页面"
-insertFileAfter = "在后面插入文件"
+insertFileAfter = "在此页之后插入文件"
 moveLeft = "向左移动"
 moveRight = "向右移动"
 rotateLeft = "向左旋转"
 rotateRight = "向右旋转"
-splitAfter = "在后面拆分"
+splitAfter = "在此页之后拆分"
 
 [pageEditor.emptyState]
-body = "添加文件以开始编辑页面"
-title = "未加载 PDF 文件"
+body = "勾选左侧的 PDF 文件，即可整理和编辑页面。"
+title = "尚未选择 PDF 文件"
 
 [pageEditor.fileDropdown]
 addFile = "添加文件"
@@ -6534,10 +6734,15 @@ selectedCount = "已选择 {{selected}}/{{total}} 个文件"
 untitled = "未命名"
 
 [pageEditor.toolbar]
-delete = "删除所选"
+completeSelectedSplits = "补齐所选拆分点"
+delete = "删除所选页面"
+insertBlankPages = "插入空白页"
 redo = "重做"
-rotateLeft = "向左旋转所选"
-rotateRight = "向右旋转所选"
+removeAllSelectedSplits = "移除全部所选拆分点"
+removeSelectedSplits = "移除所选拆分点"
+rotateLeft = "向左旋转所选页面"
+rotateRight = "向右旋转所选页面"
+splitSelected = "拆分所选页面"
 undo = "撤销"
 
 [pageExtracter]
@@ -6668,13 +6873,13 @@ title = "行与列（自定义模式）"
 title = "删除页面"
 
 [pageSelection.tooltip]
-description = "选择要用于操作的页面。支持单页、范围、公式以及 all 关键字。"
+description = "填写要处理的页码。可输入单页、连续范围或规律表达式，输入 all 表示全部页面。"
 
 [pageSelection.tooltip.complex]
 bullet1 = "<strong>1,3-5,8,2n</strong> → 第 1、3–5、8 页，加上所有偶数页"
 bullet2 = "<strong>10-,2n-1</strong> → 第 10 页到末尾 + 奇数页"
-description = "混合不同类型。"
-title = "复杂组合"
+description = "用英文逗号连接多种选页规则。"
+title = "组合规则"
 
 [pageSelection.tooltip.header]
 title = "页面选择指南"
@@ -6682,7 +6887,7 @@ title = "页面选择指南"
 [pageSelection.tooltip.individual]
 bullet1 = "<strong>1,3,5</strong> → 选择第 1、3、5 页"
 bullet2 = "<strong>2,7,12</strong> → 选择第 2、7、12 页"
-description = "输入用逗号分隔的数字。"
+description = "用英文逗号分隔页码。"
 title = "单个页面"
 
 [pageSelection.tooltip.mathematical]
@@ -6690,14 +6895,14 @@ bullet1 = "<strong>2n</strong> → 所有偶数页（2、4、6…）"
 bullet2 = "<strong>2n-1</strong> → 所有奇数页（1、3、5…）"
 bullet3 = "<strong>3n</strong> → 每隔 3 页（3、6、9…）"
 bullet4 = "<strong>4n-1</strong> → 第 3、7、11、15 页…"
-description = "在公式中使用 n 表示模式。"
-title = "数学函数"
+description = "使用含 n 的表达式，选择奇数页、偶数页等。"
+title = "按规律选页"
 
 [pageSelection.tooltip.ranges]
 bullet1 = "<strong>3-6</strong> → 选择第 3–6 页"
 bullet2 = "<strong>10-15</strong> → 选择第 10–15 页"
 bullet3 = "<strong>5-</strong> → 选择第 5 页到末尾"
-description = "使用 - 表示连续页面。"
+description = "用英文连字符 - 连接起止页码。"
 title = "页面范围"
 
 [pageSelection.tooltip.special]
@@ -7051,33 +7256,33 @@ title = "评论指令"
 [pdfOrganiser]
 placeholder = "（例如：1,3,2 或 4-8,2,10-12 或 2n-1）"
 tags = "双面、偶数、奇数、排序、移动"
-title = "页面排序"
+title = "整理页面"
 
 [pdfOrganiser.mode]
 1 = "自定义页面顺序"
-10 = "奇偶合并"
+10 = "交替合并两份文件"
 11 = "复制所有页面"
-2 = "反向顺序"
-3 = "双面排序"
+2 = "倒序排列"
+3 = "双面扫描排序"
 4 = "小册子排序"
 5 = "侧装订小册子排序"
-6 = "奇偶拆分"
+6 = "分别导出奇偶页"
 7 = "删除第一页"
 8 = "删除最后一页"
 9 = "删除第一页和最后一页"
-_value = "模式"
+_value = "整理方式"
 
 [pdfOrganiser.mode.desc]
 BOOKLET_SORT = "为小册子打印排列页面（最后、第一、第二、倒数第二，…）。"
 CUSTOM = "使用自定义的页面编号或表达式序列来定义新顺序。"
-DUPLEX_SORT = "如同双面扫描仪先扫所有正面，再扫所有背面进行交错（1, n, 2, n-1, …）。"
+DUPLEX_SORT = "适用于先扫描全部正面、再反向扫描全部背面的文档。按 1,n,2,n-1,… 交替排序，恢复正反页顺序。"
 DUPLICATE = "根据自定义顺序计数复制每一页（例如：每页复制 4 次，4×）。"
-ODD_EVEN_MERGE = "通过交替页面合并两个 PDF：第一个取奇数页，第二个取偶数页。"
-ODD_EVEN_SPLIT = "将文档拆分为两个输出：所有奇数页和所有偶数页。"
+ODD_EVEN_MERGE = "交替取出两份 PDF 的页面合并：第一份放在第 1、3、5… 页，第二份放在第 2、4、6… 页。"
+ODD_EVEN_SPLIT = "分别将奇数页和偶数页导出为两份 PDF。"
 REMOVE_FIRST = "从文档中移除第一页。"
 REMOVE_FIRST_AND_LAST = "同时移除文档的第一页和最后一页。"
 REMOVE_LAST = "从文档中移除最后一页。"
-REVERSE_ORDER = "将文档翻转，使最后一页变为第一页，依此类推。"
+REVERSE_ORDER = "将最后一页排到最前，所有页面按倒序排列。"
 SIDE_STITCH_BOOKLET_SORT = "用于侧订小册子打印的页面排列（针对侧边装订优化）。"
 
 [pdfTextEditor]
@@ -7086,28 +7291,28 @@ downloadTooltip = "保存并下载已编辑的 PDF"
 save = "保存 PDF"
 saveTooltip = "将更改应用到工作区中的文件（{{shortcut}}）"
 tags = "edit text,modify text,change text,edit content,update text,rewrite,correct,amend,redline,revise,text editor,content editor"
-title = "PDF JSON 编辑器"
+title = "编辑 PDF 内容"
 unsaved = "（未保存）"
 workbenchLabel = "编辑器"
 
 [pdfTextEditor.annotations]
-freetext = "注释文本 - 不是页面文本，因此无法在此处编辑"
-stamp = "图章注释 - 不是页面文本，因此无法在此处编辑"
-widget = "表单字段 - 不是页面文本，因此无法在此处编辑"
+freetext = "这是批注文字，请使用“添加批注”工具编辑。"
+stamp = "这是图章批注，请使用“添加批注”工具编辑。"
+widget = "这是表单字段，请使用“编辑 PDF 表单”工具修改。"
 
 [pdfTextEditor.discard]
-body = "打开 {{name}} 将关闭你正在编辑的文档。未保存的更改将丢失。"
+body = "打开 {{name}} 会关闭当前文档，未保存的更改将丢失。"
 cancel = "取消"
 confirm = "放弃并打开"
-hint = "先取消，然后保存 PDF 以将它们保留在你的工作区中。"
+hint = "如需保留更改，请先取消，再保存 PDF。"
 title = "放弃未保存的更改？"
 
 [pdfTextEditor.drop]
-hint = "释放到编辑器区域会替换任何已打开的文档。"
-title = "拖放 PDF 以打开"
+hint = "拖入新的 PDF 会替换当前打开的文档。"
+title = "拖入 PDF 开始编辑"
 
 [pdfTextEditor.error]
-decodeImage = "无法解码所选图片。"
+decodeImage = "无法读取这张图片，请换一张图片重试。"
 insertImage = "无法插入所选图片。"
 
 [pdfTextEditor.find]
@@ -7127,30 +7332,30 @@ wholeWord = "全字匹配"
 
 [pdfTextEditor.fontPicker]
 builtInGroup = "内置字体"
-deviceFontsNone = "未找到其他设备字体。"
-deviceFontsUnavailable = "设备字体不可用。内置字体仍可使用。"
-deviceGroup = "设备字体"
+deviceFontsNone = "未找到可用的本机字体。"
+deviceFontsUnavailable = "无法读取本机字体，仍可使用内置字体。"
+deviceGroup = "本机字体"
 documentGroup = "文档字体"
-label = "字体系列"
-mixed = "混合"
+label = "字体"
+mixed = "多种字体"
 noMatch = "没有匹配的字体"
-placeholder = "字体系列"
-useDeviceFonts = "使用设备字体"
+placeholder = "选择字体"
+useDeviceFonts = "读取本机字体"
 
 [pdfTextEditor.fonts]
-allPresent = "所有字母和数字均存在"
-missing = "缺失：{{glyphs}}"
+allPresent = "包含完整的英文字母和数字"
+missing = "缺少字符：{{glyphs}}"
 title = "字体"
 
 [pdfTextEditor.fonts.compat]
-info = "现有文本可完美编辑。如果新字符未包含在嵌入字体中，将回退到标准字体。"
-ok = "每种字体都包含完整字母表和数字 - 可自由输入。"
-warnOther = "{{count}} 种字体缺少某些字母或数字 - 输入这些字符时将使用标准备用字体。"
+info = "文档已有文字可继续编辑。新增字符如果不在嵌入字体中，会使用备用字体。"
+ok = "所有字体均包含完整的英文字母和数字。"
+warnOther = "{{count}} 种字体缺少部分英文字母或数字，输入这些字符时会使用备用字体。"
 
 [pdfTextEditor.fonts.pill]
 info = "已嵌入"
-ok = "所有字形"
-warn = "{{count}} 个有缺口"
+ok = "字符齐全"
+warn = "{{count}} 种字体缺少字符"
 
 [pdfTextEditor.fonts.status.embedded]
 label = "已嵌入"
@@ -7159,7 +7364,7 @@ label = "已嵌入"
 label = "标准"
 
 [pdfTextEditor.fonts.status.subset]
-label = "子集"
+label = "仅嵌入部分字符"
 
 [pdfTextEditor.help]
 ariaLabel = "键盘快捷键"
@@ -7168,32 +7373,32 @@ tooltip = "键盘快捷键 (?)"
 
 [pdfTextEditor.help.clipboard]
 copyDesc = "复制所选文本"
-cutDesc = "剪切所选内容（复制 + 删除）"
+cutDesc = "剪切所选内容"
 heading = "剪贴板"
-pasteDesc = "将剪贴板文本粘贴为新文本段"
+pasteDesc = "将剪贴板中的文字粘贴为新文本框"
 pastePlainDesc = "粘贴为纯文本"
 
 [pdfTextEditor.help.document]
 escDesc = "清除选择 / 关闭查找 / 关闭帮助"
 heading = "文档"
-helpDesc = "此帮助"
-saveDesc = "保存到你的工作区"
+helpDesc = "打开快捷键帮助"
+saveDesc = "保存到工作区"
 
 [pdfTextEditor.help.editing]
 deleteDesc = "移除所选内容"
 duplicateDesc = "复制所选内容"
 groupDesc = "将所选文本段组合为一个段落"
 heading = "编辑"
-marqueeDesc = "框选多选"
+marqueeDesc = "在空白处拖动框选，按住 Shift 可追加选择"
 moveDesc = "移动文本段"
 selectAllDesc = "全选"
-shiftClickDesc = "向选择中添加 / 移除一个文本段"
+shiftClickDesc = "选中或取消选中一个文本段"
 undoRedoDesc = "撤销 / 重做"
 
 [pdfTextEditor.help.find]
 heading = "查找和替换"
 nextDesc = "下一个匹配项（按住 Shift 可转到上一个）"
-openDesc = "打开查找栏（和替换）"
+openDesc = "打开查找与替换"
 
 [pdfTextEditor.help.navigation]
 firstLastDesc = "第一页 / 最后一页"
@@ -7203,27 +7408,27 @@ zoomDesc = "放大 / 缩小"
 
 [pdfTextEditor.inspector]
 document = "文档"
-fontEmbedded = "嵌入字体 · 缺少的字符将回退到 Helvetica。"
-fontGap = "{{name}} · 缺少 {{glyphs}} - 输入这些字符时将回退到 Helvetica。"
+fontEmbedded = "已嵌入字体；缺少的字符会使用 Helvetica。"
+fontGap = "{{name}} 缺少 {{glyphs}}，输入这些字符时会使用 Helvetica。"
 geometry = "位置和大小"
 height = "高度"
-heightHint = "文本框的高度随其字号和行数而变化。"
+heightHint = "文本框高度会随字号和行数自动变化。"
 image = "图片"
 images = "图片"
 manyImages = "{{count}} 张图片"
-manyText = "文本 · {{count}} 个框"
+manyText = "{{count}} 个文本框"
 mixed = "{{count}} 个对象"
-multiGeometry = "选择单个对象以编辑其位置和大小。"
+multiGeometry = "选择单个对象后，可调整位置和大小。"
 nothingSelected = "未选择任何内容"
-nothingSelectedHint = "点击页面上的任何文本或图片即可在此处编辑。"
+nothingSelectedHint = "点击页面上的文字或图片，在这里调整属性。"
 oneImage = "图片"
 oneText = "文本"
 pages = "页面"
 tabDocument = "文档"
-tabSelected = "已选择"
+tabSelected = "所选内容"
 textBoxes = "文本框"
 width = "宽度"
-widthHint = "文本框的宽度随其内容和换行而变化。"
+widthHint = "文字会按文本框宽度自动换行。"
 x = "X"
 y = "Y"
 
@@ -7240,7 +7445,7 @@ download = "保存并下载"
 find = "查找"
 lock = "锁定"
 openPdf = "打开 PDF"
-panelHint = "编辑在工作区视图中进行。点击页面上的文本即可更改。"
+panelHint = "请在工作区中点击页面上的文字进行编辑。"
 save = "保存"
 style = "样式"
 tapToPlace = "点击页面上要放置文本的位置"
@@ -7248,26 +7453,26 @@ unlock = "解锁"
 
 [pdfTextEditor.pageView]
 pageNumber = "第 {{page}} 页"
-renderFailed = "未能渲染页面"
+renderFailed = "页面显示失败，请重新打开文档。"
 
 [pdfTextEditor.password]
 cancel = "取消"
-incorrect = "密码不正确 - 请重试。"
-label = "密码"
+incorrect = "密码不正确，请重新输入。"
+label = "打开密码"
 open = "打开"
 protected = "此 PDF 受密码保护。"
 protectedNamed = "\"{{fileName}}\" 受密码保护。"
 title = "需要密码"
 
 [pdfTextEditor.rulers]
-guide = "位于 {{value}} {{unit}} 的对齐参考线 - 拖到标尺上可移除"
-hint = "从标尺拖动以添加对齐参考线"
+guide = "参考线：{{value}} {{unit}}。拖回标尺可移除。"
+hint = "从标尺拖出一条对齐参考线"
 horizontal = "水平标尺"
 unit = "pt"
 vertical = "垂直标尺"
 
 [pdfTextEditor.run]
-lockedTitle = "已锁定 - 使用解锁按钮进行编辑"
+lockedTitle = "内容已锁定，点击“解锁所选内容”后可继续编辑。"
 
 [pdfTextEditor.saveRisk]
 cancel = "取消"
@@ -7284,28 +7489,28 @@ view = "视图"
 
 [pdfTextEditor.sidebar]
 addImage = "添加图片"
-addText = "添加文本"
-clickPageToAddText = "点击页面以添加文本"
+addText = "添加文字"
+clickPageToAddText = "点击页面放置新文字"
 document = "文档"
 group = "组合"
 groupingAuto = "自动"
-groupingAutoHint = "将等间距行组合为段落。更改此项会重新读取文档并清除撤销历史。"
-groupingLine = "行"
+groupingAutoHint = "将行距相同的文字合为段落。切换此设置会重新读取文档，并清空撤销记录。"
+groupingLine = "按行"
 groupTooltip = "将所选文本段合并为一个段落（{{shortcut}}）"
-groupTooltipDisabled = "选择 2 个以上文本段以合并"
+groupTooltipDisabled = "请至少选择 2 个文本段后再组合"
 noFile = "未加载文件"
-noFileHint = "从左侧的文件面板选择 PDF，或拖放一个进来。编辑器会自动打开它。"
+noFileHint = "从左侧文件列表选择 PDF，或将 PDF 拖入工作区。"
 opening = "正在打开文档..."
 paragraph = "段落"
 rulers = "标尺和参考线"
 textBoxWidth = "新文本框宽度"
-textGrouping = "文本分组"
+textGrouping = "文字分组方式"
 ungroup = "取消组合"
-ungroupTooltip = "将此段落拆分为每行一个文本段"
+ungroupTooltip = "将段落拆为逐行文本段"
 ungroupTooltipDisabled = "选择多行段落以取消组合"
-widthGrow = "增长"
-widthGrowHint = "增长会在输入时加宽框；换行会保持宽度并流到新行。"
-widthWrap = "换行"
+widthGrow = "随内容加宽"
+widthGrowHint = "“随内容加宽”会在输入时扩展文本框；“固定宽度换行”会保持宽度，超出的文字另起一行。"
+widthWrap = "固定宽度换行"
 
 [pdfTextEditor.spellcheck]
 auto = "自动"
@@ -7316,16 +7521,16 @@ language = "词典语言"
 loadingDocument = "正在加载文档"
 loadingProgress = "加载进度"
 noDocument = "未加载文档。"
-pickPrompt = "从左侧的文件面板选择 PDF 以开始编辑。"
+pickPrompt = "从左侧文件列表选择 PDF，开始编辑。"
 renderingPreview = "正在渲染预览"
 
 [pdfTextEditor.toolbar]
-addTextTooltip = "添加文本框 - 然后点击页面"
+addTextTooltip = "添加文本框，然后点击页面放置"
 advancedColour = "高级颜色"
 advancedColourTooltip = "高级颜色（字形轮廓）"
 alignBottom = "底部对齐"
 alignCentre = "居中对齐"
-alignLabel = "对齐 · 需要 2 个以上对象"
+alignLabel = "对齐（至少选择 2 个对象）"
 alignLeft = "左对齐"
 alignMiddle = "垂直居中对齐"
 alignRight = "右对齐"
@@ -7342,7 +7547,7 @@ changeCaseTooltip = "更改大小写（仅文本段）"
 delete = "删除所选内容"
 deleteTooltip = "删除（Del）"
 distributeHorizontally = "水平分布"
-distributeLabel = "分布 · 需要 3 个以上对象"
+distributeLabel = "均匀分布（至少选择 3 个对象）"
 distributeVertically = "垂直分布"
 editImageExternally = "在其他应用中编辑"
 flipHorizontal = "水平翻转"
@@ -7351,43 +7556,43 @@ fontColour = "字体颜色"
 fontSize = "字号"
 formatting = "文本格式"
 italic = "斜体"
-italicUnavailable = "此字体没有斜体版本。加载你的设备字体或选择其他字体系列。"
-lock = "锁定选择"
-lockTooltip = "锁定选择 - 防止意外编辑"
+italicUnavailable = "此字体不支持斜体，请读取本机字体或选择其他字体。"
+lock = "锁定所选内容"
+lockTooltip = "锁定所选内容，避免误改"
 more = "更多操作"
-order = "顺序"
+order = "图层顺序"
 outlineColour = "轮廓颜色"
 outlineWidth = "轮廓宽度（0 = 无）"
 redo = "重做"
 redoTooltip = "重做（{{shortcut}}）"
-replaceImage = "替换，保留位置"
+replaceImage = "替换图片并保留位置"
 rotateLeft = "向左旋转 90°"
 rotateRight = "向右旋转 90°"
 sendBackward = "下移一层"
 sendToBack = "置于底层"
 undo = "撤销"
 undoTooltip = "撤销（{{shortcut}}）"
-unlock = "解锁选择"
-unlockTooltip = "解锁选择 - 使其可再次编辑"
+unlock = "解锁所选内容"
+unlockTooltip = "解锁所选内容，继续编辑"
 
 [pdfTextEditor.tooltip.alpha]
-text = "此 Alpha 查看器仍在演进中——某些字体、颜色、透明效果和布局细节可能会略有变化。分享前请仔细检查生成的 PDF。"
-title = "Alpha 查看器"
+text = "此编辑器仍在完善中，部分字体、颜色、透明效果或布局可能发生变化。请检查导出的 PDF 后再分享。"
+title = "试验功能"
 
 [pdfTextEditor.tooltip.header]
 title = "预览限制"
 
 [pdfTextEditor.tooltip.previewVariance]
-text = "某些视觉元素（例如表格边框、形状或注释外观）在预览中可能不会完全一致。导出的 PDF 会尽可能保留原始绘图指令。"
+text = "表格边框、形状或批注的预览可能与最终文件略有差异。导出时会尽量保留原有图形，请以导出的 PDF 为准。"
 title = "预览差异"
 
 [pdfTextEditor.tooltip.textFocus]
-text = "此工作区专注于编辑文本与重新定位嵌入图像。复杂页面图形、表单控件和分层图形将在导出时保留，但在此处不可完全编辑。"
-title = "文本与图像聚焦"
+text = "这里主要用于修改文字和调整图片位置。复杂图形、表单字段等会保留在导出文件中，但不能在这里完整编辑。"
+title = "可编辑的内容"
 
 [pdfTextEditor.zoom]
-fit = "适合"
-fitToWidth = "适合宽度"
+fit = "适应页面"
+fitToWidth = "适应宽度"
 in = "放大"
 out = "缩小"
 reset = "重置缩放为 100%"
@@ -10958,7 +11163,7 @@ label = "SMTP 用户名"
 [quickAccess]
 allTools = "全部工具"
 automate = "自动化"
-config = "配置"
+config = "设置"
 files = "文件"
 
 [quickNav]
@@ -10982,7 +11187,7 @@ tags = "view,open,display,read,viewer,PDF viewer,PDF reader,open PDF,view PDF,di
 addDocument = "添加文件"
 bookmarks = "书签"
 close = "关闭文档"
-comment = "评论"
+comment = "批注留言"
 label = "阅读工具"
 readAloud = "朗读"
 rotateLeft = "向左旋转"
@@ -10992,61 +11197,56 @@ switchDocument = "切换文档"
 thumbnails = "页面"
 
 [redact]
-submit = "纠正"
-tags = "涂改,隐藏,涂黑,黑色,标记,遮蔽,手动"
-title = "手动纠正"
+tags = "涂黑,遮盖,脱敏,隐私,敏感信息,隐藏,关键词,手动框选,redact"
+title = "文件脱敏"
 
 [redact.auto]
-colorLabel = "框颜色"
-convertPDFToImageLabel = "将 PDF 转为图像 PDF"
-customPaddingLabel = "自定义额外留白"
+colorLabel = "遮盖颜色"
+convertPDFToImageLabel = "涂黑后转为图片 PDF"
+customPaddingLabel = "遮盖区域外扩"
 useRegexLabel = "使用正则表达式"
 wholeWordSearchLabel = "整词匹配"
 
 [redact.auto.settings]
-advancedTitle = "高级功能"
-title = "涂黑设置"
 
 [redact.auto.wordsToRedact]
 add = "添加"
-examples = "示例：Confidential、Top-Secret"
-placeholder = "输入一个词"
-title = "要涂黑的词语"
+examples = "例如：机密、内部资料、姓名或邮箱地址"
+placeholder = "输入关键词或短语"
+title = "要查找的关键词"
 
 [redact.error]
 failed = "涂黑 PDF 时发生错误。"
 
 [redact.manual]
-apply = "应用"
-applyWarning = "⚠️ 永久应用，无法撤销，且底层数据将被删除"
+apply = "应用涂黑"
+applyWarning = "⚠️ 应用后会永久删除遮盖区域内的内容，无法撤销。"
 colorLabel = "遮盖颜色"
-controlsTitle = "手动涂黑控制"
-instructions = "选择文本或绘制区域以标记需要涂黑的内容。"
+instructions = "选中文字或画出矩形区域，标记要永久移除的内容。"
 notImplemented = "手动涂黑界面将在实现后在此处可用。"
 title = "涂黑工具"
 
 [redact.modeSelector]
-automatic = "自动"
-automaticDisabledTooltip = "在文件管理器中选择文件以一次涂黑多个文件"
-manual = "手动"
+automatic = "关键词查找"
+automaticDisabledTooltip = "请切换到文件列表视图，选择要按关键词处理的 PDF。"
+manual = "手动标记"
 mode = "模式"
-title = "涂黑方式"
 
 [redact.tooltip.advanced.color]
-text = "自定义涂黑框的外观。黑色为标准，但您可选择任意颜色。“留白”可在找到的文本周围添加额外空间。"
-title = "框颜色与留白"
+text = "设置遮盖颜色。增大“遮盖区域外扩”可在匹配文字四周多遮盖一些范围。"
+title = "颜色与遮盖范围"
 
 [redact.tooltip.advanced.convert]
-text = "在涂黑后将 PDF 转换为基于图像的 PDF。确保框下文字被完全移除且不可恢复。"
-title = "转为图像 PDF"
+text = "涂黑后将页面转为图片 PDF，移除原有文字层。输出文件中的文字将无法直接选择和复制。"
+title = "转为图片 PDF"
 
 [redact.tooltip.advanced.header]
 title = "高级涂黑设置"
 
 [redact.tooltip.advanced.regex]
 bullet1 = "示例：\\d{4}-\\d{2}-\\d{2} 匹配任意 YYYY-MM-DD 日期"
-bullet2 = "谨慎使用——请充分测试"
-text = "启用正则表达式以进行高级模式匹配。适用于查找电话号码、邮箱或复杂模式。"
+bullet2 = "应用前请检查匹配结果，避免遗漏或误删。"
+text = "按规则查找内容，例如电话号码、邮箱地址或特定格式的编号。"
 title = "使用正则"
 
 [redact.tooltip.advanced.wholeWord]
@@ -11057,38 +11257,38 @@ title = "整词匹配"
 bullet1 = "在应用前可标记任意数量的区域"
 bullet2 = "所有待处理涂黑将一次性应用"
 bullet3 = "应用后无法撤销涂黑"
-text = "标记完成后，单击“应用”以永久涂黑所有标记区域。待处理计数显示有多少项准备应用。"
+text = "标记完成后，点击“应用涂黑”永久移除所有标记区域内的内容。待处理数量表示尚未应用的标记数。"
 title = "应用涂黑"
 
 [redact.tooltip.manual.header]
-title = "手动涂黑控制"
+title = "手动标记说明"
 
 [redact.tooltip.manual.markArea]
-text = "在 PDF 上绘制矩形区域以标记涂黑区域。适合涂黑图像、签名或不规则区域。"
-title = "标记区域工具"
+text = "拖动画出矩形，标记需要移除的区域。可用于图片、签名和无法选中文字的部分。"
+title = "框选区域"
 
 [redact.tooltip.manual.markText]
-text = "在 PDF 上直接选择文本以标记为涂黑。单击并拖动以高亮需要涂黑的文本。"
-title = "标记文本工具"
+text = "在页面上拖动选中文字，将其标记为待涂黑内容。"
+title = "选中文字"
 
 [redact.tooltip.mode.automatic]
-text = "在整个文档中自动查找并涂黑指定文本。非常适合移除一致的敏感信息，如姓名、地址或机密标记。"
-title = "自动涂黑"
+text = "在整份文档中查找指定关键词并涂黑，适合处理反复出现的姓名、地址或保密标记。"
+title = "按关键词涂黑"
 
 [redact.tooltip.mode.header]
 title = "涂黑方式"
 
 [redact.tooltip.mode.manual]
-text = "点击并拖拽以手动选择特定区域进行涂黑。可精确控制需要涂黑的内容。（即将推出）"
+text = "在页面上选中文字或框出区域，精确标记要涂黑的内容。"
 title = "手动涂黑"
 
 [redact.tooltip.words]
-bullet1 = "一次添加一个词"
-bullet2 = "按 Enter 或点击“添加另一个”以添加"
-bullet3 = "点击 × 以移除词语"
+bullet1 = "每次输入一个关键词或短语"
+bullet2 = "按 Enter 或点击“添加”加入列表"
+bullet3 = "点击 × 移除关键词"
 
 [redact.tooltip.words.description]
-text = "输入要在文档中查找并涂黑的词语或短语。每个词会单独搜索。"
+text = "输入需要查找并涂黑的内容。系统会分别搜索列表中的每个关键词或短语。"
 title = "文本匹配"
 
 [redact.tooltip.words.examples]
@@ -11096,7 +11296,7 @@ text = "常见涂黑词包括：银行信息、电子邮箱地址或特定姓名
 title = "常见示例"
 
 [redact.tooltip.words.header]
-title = "要涂黑的词语"
+title = "关键词列表"
 
 [releases]
 title = "版本说明"
@@ -11122,15 +11322,15 @@ title = "功能说明"
 title = "关于移除注释"
 
 [removeBlanks]
-submit = "删除空白"
+submit = "删除空白页"
 tags = "delete,clean,empty,remove blank,delete blank pages,empty pages,white pages,remove empty,clean up,cleanup blank"
-title = "删除空白"
+title = "删除空白页"
 
 [removeBlanks.error]
 failed = "删除空白页失败"
 
 [removeBlanks.includeBlankPages]
-label = "包含检测到的空白页"
+label = "另存检测到的空白页"
 
 [removeBlanks.results]
 title = "已删除空白页"
@@ -11139,34 +11339,34 @@ title = "已删除空白页"
 title = "设置"
 
 [removeBlanks.threshold]
-label = "像素白度阈值"
+label = "近白色容差"
 
 [removeBlanks.tooltip.header]
-title = "移除空白页设置"
+title = "空白页检测设置"
 
 [removeBlanks.tooltip.includeBlankPages]
 bullet1 = "有助于审查被移除的内容"
 bullet2 = "有助于验证检测准确性"
 bullet3 = "可关闭以减小输出文件大小"
-text = "启用后，将创建一个单独的 PDF，包含从原文档中检测并移除的所有空白页。"
-title = "包含已检测空白页"
+text = "将检测到的空白页另存为一份 PDF，方便检查是否误删了有内容的页面。"
+title = "保留空白页副本"
 
 [removeBlanks.tooltip.threshold]
-bullet1 = "0 = 纯黑（最严格）"
-bullet2 = "128 = 中灰"
-bullet3 = "255 = 纯白（最宽松）"
-text = "控制像素被视为“白色”的标准。这有助于判断页面上哪些区域算作空白。"
-title = "像素白度阈值"
+bullet1 = "0：只有纯白像素算作空白（最严格）"
+bullet2 = "128：中灰及更浅的像素算作空白"
+bullet3 = "255：所有像素都算作空白（最宽松）"
+text = "决定多浅的颜色算作空白。数值越大，越多浅色像素会被视为白色，页面也越容易被判为空白。"
+title = "近白色容差"
 
 [removeBlanks.tooltip.whitePercent]
-bullet1 = "较低值（如 80%）= 移除更多页面"
-bullet2 = "较高值（如 95%）= 仅移除非常空白的页面"
+bullet1 = "较低值（如 80%）：更容易判为空白页"
+bullet2 = "较高值（如 95%）：只删除空白比例更高的页面"
 bullet3 = "浅色背景文档建议使用较高值"
-text = "设置页面被视为空白并移除所需的最小白色像素百分比。"
-title = "白色百分比阈值"
+text = "页面中被判为白色的像素达到此占比时，才会被视为空白页。"
+title = "空白区域占比"
 
 [removeBlanks.whitePercent]
-label = "白色百分比阈值"
+label = "空白区域占比（%）"
 
 [removeCertSign]
 description = "该工具将从您的 PDF 文档中移除数字证书签名。"
@@ -11234,9 +11434,9 @@ title = "页面选择"
 
 [removePassword]
 desc = "从 PDF 文档中移除密码保护。"
-submit = "删除"
+submit = "移除密码"
 tags = "安全、解密、密码、安全性、删除密码"
-title = "删除密码"
+title = "移除密码"
 
 [removePassword.error]
 failed = "移除 PDF 密码时发生错误。"
@@ -11244,23 +11444,23 @@ failed = "移除 PDF 密码时发生错误。"
 [removePassword.password]
 label = "当前密码"
 placeholder = "输入当前密码"
-stepTitle = "删除密码"
+stepTitle = "输入原密码"
 
 [removePassword.results]
 title = "已解密的 PDF"
 
 [removePassword.tooltip]
-description = "移除密码保护需要用于加密 PDF 的原始密码。这样会解密文档，使其无需密码即可访问。"
+description = "输入原密码后，工具会生成无需密码即可打开的 PDF。"
 
 [reorganizePages]
-submit = "重新组织页面"
+submit = "应用页面顺序"
 tags = "rearrange,reorder,organize,reorganize,move pages,page order,sort pages,arrange pages,shuffle,resequence"
 
 [reorganizePages.error]
-failed = "重新组织页面失败"
+failed = "整理页面失败。"
 
 [reorganizePages.results]
-title = "页面已重新组织"
+title = "已整理页面"
 
 [reorganizePages.settings]
 title = "设置"
@@ -11340,9 +11540,9 @@ title = "反转所有颜色"
 rotateLeft = "逆时针旋转"
 rotateRight = "顺时针旋转"
 selectRotation = "选择旋转角度（顺时针）"
-submit = "旋转"
+submit = "应用旋转"
 tags = "turn,flip,orient,rotate,orientation,landscape,portrait,90 degrees,180 degrees,clockwise,anticlockwise,counter-clockwise,fix orientation"
-title = "旋转 PDF"
+title = "旋转页面"
 
 [rotate.error]
 failed = "旋转 PDF 时发生错误。"
@@ -11354,11 +11554,11 @@ title = "旋转预览"
 title = "设置"
 
 [rotate.tooltip.controls]
-text = "使用旋转按钮调整方向。左键逆时针，右键顺时针。每次点击旋转 90°。"
-title = "控件"
+text = "点击左侧按钮逆时针旋转，右侧按钮顺时针旋转，每次 90°。"
+title = "旋转方向"
 
 [rotate.tooltip.description]
-text = "以 90° 为增量顺时针或逆时针旋转 PDF 页面。PDF 中所有页面都会被旋转。预览会显示旋转后的效果。"
+text = "按 90° 的倍数旋转文档中的全部页面。可先查看预览，再应用旋转。"
 
 [rotate.tooltip.header]
 title = "旋转设置概览"
@@ -11608,26 +11808,26 @@ apiKeysDescription = "用于从脚本和集成调用 Stirling API 的个人密�
 title = "开发者"
 
 [settings.general]
-autoUnzip = "自动解压 API 响应"
+autoUnzip = "自动解压处理结果"
 autoUnzipFileLimit = "自动解压文件数量上限"
-autoUnzipFileLimitTooltip = "仅当 ZIP 包含不超过此数量的文件时才解压。调高以提取更大的 ZIP。"
-autoUnzipTooltip = "自动解压 API 操作返回的 ZIP 文件。禁用以保持 ZIP 文件不变。这不会影响自动化工作流。"
+autoUnzipFileLimitTooltip = "结果 ZIP 中的文件数不超过此值时，才自动解压。"
+autoUnzipTooltip = "工具返回 ZIP 压缩包时自动解压，便于直接查看其中的文件。关闭后保留原 ZIP；不影响自动化流程。"
 defaultPdfEditor = "默认 PDF 编辑器"
-defaultPdfEditorActive = "Stirling PDF 是您的默认 PDF 编辑器"
+defaultPdfEditorActive = "轻页 PDF 已是默认 PDF 编辑器"
 defaultPdfEditorChecking = "正在检查..."
 defaultPdfEditorInactive = "其他应用被设为默认"
-defaultPdfEditorSet = "已为默认"
+defaultPdfEditorSet = "已设为默认"
 defaultStartupView = "启动时的默认视图"
-defaultStartupViewDescription = "选择应用启动时左侧栏中激活的选项卡"
-defaultToolPickerMode = "默认工具选择器模式"
-defaultToolPickerModeDescription = "选择工具选择器默认以全屏或侧边栏打开"
+defaultStartupViewDescription = "选择应用启动后显示的工作区视图。"
+defaultToolPickerMode = "工具列表默认布局"
+defaultToolPickerModeDescription = "选择工具列表默认在侧边栏还是全屏中显示。"
 defaultViewerZoom = "阅读器默认缩放"
-defaultViewerZoomDescription = "设置在阅读器中打开 PDF 时的默认缩放级别"
-description = "配置通用应用偏好。"
-hideUnavailableConversions = "隐藏不可用转换"
-hideUnavailableConversionsDescription = "在“转换”工具中移除已禁用的转换选项，而非灰显显示。"
+defaultViewerZoomDescription = "选择打开 PDF 时的默认缩放方式。"
+description = "设置显示方式、编辑器和下载偏好。"
+hideUnavailableConversions = "隐藏不可用的转换格式"
+hideUnavailableConversionsDescription = "在“格式转换”中隐藏当前不可用的选项。"
 hideUnavailableTools = "隐藏不可用工具"
-hideUnavailableToolsDescription = "将服务器禁用的工具从列表中移除，而非灰显显示。"
+hideUnavailableToolsDescription = "在工具列表中隐藏当前无法使用的工具。"
 language = "语言"
 languageDescription = "选择显示语言"
 logout = "退出登录"
@@ -11639,10 +11839,10 @@ themeAccentCustomHint = "自定义（建议使用默认值）"
 themeAccentDark = "深色模式强调色"
 themeAccentDefault = "默认"
 themeAccentDefaultHint = "默认主题（推荐）"
-themeAccentDescription = "按钮、链接和高亮会使用它，并为应用提供微妙的色调。浅色和深色模式各自拥有独立设置。系统模式会使用当前启用的设置。"
+themeAccentDescription = "设置按钮、链接和高亮的颜色。浅色与深色模式分别保存设置；跟随系统时使用当前模式的设置。"
 themeAccentLight = "浅色模式强调色"
 themeDark = "深色"
-themeDescription = "在浅色和深色模式间切换"
+themeDescription = "选择浅色、深色，或自动跟随系统。"
 themeLight = "浅色"
 themeReset = "将主题恢复为默认"
 themeSystem = "跟随系统"
@@ -11669,8 +11869,8 @@ tools = "工具"
 
 [settings.general.updates]
 checkForUpdates = "检查更新"
-currentBackendVersion = "Current Backend Version"
-currentFrontendVersion = "Current Frontend Version"
+currentBackendVersion = "当前处理服务版本"
+currentFrontendVersion = "当前界面版本"
 description = "检查更新并查看版本信息"
 latestVersion = "最新版本"
 managedByAdmin = "由管理员管理"
@@ -11679,13 +11879,13 @@ modeDisabled = "不检查更新"
 modePrompt = "安装更新前询问我"
 serverNeedsUpdate = "需要管理员更新服务器"
 title = "软件更新"
-updateBehavior = "更新行为"
-updateBehaviorDescription = "选择在安装更新前是否提示、自动安装，或完全跳过更新检查。"
-updateBehaviorError = "无法更改更新行为"
+updateBehavior = "更新方式"
+updateBehaviorDescription = "选择自动安装、安装前询问，或不检查更新。"
+updateBehaviorError = "无法更改更新方式"
 updateBehaviorErrorLocked = "此设置已被管理员锁定。"
 updateBehaviorLockedDescription = "您的管理员已配置此计算机上 Stirling-PDF 的更新处理方式。请联系他们进行更改。"
-updateBehaviorSaved = "已保存更新行为。"
-versionMismatch = "Warning: A mismatch has been detected between the client version and the AppConfig version. Using different versions can lead to compatibility issues, errors, and security risks. Please ensure that server and client are using the same version."
+updateBehaviorSaved = "已保存更新方式。"
+versionMismatch = "界面与处理服务的版本不一致，可能导致兼容性问题。请将两者更新到同一版本。"
 viewDetails = "查看详情"
 
 [settings.general.versionInfo]
@@ -11696,8 +11896,8 @@ title = "版本信息"
 
 [settings.general.zoomLevel]
 auto = "自动"
-fitPage = "适合页面"
-fitWidth = "适合宽度"
+fitPage = "适应页面"
+fitWidth = "适应宽度"
 
 [settings.help]
 description = "编辑器和管理区域的引导式演示。"
@@ -11835,7 +12035,7 @@ title = "策略与隐私"
 appearance = "外观"
 description = "编辑器对你和你的账户的显示与行为方式。"
 downloads = "下载"
-editorDefaults = "编辑器默认值"
+editorDefaults = "阅读设置"
 title = "首选项"
 
 [settings.security]
@@ -11984,7 +12184,7 @@ title = "显示 JavaScript"
 title = "已提取的 JavaScript"
 
 [sign]
-activate = "激活签名放置"
+activate = "开始放置签名"
 add = "添加"
 addToAll = "添加到所有页面"
 applySignatures = "应用签名"
@@ -11992,12 +12192,12 @@ clear = "清除"
 deactivate = "停止放置签名"
 delete = "删除"
 first = "首页"
-header = "签署 PDF"
+header = "添加签名"
 last = "末页"
-maintainRatio = "切换保持长宽比"
+maintainRatio = "保持原始宽高比例"
 next = "下一页"
 noSavedSigs = "未找到已保存的签名"
-penSizePlaceholder = "Type or select pen size (1-200)"
+penSizePlaceholder = "输入或选择笔画粗细（1-200）"
 personalSigs = "个人签名"
 previous = "上一页"
 redo = "重做"
@@ -12006,9 +12206,9 @@ sharedSigningOpen = "打开共享签名"
 sharedSigningRequest = "请求签名"
 sharedSigningStepDesc = "将此文档发送给他人签名，而不是由您自己签名。"
 sharedSigs = "共享签名"
-submit = "签署文档"
+submit = "保存签名到 PDF"
 tags = "signature,autograph,e-sign,electronic signature,digital signature,sign document,approval,signoff,authorize,endorse,ink signature,handwriting"
-title = "签名"
+title = "添加签名"
 undo = "撤销"
 updateAndPlace = "更新并放置"
 upload = "上传图片"
@@ -12018,49 +12218,49 @@ clear = "清空画布"
 clickToOpen = "点击打开绘制画布"
 colorLabel = "颜色"
 colorPickerTitle = "选择笔画颜色"
-heading = "绘制您的签名"
-modalTitle = "绘制您的签名"
-penSizeLabel = "笔粗"
+heading = "手写签名"
+modalTitle = "手写签名"
+penSizeLabel = "笔画粗细"
 penSizePlaceholder = "大小"
 
 [sign.draw]
 clear = "清除"
-title = "绘制您的签名"
+title = "手写签名"
 
 [sign.error]
 failed = "签署 PDF 时发生错误。"
 
 [sign.image]
-backgroundRemovalFailedMessage = "无法移除图像背景。将改用原始图像。"
-backgroundRemovalFailedTitle = "背景移除失败"
-hint = "上传 PNG 或 JPG 格式的签名图像"
-label = "上传签名图像"
-placeholder = "选择图像文件"
-previewAlt = "Current image signature"
-processing = "正在处理图像..."
+backgroundRemovalFailedMessage = "无法去除背景，将使用原图。"
+backgroundRemovalFailedTitle = "去除背景失败"
+hint = "上传 PNG 或 JPG 格式的签名图片。"
+label = "上传签名图片"
+placeholder = "选择图片文件"
+previewAlt = "当前签名图片"
+processing = "正在处理图片…"
 removeBackground = "移除白色背景（变为透明）"
 
 [sign.instructions]
-canvas = "在画布中绘制签名后，关闭弹窗，然后在 PDF 上任意位置点击以放置。"
-image = "在上方上传您的签名图像后，在 PDF 上任意位置点击以放置。"
-noSignature = "请先在上方创建签名以启用放置工具。"
+canvas = "写好签名后关闭画布，再点击 PDF 页面上要放置签名的位置。"
+image = "上传签名图片后，点击 PDF 页面上要放置签名的位置。"
+noSignature = "先创建或选择签名，再放置到页面上。"
 paused = "放置已暂停"
-placeAnnotation = "点击 PDF 上的任意位置放置您的注释。"
-resumeHint = "继续放置后点击添加签名。"
-saved = "在上方选择一个已保存的签名，然后在 PDF 任意位置点击以放置。"
-text = "在上方输入您的姓名后，在 PDF 上任意位置点击以放置签名。"
+placeAnnotation = "点击页面，放置批注。"
+resumeHint = "点击“继续放置”，再点击页面添加签名。"
+saved = "选择已保存的签名，再点击页面放置。"
+text = "输入姓名后，点击页面放置文字签名。"
 title = "如何添加签名"
 
 [sign.mobile]
-createFromPhone = "Mobile upload"
-description = "Scan this QR code with your phone or tablet, draw your signature, and it will appear here automatically."
-error = "Connection Error"
-expiryWarning = "QR Code Expiring Soon"
-expiryWarningMessage = "This QR code will expire in {{seconds}} seconds. A new code will be generated automatically."
-instructions = "Open the camera app on your phone and scan this code. Keep this window open while you draw."
-pollingError = "Error checking for the signature"
-sessionCreateError = "Failed to create session"
-title = "Draw on your phone"
+createFromPhone = "从手机上传"
+description = "用手机或平板扫描二维码，写好签名后会自动显示在这里。"
+error = "连接失败"
+expiryWarning = "二维码即将过期"
+expiryWarningMessage = "二维码将在 {{seconds}} 秒后过期，届时会自动生成新二维码。"
+instructions = "用手机相机扫描二维码。书写签名时，请保持此窗口打开。"
+pollingError = "获取手机签名失败"
+sessionCreateError = "无法建立手机签名连接"
+title = "在手机上手写签名"
 
 [sign.mode]
 move = "移动签名"
@@ -12076,13 +12276,13 @@ carouselPosition = "{{current}} / {{total}}"
 defaultCanvasLabel = "手写签名"
 defaultImageLabel = "已上传签名"
 defaultLabel = "签名"
-defaultTextLabel = "键入签名"
+defaultTextLabel = "文字签名"
 delete = "移除"
 description = "随时复用已保存的签名。"
-emptyDescription = "在上方手写、上传或输入签名，然后使用“保存到库”以保留最多 {{max}} 个常用项以便使用。"
+emptyDescription = "先手写、上传或输入签名，再点击“保存签名”。最多可保存 {{max}} 个常用签名。"
 emptyTitle = "暂无已保存签名"
 heading = "已保存的签名"
-label = "标签"
+label = "签名名称"
 limitDescription = "添加新签名前请先删除一个已保存的签名（最多 {{max}} 个）。"
 limitTitle = "已达上限"
 next = "下一项"
@@ -12097,7 +12297,7 @@ saveUnavailable = "请先创建签名再保存。"
 sharedDescription = "所有用户都可以查看并使用这些签名。"
 sharedHeading = "共享签名"
 tempStorageDescription = "签名仅存储在您的浏览器中。清除浏览器数据或更换浏览器后将会丢失。"
-tempStorageTitle = "临时浏览器存储"
+tempStorageTitle = "保存在此浏览器"
 use = "使用签名"
 
 [sign.saved.status]
@@ -12106,7 +12306,7 @@ saved = "已保存"
 [sign.saved.type]
 canvas = "手写"
 image = "上传"
-text = "文本"
+text = "文字"
 
 [sign.step]
 createDesc = "选择创建签名的方式"
@@ -12114,54 +12314,54 @@ place = "放置并保存"
 placeDesc = "将签名放置到 PDF 上"
 
 [sign.steps]
-configure = "配置签名"
+configure = "创建或选择签名"
 
 [sign.text]
-colorLabel = "文本颜色"
+colorLabel = "文字颜色"
 fontLabel = "字体"
 fontSizeLabel = "字号"
 fontSizePlaceholder = "输入或选择字号 (8-200)"
-name = "签署人姓名"
-placeholder = "输入您的全名"
+name = "签名文字"
+placeholder = "输入姓名或签名文字"
 
 [sign.type]
-canvas = "画布"
-draw = "绘制"
-image = "图像"
+canvas = "手写"
+draw = "手写"
+image = "上传图片"
 saved = "已保存"
-text = "文本"
-title = "签名类型"
+text = "输入文字"
+title = "签名方式"
 
 [signatureSettings.tooltip]
 header = "签名外观设置"
 
 [signatureSettings.tooltip.location]
-bullet1 = "示例：“New York, USA”、“London Office”、“Remote”"
-bullet2 = "与页面位置不同"
+bullet1 = "例如：“上海办公室”“北京”或“远程签署”"
+bullet2 = "指实际签署地点，不是签名在页面上的位置"
 bullet3 = "某些法域可能要求填写"
-description = "可选的签名应用地理位置。存储于证书元数据中。"
-title = "签名位置"
+description = "可填写签署时所在地点，作为签名信息保存。"
+title = "签署地点"
 
 [signatureSettings.tooltip.logo]
 bullet1 = "与签名及文字一同显示"
 bullet2 = "支持 PNG、JPG 格式"
 bullet3 = "提升专业外观"
-description = "为可见签名添加公司 Logo，以增强品牌和真实性。"
-title = "公司 Logo"
+description = "在可见的签名框中添加公司标志或其他图片。"
+title = "标志图片"
 
 [signatureSettings.tooltip.reason]
-bullet1 = "示例：“Approval”、“Contract Agreement”、“Review Complete”"
+bullet1 = "例如：“审批通过”“同意合同内容”或“已完成审阅”"
 bullet2 = "在 PDF 签名属性中可见"
 bullet3 = "有助于审计跟踪和合规"
-description = "说明为何签署文档的可选文本。存储于证书元数据中。"
-title = "签名原因"
+description = "可说明签署原因，作为签名信息保存。"
+title = "签署原因"
 
 [signatureSettings.tooltip.visibility]
-bullet1 = "<b>可见</b>：签名以自定义外观显示在 PDF 上"
-bullet2 = "<b>不可见</b>：嵌入证书但不显示视觉标记"
-bullet3 = "不可见签名仍提供加密验证"
-description = "控制签名是在文档中可见，还是以不可见方式嵌入。"
-title = "签名可见性"
+bullet1 = "<b>可见</b>：在页面上显示签名框和签署信息"
+bullet2 = "<b>不可见</b>：添加数字签名，但不显示页面标记"
+bullet3 = "不显示签名框的数字签名仍可验证"
+description = "选择是否在页面上显示签名框，两种方式都会添加数字签名。"
+title = "签名显示方式"
 
 [signRequest]
 declined = "签署请求已被拒绝"
@@ -12211,8 +12411,8 @@ x-large = "超大型尺寸"
 
 [split]
 resultsTitle = "拆分结果"
-selectMethod = "选择一种拆分方法"
-splitPages = "输入要分割的页面："
+selectMethod = "选择拆分方式"
+splitPages = "拆分位置（页码或范围）"
 submit = "拆分"
 tags = "divide,separate,break,split,extract pages,separate pages,divide document,break apart,separate files,unbind,split by page,divide by chapter"
 title = "拆分 PDF"
@@ -12221,16 +12421,16 @@ title = "拆分 PDF"
 failed = "拆分 PDF 时发生错误。"
 
 [split.methods.byChapters]
-name = "章节"
-tooltip = "使用 PDF 书签来确定拆分位置"
+name = "书签章节"
+tooltip = "根据 PDF 书签的章节起始页拆分。"
 
 [split.methods.byDocCount]
-name = "文件数量"
+name = "输出文件数"
 tooltip = "输入您想创建的文件数量"
 
 [split.methods.byPageCount]
 name = "页数"
-tooltip = "输入每个拆分文件的页数"
+tooltip = "设置每份 PDF 包含多少页。"
 
 [split.methods.byPageDivider]
 name = "分隔页"
@@ -12238,14 +12438,14 @@ tooltip = "扫描时在文档间放置带二维码的分隔页"
 
 [split.methods.byPages]
 name = "页码"
-tooltip = "输入用逗号分隔的页码或带连字符的范围"
+tooltip = "设置拆分点，例如 3,7 表示在第 3 页和第 7 页后拆分。"
 
 [split.methods.byPoster]
-name = "可打印分块"
+name = "海报打印分块"
 tooltip = "将超大页面按标准纸张（A4、Letter 等）分割为更小块，便于打印"
 
 [split.methods.bySections]
-name = "区块"
+name = "页面网格"
 tooltip = "将每一页拆分为横向与纵向的多个区块"
 
 [split.methods.bySize]
@@ -12253,8 +12453,8 @@ name = "文件大小"
 tooltip = "指定最大文件大小（如 10MB、500KB）"
 
 [split.methods.prefix]
-splitAt = "拆分于"
-splitBy = "拆分依据"
+splitAt = "按"
+splitBy = "按"
 splitInto = "拆分为"
 
 [split.methodSelection.tooltip]
@@ -12265,7 +12465,7 @@ bullet4 = "在处理前可随时更改方法"
 title = "选择您的拆分方法"
 
 [split.methodSelection.tooltip.header]
-text = "选择您希望如何拆分 PDF 文档。每种方法都针对不同用例和文档类型进行了优化。"
+text = "可按页码、每份页数、文件大小、书签章节等方式拆分，选择后再设置参数。"
 title = "拆分方法选择"
 
 [split.poster]
@@ -12309,14 +12509,14 @@ title = "按章节拆分"
 bullet1 = "输入所需的输出文件数量"
 bullet2 = "页面将尽可能均匀分配"
 bullet3 = "当您需要特定数量的文件时很有用"
-text = "通过将页面均匀分配到多个文件，创建指定数量的输出文件。"
-title = "按文档数量拆分"
+text = "设置输出文件数量，工具会尽量把页面均匀分配到各份 PDF。"
+title = "按文件数量拆分"
 
 [split.tooltip.byPageCount]
 bullet1 = "输入每个输出文件的页数"
 bullet2 = "如果无法整除，最后一个文件的页数可能较少"
 bullet3 = "适用于批处理工作流"
-text = "创建多个具有特定页数的 PDF。非常适合制作均匀的文档分段。"
+text = "每份 PDF 保留指定页数，剩余页面不足时单独组成最后一份。"
 title = "按页数拆分"
 
 [split.tooltip.byPageDivider]
@@ -12324,8 +12524,8 @@ bullet1 = "从下载链接打印分隔页"
 bullet2 = "在文档之间插入分隔页"
 bullet3 = "将所有文档一起扫描为一个 PDF"
 bullet4 = "上传——会自动检测并移除分隔页"
-bullet5 = "如果扫描分隔页的双面，请启用双工模式"
-text = "使用带有 QR 码的实体分隔页自动拆分扫描文档。非常适合处理合并扫描的多份文档。"
+bullet5 = "若分隔页也扫描了正反两面，请启用“双面模式”。"
+text = "扫描前在不同文档之间插入二维码分隔页。工具会根据这些分隔页自动拆分，并移除分隔页。"
 title = "按分隔页拆分"
 
 [split.tooltip.byPages]
@@ -12340,8 +12540,8 @@ bullet1 = "目标页面尺寸：选择输出纸张尺寸（A4、Letter 等）"
 bullet2 = "水平/垂直分割数：拆分网格大小"
 bullet3 = "从右到左：为 RTL 布局反转列顺序"
 bullet4 = "打印并拼接各部分以制作海报"
-text = "将大型 PDF 页面拆分为适合标准纸张尺寸打印的更小分块。非常适合把超大页面制作成海报打印。"
-title = "用于海报打印的拆分"
+text = "把大幅页面分成多个小块，分别打印后可拼接成海报。"
+title = "海报分块打印"
 
 [split.tooltip.bySections]
 bullet1 = "水平：要创建的行数"
@@ -12354,32 +12554,32 @@ title = "按网格区块拆分"
 bullet1 = "较大文件使用 MB（如 10MB）"
 bullet2 = "较小文件使用 KB（如 500KB）"
 bullet3 = "系统会在页面边界进行拆分"
-text = "创建多个不超过指定大小的 PDF。适用于大小限制或邮件附件。"
+text = "按目标大小将 PDF 分成多份，适合邮件附件或上传有大小限制的场景。每页保持完整，不会从中间截断。"
 title = "按文件大小拆分"
 
 [split.value.docCount]
-label = "文件数量"
-placeholder = "例如：3，5"
+label = "输出文件数量"
+placeholder = "例如：3"
 
 [split.value.fileSize]
-label = "文件大小"
-placeholder = "例如：10MB，500KB"
+label = "每份文件的目标大小"
+placeholder = "例如：10MB 或 500KB"
 
 [split.value.pageCount]
 label = "每个文件的页数"
-placeholder = "例如：5，10"
+placeholder = "例如：5"
 
 [split-by-sections]
-merge = "是否合并为一个 pdf"
+merge = "将所有分块合并为一份 PDF"
 tags = "章节拆分、分割、自定义"
-title = "按照块（Section）拆分 PDF"
+title = "按页面网格拆分"
 
 [split-by-sections.customPages]
 label = "自定义页码"
 placeholder = "例如 2,4,6"
 
 [split-by-sections.horizontal]
-label = "水平分割"
+label = "横向分割数"
 placeholder = "输入水平分割数"
 
 [split-by-sections.splitMode]
@@ -12392,7 +12592,7 @@ splitAllExceptFirstAndLast = "拆分除首尾外的所有页面"
 splitAllExceptLast = "拆分除最后一页外的所有页面"
 
 [split-by-sections.vertical]
-label = "垂直分割"
+label = "纵向分割数"
 placeholder = "输入垂直分割数"
 
 [split-by-size-or-count]
@@ -12403,9 +12603,9 @@ label = "输入数值"
 placeholder = "输入大小（例如：2MB或3KB）或数目（例如：5）"
 
 [splitByChapters]
-allowDuplicates = "允许重复"
+allowDuplicates = "允许重复的书签名称"
 bookmarkLevel = "书签级别"
-includeMetadata = "包含元数据"
+includeMetadata = "保留文档属性"
 title = "按章节拆分 PDF"
 
 [splitPdfByChapters]
@@ -12645,17 +12845,17 @@ dismiss = "关闭"
 toggleDetails = "切换详情"
 
 [tool]
-endpointUnavailable = "此工具在您的服务器上不可用。"
+endpointUnavailable = "当前处理服务无法运行此工具。"
 endpointUnavailableClickable = "此模式下不可用。点击以登录。"
 filesLoading = "文件仍在加载，请稍候。"
-filesLoadingProgress = "{{loaded}} / {{total}} 个文件正在加载..."
-invalidParams = "请填写必填设置。"
+filesLoadingProgress = "已加载 {{loaded}} / {{total}} 个文件…"
+invalidParams = "请补全必填项，并检查设置是否有效。"
 noFiles = "添加文件以开始。"
 scopeFiles = "文件"
 scopeThisFile = "此文件"
-selectFilesHint = "在“活动文件”中选择文件以运行此工具"
+selectFilesHint = "请勾选左侧要处理的文件。"
 singleFileScope = "仅应用于：{{fileName}}"
-viewerMode = "切换到文件编辑器以选择多个文件。"
+viewerMode = "切换到文件列表视图，再选择多个文件。"
 
 [toolFormat]
 ANY = "任意文件"
@@ -12683,16 +12883,41 @@ XML = "XML 文件"
 XPS = "XPS 文档"
 ZIP = "ZIP 归档文件"
 
+[toolLibrary]
+add = "添加到侧边栏"
+added = "已将“{{name}}”添加到侧边栏"
+addTool = "将“{{name}}”添加到侧边栏"
+backToSidebar = "返回侧边栏工具"
+clearSearch = "清空搜索"
+description = "将常用工具添加到编辑器侧边栏，随时调整。"
+inSidebar = "已添加"
+manageSidebar = "管理侧边栏工具"
+noResults = "没有找到匹配的工具"
+remove = "移除"
+removed = "已从侧边栏移除“{{name}}”"
+removeTool = "从侧边栏移除“{{name}}”"
+searchHint = "试试其他工具名称或关键词。"
+searchResults = "搜索结果"
+sidebarCount = "侧边栏已添加 {{count}} 个工具"
+sidebarEmpty = "还没有添加工具，可以前往工具库挑选常用工具。"
+title = "工具库"
+
+[toolLibrary.groups]
+conversion = "转换与优化"
+editing = "内容编辑"
+pages = "页面整理"
+security = "安全与签名"
+
 [toolLoading]
 generic = "正在加载工具..."
 named = "正在加载 {{toolName}}..."
 
 [toolPanel]
-alpha = "Alpha"
+alpha = "试验功能"
 backToAllTools = "返回所有工具"
 goBack = "返回"
 pdfTools = "PDF 工具"
-placeholder = "选择一个工具以开始"
+placeholder = "选择工具开始处理文件"
 premiumFeature = "高级功能："
 searchTools = "搜索工具"
 toolsHeader = "工具"
@@ -12702,31 +12927,31 @@ viewAllTools = "查看所有工具"
 comingSoon = "即将推出："
 favorite = "添加到收藏"
 favorites = "收藏"
-heading = "所有工具（全屏视图）"
-noResults = "尝试调整搜索或切换描述显示以找到所需内容。"
+heading = "所有工具"
+noResults = "没有找到匹配的工具，请换个名称或关键词搜索。"
 recommended = "推荐"
-selfHostedOffline = "需要您的 Stirling-PDF 服务器（当前离线）："
-showDetails = "显示详情"
+selfHostedOffline = "处理服务尚未连接："
+showDetails = "显示工具说明"
 unavailable = "由服务器管理员禁用："
-unavailableDependency = "不可用 - 服务器缺少所需工具："
+unavailableDependency = "缺少运行此工具所需的组件："
 unfavorite = "从收藏中移除"
 
 [toolPanel.modePrompt]
 chooseFullscreen = "使用全屏模式"
 chooseSidebar = "使用侧边栏模式"
-description = "预览两种布局并决定如何探索 Stirling PDF 工具。"
+description = "选择工具列表的展示方式。"
 dismiss = "稍后再说"
-fullscreenDescription = "在覆盖工作区的目录中浏览每个工具，直到您选定一个。"
-fullscreenTitle = "全屏模式 -（旧版）"
+fullscreenDescription = "在整个工作区浏览工具，选中后打开操作面板。"
+fullscreenTitle = "全屏工具列表"
 recommended = "推荐"
-sidebarDescription = "将工具与您的工作区并列，便于快速切换。"
+sidebarDescription = "在工作区旁显示工具列表，便于随时切换。"
 sidebarTitle = "侧边栏模式"
 title = "选择浏览工具的方式"
 
 [toolPicker]
 allTools = "所有工具"
 noToolsFound = "未找到工具"
-quickAccess = "快速访问"
+quickAccess = "常用工具"
 searchPlaceholder = "搜索工具…"
 
 [toolPicker.subcategories]
@@ -12734,14 +12959,14 @@ advancedFormatting = "高级排版"
 ai = "AI"
 automation = "自动化"
 developerTools = "开发者工具"
-documentReview = "文档审阅"
+documentReview = "书签与目录"
 documentSecurity = "文档安全"
-extraction = "提取"
-general = "通用"
-pageFormatting = "页面格式"
-removal = "移除"
-signing = "签署"
-verification = "验证"
+extraction = "导出"
+general = "文字与批注"
+pageFormatting = "页面处理"
+removal = "清理"
+signing = "签名"
+verification = "签名验证"
 
 [toolRenderer]
 notFound = "Tool not found: {{tool}}"
@@ -12754,16 +12979,16 @@ noTools = "没有可用的工具"
 close = "关闭工具提示"
 
 [unlockPDFForms]
-description = "该工具将移除 PDF 表单字段的只读限制，使其可编辑、可填写。"
-submit = "Remove"
+description = "解除表单字段的只读限制，让已有字段可以填写。"
+submit = "解除只读限制"
 tags = "移除,删除,表单,字段,只读"
-title = "移除表单字段只读属性"
+title = "解除表单只读"
 
 [unlockPDFForms.error]
-failed = "解锁 PDF 表单时发生错误。"
+failed = "解除表单只读限制失败。"
 
 [unlockPDFForms.results]
-title = "表单解锁结果"
+title = "已解除表单只读限制"
 
 [update]
 allReleases = "所有版本"
@@ -13047,31 +13272,31 @@ downloadPdf = "下载 PDF 报告"
 finalizing = "正在准备下载..."
 location = "位置"
 noResults = "运行验证以生成报告。"
-noSignatures = "此文件中未找到电子签名"
-noSignaturesShort = "无签名"
+noSignatures = "此 PDF 中没有可验证的数字签名。"
+noSignaturesShort = "无数字签名"
 processing = "正在验证签名..."
 reason = "原因"
 results = "验证结果"
-selectCustomCert = "X.509 自签名证书（可选）"
+selectCustomCert = "自定义 X.509 证书（可选）"
 signatureDate = "签名日期"
-signer = "签署者"
+signer = "签署人"
 submit = "验证签名"
 tags = "签名，验证，验证，PDF，证书，数字签名，验证签名，验证证书"
-title = "验证pdf签名"
+title = "验证数字签名"
 totalSignatures = "签名总数"
 
 [validateSignature.cert]
 algorithm = "算法"
 bits = "比特"
 details = "证书详情"
-issuer = "发行者"
+issuer = "签发机构"
 keySize = "密钥长度"
 keyUsage = "密钥用途"
 selfSigned = "自签名"
 serialNumber = "序列号"
-subject = "主题"
-validFrom = "有效期自"
-validUntil = "有效期至"
+subject = "证书主体"
+validFrom = "生效日期"
+validUntil = "到期日期"
 version = "版本"
 
 [validateSignature.downloadType]
@@ -13102,18 +13327,18 @@ downloads = "下载"
 entryLabel = "签名摘要"
 filesEvaluated_one = "已评估 {{count}} 个文件"
 filesEvaluated_other = "已评估 {{count}} 个文件"
-footer = "通过 Stirling PDF 验证"
+footer = "由轻页 PDF 验证"
 generatedAt = "生成时间"
 noPdf = "成功验证后将提供 PDF 报告。"
 page = "页"
 shortTitle = "签名摘要"
-signatureCountLabel_one = "{{count}} signature"
-signatureCountLabel_other = "{{count}} signatures"
-signaturesFound_one = "{{count}} signature detected"
-signaturesFound_other = "{{count}} signatures detected"
+signatureCountLabel_one = "{{count}} 个签名"
+signatureCountLabel_other = "{{count}} 个签名"
+signaturesFound_one = "检测到 {{count}} 个签名"
+signaturesFound_other = "检测到 {{count}} 个签名"
 signaturesInvalid = "{{count}} 个无效"
-signaturesUnverified_one = "{{count}} 个需要审核"
-signaturesUnverified_other = "{{count}} 个需要审核"
+signaturesUnverified_one = "{{count}} 个待核实"
+signaturesUnverified_other = "{{count}} 个待核实"
 signaturesValid = "{{count}} 个完全有效"
 thumbnailAlt = "{{fileName}} 缩略图"
 title = "签名验证报告"
@@ -13125,7 +13350,7 @@ signatureCount = "签名总数"
 signatureDate = "签名日期"
 
 [validateSignature.settings]
-certHint = "上传受信任的 X.509 证书以针对自定义信任源进行验证。"
+certHint = "上传用于验证签名的受信任 X.509 证书。"
 title = "验证设置"
 
 [validateSignature.signature]
@@ -13140,21 +13365,21 @@ validUntrusted = "有效，但签名者身份未验证"
 
 [viewer]
 cannotPreviewFile = "无法预览文件"
-copyText = "Copy"
+copyText = "复制文字"
 disableColorFilter = "禁用颜色滤镜"
 documentUpdated = "文档已更新"
 dualPageView = "双页视图"
 enableDarkFilter = "启用深色滤镜"
 enableSepiaFilter = "启用褐色滤镜"
-engineLoadError = "无法初始化 PDF 查看器引擎"
-engineSlowWarning = "PDF 引擎初始化时间比预期更长。请检查你的浏览器 WebAssembly 和 Worker 设置，或重新加载页面。"
+engineLoadError = "PDF 阅读器启动失败，请重新加载页面。"
+engineSlowWarning = "PDF 阅读器加载较慢。可先等待，或重新加载页面；若仍无法打开，请检查浏览器是否允许 WebAssembly 和 Worker。"
 firstPage = "第一页"
 lastPage = "最后一页"
 loadingEngine = "正在加载 PDF 引擎..."
 moreOptions = "更多"
 nextPage = "下一页"
-noPdfProvided = "未提供 PDF"
-onlyPdfSupported = "该查看器仅支持 PDF 文件。此文件似乎是其他格式。"
+noPdfProvided = "尚未打开 PDF"
+onlyPdfSupported = "此文件格式暂不支持预览。"
 pageNavigation = "页面导航"
 previousPage = "上一页"
 saveChangesErrorBody = "无法保存该文档。请重试。"
@@ -13183,57 +13408,57 @@ title = "附件"
 untitled = "无标题"
 
 [viewer.bookmarks]
-addBookmark = "Add bookmark"
+addBookmark = "添加书签"
 bookmarkTitle = "书签标题"
 bookmarkTitleRequired = "书签标题为必填项"
 closeSidebar = "关闭书签侧边栏"
 collapseAll = "折叠所有书签"
 editorOnly = "此文档的书签只能在编辑器中编辑。"
-empty = "No bookmarks in this document"
+empty = "此文档没有书签"
 expandAll = "展开所有书签"
 loadFailed = "未能加载书签"
 loading = "正在加载书签..."
 noDocument = "打开 PDF 以查看其书签。"
 noSearchResults = "没有书签匹配您的搜索"
-openEditor = "需要重新排序或嵌套？打开书签编辑器"
+openEditor = "打开书签编辑器，调整顺序和层级"
 pageLabel = "页面"
 pageNumber = "第 {{page}} 页"
 saveFailed = "未能保存书签"
 searchPlaceholder = "搜索书签"
-title = "Bookmarks"
+title = "书签目录"
 untitled = "未命名"
 
 [viewer.comments]
-addComment = "添加评论"
-addCommentPlaceholder = "添加评论..."
+addComment = "添加留言"
+addCommentPlaceholder = "输入批注留言…"
 addLink = "添加链接"
 addReplyPlaceholder = "添加回复..."
 cancelClearAll = "取消"
-clearAll = "清除所有评论"
-clearAllDescription = "这将从侧边栏移除评论和回复，同时保留文档中任何已附加的注释。"
-clearAllTitle = "要清除所有评论吗？"
-close = "关闭评论"
-closeSidebar = "关闭注释侧边栏"
-deleteAnnotationAndComment = "删除批注与评论"
-deleteDescription = "此批注附带了一个评论。您可以仅从侧边栏移除评论而保留批注，或删除全部内容。"
-deleteTitle = "从评论中移除批注？"
+clearAll = "清除所有留言"
+clearAllDescription = "清除侧边栏中的留言和回复，保留页面上的批注标记。"
+clearAllTitle = "清除所有批注留言？"
+close = "关闭留言"
+closeSidebar = "关闭批注留言侧边栏"
+deleteAnnotationAndComment = "删除批注标记和留言"
+deleteDescription = "此批注附带留言。可只移除留言并保留页面标记，也可删除标记和留言。"
+deleteTitle = "移除这条批注留言？"
 goToLink = "前往链接"
-hint = "使用“评论”“插入文本”或“替换文本”工具放置评论。它们将按页面显示在此处。"
+hint = "使用“批注留言”“建议插入文字”或“建议替换文字”工具添加批注，留言会按页码显示在这里。"
 locateAnnotation = "在文档中定位"
 moreActions = "更多操作"
-nComments_one = "{{count}} comment"
-nComments_other = "{{count}} comments"
-noMatch = "No comments match your search"
+nComments_one = "{{count}} 条留言"
+nComments_other = "{{count}} 条留言"
+noMatch = "没有匹配的批注留言"
 pageLabel = "第 {{page}} 页"
-placingHint = "单击页面以放置… (取消)"
-removeCommentOnly = "仅移除评论"
+placingHint = "点击页面放置批注，或取消。"
+removeCommentOnly = "仅移除留言"
 saveReply = "保存回复"
-searchPlaceholder = "Search comments"
-title = "评论"
-typeComment = "评论"
-typeInsertText = "插入文本"
-typeReplaceText = "替换文本"
-viewComment = "查看评论"
+searchPlaceholder = "搜索批注留言"
+title = "批注留言"
+typeComment = "留言"
+typeInsertText = "建议插入文字"
+typeReplaceText = "建议替换文字"
+viewComment = "查看留言"
 
 [viewer.error]
 noFileProvided = "错误：未向查看器提供文件"
@@ -13256,7 +13481,7 @@ loading = "正在加载图层..."
 noDocument = "打开 PDF 以查看其图层。"
 readFailed = "未能读取 PDF 图层"
 showAll = "显示所有图层"
-title = "Layers"
+title = "图层"
 
 [viewer.link]
 delete = "删除链接"
@@ -13281,15 +13506,16 @@ lineNumbers = "行号"
 loading = "正在加载..."
 noFile = "未加载文件"
 previewUnavailable = "此文件类型不支持预览"
-renderMarkdown = "渲染 markdown"
+renderMarkdown = "显示 Markdown 排版效果"
 sortedBy = "排序依据：{{column}}"
+spreadsheetValuesPreview = "仅显示单元格内容：公式使用文件中保存的结果，没有结果时显示公式文本；不显示图表和图片。"
 textStats = "{{lines}} 行 · {{size}}"
 
 [viewer.portfolio]
 addFile = "添加文件"
 count_one = "此组合包中有 {{count}} 个文件"
 count_other = "此组合包中有 {{count}} 个文件"
-import = "导入到 Stirling"
+import = "添加到工作区"
 importFailed = "无法将此文件添加到你的工作区。"
 memberUnavailable = "无法从组合包中读取此文件。"
 preview = "预览"
@@ -13297,7 +13523,7 @@ searchPlaceholder = "搜索文件"
 title = "组合包"
 
 [viewer.redaction]
-applyAll = "应用遮盖"
+applyAll = "应用涂黑"
 removeMark = "移除此标记"
 
 [viewer.search]
@@ -13320,7 +13546,7 @@ badge = "签名"
 fieldTitle = "签名字段：{{name}}"
 signed = "已签名"
 signedWithReason = "已签名：{{reason}}"
-unsignedFieldTitle = "未签名签名字段：{{name}}"
+unsignedFieldTitle = "待签名字段：{{name}}"
 withTime = "{{label}}（{{time}}）"
 
 [viewer.thumbnails]
@@ -13338,7 +13564,7 @@ title = "浏览/编辑 PDF"
 tooltipTitle = "警告"
 
 [watermark]
-desc = "向 PDF 添加文本或图像水印"
+desc = "在 PDF 页面上添加文字或图片水印。"
 submit = "添加水印"
 tags = "stamp,mark,overlay,watermark,branding,logo,confidential,draft,copyright,trademark,text overlay,image overlay,background text"
 title = "添加水印"
@@ -13350,66 +13576,66 @@ failed = "向 PDF 添加水印时发生错误。"
 title = "水印结果"
 
 [watermark.settings]
-alphabet = "字体/语言"
+alphabet = "文字语言与字体"
 color = "水印颜色"
-convertToImage = "将 PDF 页面转为图像"
+convertToImage = "将输出页面转为图片"
 opacity = "不透明度（%）"
-rotation = "旋转（度）"
+rotation = "旋转角度（°）"
 size = "大小"
 
 [watermark.settings.image]
-choose = "选择图像"
+choose = "选择图片"
 
 [watermark.settings.spacing]
-height = "高度间距"
+height = "纵向间距"
 horizontal = "水平间距"
 vertical = "垂直间距"
-width = "宽度间距"
+width = "横向间距"
 
 [watermark.settings.text]
-placeholder = "输入水印文本"
+placeholder = "输入水印文字，例如：内部资料"
 
 [watermark.steps]
 file = "水印文件"
 formatting = "格式"
 textStyle = "样式"
 type = "水印类型"
-wording = "措辞"
+wording = "水印内容"
 
 [watermark.tooltip.appearance]
 bullet1 = "旋转：-360° 至 360°，可创建倾斜水印"
 bullet2 = "不透明度：0-100% 控制透明度"
 bullet3 = "较低不透明度可获得更柔和的水印"
-text = "控制水印的外观及与文档的融合效果。"
+text = "设置水印的旋转角度和不透明度，调整它在页面上的显眼程度。"
 title = "外观设置"
 
 [watermark.tooltip.file.header]
-title = "图像上传"
+title = "选择水印图片"
 
 [watermark.tooltip.file.recommendations]
-bullet1 = "使用带透明背景的徽标或印章"
-bullet2 = "简单设计优于复杂图形"
-bullet3 = "选择分辨率时请考虑最终文档大小"
-text = "获得最佳图像水印效果的提示。"
-title = "最佳实践"
+bullet1 = "标志或印章建议使用透明背景"
+bullet2 = "图形简洁时更容易看清"
+bullet3 = "根据需要选择分辨率，过大的图片会增加文件体积"
+text = "选择图片时可参考以下建议。"
+title = "图片选择建议"
 
 [watermark.tooltip.file.upload]
 bullet1 = "支持常见格式：PNG、JPG、GIF、BMP"
 bullet2 = "带透明背景的 PNG 效果最佳"
 bullet3 = "更高分辨率可更好地保持质量"
-text = "上传一张图像作为水印。"
-title = "选择图像"
+text = "选择一张图片作为水印。"
+title = "水印图片"
 
 [watermark.tooltip.formatting.header]
 title = "格式与布局"
 
 [watermark.tooltip.formatting.security]
-bullet1 = "防止文本选择与复制"
-bullet2 = "使水印更难移除"
-bullet3 = "会导致文件体积增大"
-bullet4 = "适用于敏感或受版权保护的内容"
-text = "将最终 PDF 转换为基于图像的格式以增强安全性。"
-title = "安全选项"
+bullet1 = "无法直接选择和复制原有文字"
+bullet2 = "水印与页面内容合为一张图片，更难单独移除"
+bullet3 = "文件体积可能增大"
+bullet4 = "适合需要将水印与页面合在一起的场景"
+text = "将添加水印后的页面转为图片。原有文字不再能直接选择或复制。"
+title = "转为图片页面"
 
 [watermark.tooltip.formatting.size]
 bullet1 = "更大的尺寸会使水印更显眼"
@@ -13417,12 +13643,12 @@ text = "调整水印（文本或图像）的大小。"
 title = "大小控制"
 
 [watermark.tooltip.language]
-text = "选择合适的语言设置以确保文本的正确字体呈现。"
+text = "选择适合水印文字的语言和字体，避免出现缺字或乱码。"
 title = "语言支持"
 
 [watermark.tooltip.spacing]
-bullet1 = "宽度间距：水平方向的距离"
-bullet2 = "高度间距：垂直方向的距离"
+bullet1 = "横向间距：左右两个水印之间的距离"
+bullet2 = "纵向间距：上下两个水印之间的距离"
 bullet3 = "数值越大，图案越稀疏"
 text = "调整页面上重复水印之间的间距。"
 title = "间距控制"
@@ -13430,7 +13656,7 @@ title = "间距控制"
 [watermark.tooltip.textStyle.color]
 bullet1 = "浅灰（#d3d3d3）用于柔和水印"
 bullet2 = "黑色或深色用于高对比度"
-bullet3 = "自定义颜色用于品牌诉求"
+bullet3 = "也可选择与标志或文档风格一致的颜色"
 text = "选择与文档内容形成良好对比的颜色。"
 title = "颜色选择"
 
@@ -13438,70 +13664,72 @@ title = "颜色选择"
 title = "文本样式"
 
 [watermark.tooltip.type.description]
-text = "根据需求在文本水印与图像水印之间进行选择。"
+text = "选择文字水印，或使用标志、印章等图片作为水印。"
 title = "选择您的水印类型"
 
 [watermark.tooltip.type.header]
 title = "水印类型选择"
 
 [watermark.tooltip.type.image]
-bullet1 = "上传任意图像格式"
+bullet1 = "选择支持的图片格式"
 bullet2 = "保持图像质量"
-bullet3 = "非常适合徽标与印章"
-text = "使用徽标、印章或任意图像作为水印。非常适合品牌与视觉识别。"
-title = "图像水印"
+bullet3 = "适合标志或印章"
+text = "使用标志、印章或其他图片作为水印。"
+title = "图片水印"
 
 [watermark.tooltip.type.text]
 bullet1 = "可自定义字体与语言"
 bullet2 = "可调整颜色与透明度"
 bullet3 = "适用于法律声明或品牌文字"
-text = "非常适合添加版权声明、公司名称或保密标记。支持多语言与自定义颜色。"
-title = "文本水印"
+text = "输入公司名称、版权声明或保密标记，设置颜色和字体。"
+title = "文字水印"
 
 [watermark.tooltip.wording.header]
 title = "文本内容"
 
 [watermark.tooltip.wording.text]
 bullet1 = "保持简洁以提升可读性"
-bullet2 = "常见示例：“CONFIDENTIAL”“DRAFT”、公司名称"
+bullet2 = "例如：“内部资料”“草稿”或公司名称"
 bullet3 = "不支持表情符号字符，会被过滤"
-text = "输入将作为水印显示在整个文档上的文本。"
-title = "水印文本"
+text = "输入要重复显示在页面上的水印文字。"
+title = "水印文字"
 
 [watermark.type]
-1 = "文本"
-2 = "图像"
+1 = "文字"
+2 = "图片"
 
 [watermark.watermarkType]
-image = "图像"
-text = "文本"
+image = "图片"
+text = "文字"
 
 [workbench.sessionRestore]
 none = "你之前的文件不再存储在此设备上。"
 partial = "已恢复 {{total}} 个文件中的 {{restored}} 个。其余文件不再存储在此设备上。"
 
 [workbenchBar]
-activeFiles = "活动文件"
-annotations = "注释"
+activeFiles = "工作区文件"
+annotations = "批注"
 applyRedactionsFirst = "先应用涂黑"
 closeAll = "关闭所有文件"
 closePdf = "关闭 PDF"
 deleteSelected = "删除所选页面"
 deselectAll = "取消全选"
 downloadAll = "全部下载"
-exitRedaction = "退出涂黑模式"
+edit = "编辑"
 exportAll = "导出 PDF"
 exportSelected = "导出所选页面"
-formFill = "填写表单"
-hideToolbar = "Hide toolbar"
+formFill = "表单编辑"
+hideToolbar = "隐藏工具栏"
 moreActions = "更多操作"
-multiTool = "多功能工具"
+multiTool = "整理页面"
+organize = "整理"
 panMode = "平移模式"
 print = "打印 PDF"
+read = "阅读"
 readAloud = "朗读"
 readAloudLanguage = "语言"
 readAloudSpeed = "速度"
-redact = "涂黑"
+redact = "文件脱敏"
 rotateLeft = "向左旋转"
 rotateRight = "向右旋转"
 ruler = "标尺/测量"
@@ -13517,14 +13745,14 @@ selectLanguage = "选择语言"
 share = "共享"
 showAllTools = "显示所有工具"
 showFewerTools = "收起工具栏"
-showToolbar = "Show toolbar"
-toggleAnnotations = "切换注释显示"
+showToolbar = "显示工具栏"
+toggleAnnotations = "显示或隐藏批注"
 toggleAttachments = "切换附件"
-toggleBookmarks = "切换书签"
-toggleComments = "评论"
+toggleBookmarks = "书签目录"
+toggleComments = "批注留言"
 toggleLayers = "切换图层"
 toggleSidebar = "切换侧边栏"
-viewer = "查看器"
+viewer = "阅读器"
 
 [workflow.participant]
 accessExpired = "您对该文档的访问已过期。"
@@ -13576,6 +13804,19 @@ users_other = "users"
 
 [workspace.teams]
 description = "管理团队并组织工作区成员"
+
+[workspaceFiles]
+all = "全部文件"
+dragToReorder = "拖动调整合并顺序"
+fileCount = "{{count}} 个文件"
+filter = "文件筛选"
+moveDown = "下移 {{fileName}}"
+moveUp = "上移 {{fileName}}"
+noneSelected = "尚未选择文件"
+openFileHint = "点击左侧文件名，打开要处理的文件。"
+selectedCount = "已选 {{count}} 个"
+selectFile = "选择 {{fileName}} 加入工作区"
+selectionHint = "切换到“全部文件”，勾选要处理的文件。"
 
 [zipWarning]
 cancel = "取消"

@@ -92,26 +92,13 @@ export function FileDetailsActions({
             </ActionIcon>
           </Menu.Target>
           <Menu.Dropdown>
-            {/* Keep sharing discoverable when server settings disable it. */}
-            {single && (
-              <Tooltip
-                label={t(
-                  "filesPage.shareDisabledHint",
-                  "File sharing isn't enabled on this server. Ask your admin to enable it.",
-                )}
-                disabled={sharingEnabled}
-                withinPortal
-                multiline
-                w={260}
+            {single && sharingEnabled && (
+              <Menu.Item
+                leftSection={<Icon name="link" size={MENU_ICON_SIZE} />}
+                onClick={onShare}
               >
-                <Menu.Item
-                  leftSection={<Icon name="link" size={MENU_ICON_SIZE} />}
-                  disabled={!sharingEnabled}
-                  onClick={onShare}
-                >
-                  {t("filesPage.shareManage", "Manage sharing")}
-                </Menu.Item>
-              </Tooltip>
+                {t("filesPage.shareManage", "Manage sharing")}
+              </Menu.Item>
             )}
             {movableIds.length > 0 && (
               <Menu.Item

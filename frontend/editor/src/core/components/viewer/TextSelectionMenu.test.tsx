@@ -1,5 +1,5 @@
 import { describe, expect, test, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MantineProvider } from "@mantine/core";
 import { TextSelectionMenu } from "@app/components/viewer/TextSelectionMenu";
 import { PdfAnnotationSubtype } from "@embedpdf/models";
@@ -62,18 +62,18 @@ vi.mock("@app/contexts/ToolWorkflowContext", () => ({
   }),
 }));
 
-const mockSetRedactionMode = vi.fn();
-const mockActivateRedact = vi.fn();
-const mockSetRedactionConfig = vi.fn();
-vi.mock("@app/contexts/RedactionContext", () => ({
-  useRedaction: () => ({
-    setRedactionMode: mockSetRedactionMode,
-    activateRedact: mockActivateRedact,
-    setRedactionConfig: mockSetRedactionConfig,
-    redactionApiRef: { current: null },
-    isBridgeReady: true,
-    manualRedactColor: "#000000",
-  }),
+const mockAnalyse = vi.fn(async () => {});
+const fixture = Object.assign(new File([], "fixture.pdf"), {
+  fileId: "file-1",
+});
+vi.mock("@app/contexts/FileRedactionContext", () => ({
+  useFileRedaction: () => ({ analyse: mockAnalyse }),
+}));
+vi.mock("@app/contexts/ViewerContext", () => ({
+  useViewer: () => ({ activeFileId: "file-1" }),
+}));
+vi.mock("@app/contexts/FileContext", () => ({
+  useAllFiles: () => ({ files: [fixture] }),
 }));
 
 const mockSetToolAndWorkbench = vi.fn();
@@ -324,7 +324,7 @@ describe("TextSelectionMenu", () => {
     expect(mockHandleToolSelectForced).toHaveBeenCalledWith("annotate");
   });
 
-  test("creates REDACT annotation, marks unsaved changes, and opens Redact UI when Redact button is clicked", () => {
+  test("opens a redaction draft containing only the selected reader regions", async () => {
     mockGetFormattedSelection.mockReturnValue([
       {
         pageIndex: 0,
@@ -332,30 +332,21 @@ describe("TextSelectionMenu", () => {
         segmentRects: [],
       },
     ]);
-
     render(
       <TestWrapper>
         <TextSelectionMenu {...defaultProps} />
       </TestWrapper>,
     );
-
-    const redactBtn = screen.getByRole("button", { name: "Redact" });
-    fireEvent.click(redactBtn);
-
-    expect(mockCreateAnnotation).toHaveBeenCalledWith(
-      0,
-      expect.objectContaining({
-        type: PdfAnnotationSubtype.REDACT,
-      }),
+    fireEvent.click(screen.getByRole("button", { name: "Redact" }));
+    await waitFor(() =>
+      expect(mockAnalyse).toHaveBeenCalledWith(
+        [{ file: fixture, id: "file-1" }],
+        [{ pageIndex: 0, rect: { x: 10, y: 10, width: 100, height: 20 } }],
+      ),
     );
+    expect(mockCreateAnnotation).not.toHaveBeenCalled();
     expect(mockClearSelection).toHaveBeenCalledWith("doc-1");
-    expect(mockSetHasUnsavedChanges).toHaveBeenCalledWith(true);
-    expect(mockSetRedactionConfig).toHaveBeenCalledWith(
-      expect.objectContaining({ mode: "manual" }),
-    );
     expect(mockSetToolAndWorkbench).toHaveBeenCalledWith("redact", "viewer");
     expect(mockSetLeftPanelView).toHaveBeenCalledWith("toolContent");
-    expect(mockSetRedactionMode).toHaveBeenCalledWith(true);
-    expect(mockActivateRedact).toHaveBeenCalledTimes(1);
   });
 });

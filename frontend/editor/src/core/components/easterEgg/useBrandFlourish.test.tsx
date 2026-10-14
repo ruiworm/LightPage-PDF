@@ -64,11 +64,12 @@ describe("useBrandFlourish", () => {
     expect(result.current.overlay).toBeNull();
   });
 
-  it("offers a trigger when the feature is on", () => {
+  it("keeps the flourish disabled when the server advertises it", () => {
     const { result } = renderHook(() => useBrandFlourish(), {
       wrapper: withFileStore(emptyStore()),
     });
-    expect(result.current.trigger).toBeTypeOf("function");
+    expect(result.current.trigger).toBeUndefined();
+    expect(result.current.overlay).toBeNull();
   });
 
   // The processor renders QuickNavHostBridge but mounts no FileContextProvider.
@@ -80,26 +81,26 @@ describe("useBrandFlourish", () => {
       ).not.toThrow();
     });
 
-    it("still opens the game, just with no pages to show", () => {
+    it("keeps the overlay absent without a file provider", () => {
       const { result } = renderHook(() => useBrandFlourish(), {
         wrapper: withConfigOnly,
       });
       expect(result.current.overlay).toBeNull();
 
       act(() => result.current.trigger?.(null));
-      expect(result.current.overlay).not.toBeNull();
+      expect(result.current.overlay).toBeNull();
     });
   });
 
-  it("asks the store for the open files when one is mounted", () => {
+  it("does not read file data for the removed flourish", () => {
     const store = emptyStore();
     const { result } = renderHook(() => useBrandFlourish(), {
       wrapper: withFileStore(store),
     });
 
     act(() => result.current.trigger?.(null));
-    expect(result.current.overlay).not.toBeNull();
-    expect(store.selectors.getStirlingFileStubs).toHaveBeenCalled();
-    expect(store.selectors.getFiles).toHaveBeenCalled();
+    expect(result.current.overlay).toBeNull();
+    expect(store.selectors.getStirlingFileStubs).not.toHaveBeenCalled();
+    expect(store.selectors.getFiles).not.toHaveBeenCalled();
   });
 });

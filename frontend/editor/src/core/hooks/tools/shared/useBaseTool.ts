@@ -65,9 +65,7 @@ export function useBaseTool<
 
   const viewerScopedFiles = useViewScopedFiles(ignoreViewerScope);
 
-  // In viewer mode: scope to the single displayed file (unless ignoreViewerScope).
-  // In fileEditor with a selection: scope to the selected files.
-  // All other cases (pageEditor, custom, no selection): use all loaded files.
+  // Single-file tools use the viewed file; workspace tools use the explicit selection.
   const effectiveFiles = viewerScopedFiles;
 
   const previousFileCount = useRef(effectiveFiles.length);
@@ -138,7 +136,8 @@ export function useBaseTool<
     if (
       prevFileCount === 0 &&
       currentFileCount > 0 &&
-      !skipResetParamsOnFirstFiles
+      !skipResetParamsOnFirstFiles &&
+      !params.isModified
     ) {
       params.resetParameters();
     }

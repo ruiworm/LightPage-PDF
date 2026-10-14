@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import {
   Box,
   Center,
@@ -37,7 +37,7 @@ const MOBILE_FIT_PAD_PX = 16;
 
 // Custom workbench view: the contextual formatting toolbar as a bar across the
 // top, then the scrollable pages stack with editable overlays beneath.
-export function PageStage() {
+export const PageStage = memo(function PageStage() {
   const { t } = useTranslation();
   const { store, state } = useEditorStore();
   const [selection, setSelection] = useState<SelectionState>(
@@ -333,7 +333,7 @@ export function PageStage() {
               {state.pages.map((page) =>
                 store.document ? (
                   <PageView
-                    key={page.pageIndex}
+                    key={`${store.document.docPtr}:${page.pageIndex}`}
                     document={store.document}
                     page={page}
                     scale={state.renderScale || DEFAULT_SCALE}
@@ -446,4 +446,4 @@ export function PageStage() {
       )}
     </Stack>
   );
-}
+});

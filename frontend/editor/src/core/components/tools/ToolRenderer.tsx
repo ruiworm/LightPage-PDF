@@ -4,6 +4,8 @@ import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
 import { BaseToolProps } from "@app/types/tool";
 import { ToolId } from "@app/types/toolId";
 import ToolLoadingFallback from "@app/components/tools/ToolLoadingFallback";
+import { ToolStepProvider } from "@app/components/tools/shared/ToolStep";
+import "@app/components/tools/ToolInspector.css";
 
 interface ToolRendererProps extends BaseToolProps {
   selectedToolKey: ToolId;
@@ -34,13 +36,24 @@ const ToolRenderer = ({
 
   // Wrap lazy-loaded component with Suspense
   return (
-    <Suspense fallback={<ToolLoadingFallback toolName={selectedTool.name} />}>
-      <ToolComponent
-        onPreviewFile={onPreviewFile}
-        onComplete={onComplete}
-        onError={onError}
-      />
-    </Suspense>
+    <div className="tool-inspector" data-tool={selectedToolKey}>
+      {selectedTool.description && (
+        <p className="tool-inspector__description">
+          {selectedTool.description}
+        </p>
+      )}
+      <ToolStepProvider presentation="groups">
+        <Suspense
+          fallback={<ToolLoadingFallback toolName={selectedTool.name} />}
+        >
+          <ToolComponent
+            onPreviewFile={onPreviewFile}
+            onComplete={onComplete}
+            onError={onError}
+          />
+        </Suspense>
+      </ToolStepProvider>
+    </div>
   );
 };
 

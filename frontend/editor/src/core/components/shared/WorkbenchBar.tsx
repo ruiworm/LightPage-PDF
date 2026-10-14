@@ -56,6 +56,7 @@ import { useIsMobile } from "@app/hooks/useIsMobile";
 import "@app/components/shared/WorkbenchBar.css";
 
 const SECTION_ORDER: WorkbenchBarSection[] = ["top", "middle", "bottom"];
+const PDF_EDITOR_WORKBENCH = "custom:pdfTextEditor" as const;
 
 interface ViewOption {
   value: WorkbenchType;
@@ -97,15 +98,13 @@ export default function WorkbenchBar({
   const { buttons, actions, allButtonsDisabled } = useWorkbenchBar();
   const {
     pageEditorFunctions,
-    toolPanelMode,
-    leftPanelView,
     customWorkbenchViews,
+    handleToolSelect,
+    leftPanelView,
   } = useToolWorkflow();
   const { selectedTool } = useNavigationState();
   const isCustomView = !isBaseWorkbench(currentView);
   const isViewer = currentView === "viewer";
-  const disableForFullscreen =
-    toolPanelMode === "fullscreen" && leftPanelView === "toolPicker";
   const terminology = useFileActionTerminology();
   const icons = useFileActionIcons();
   const { sharingEnabled } = useSharingEnabled();
@@ -152,8 +151,9 @@ export default function WorkbenchBar({
 
   const totalItems = useMemo(() => {
     if (currentView === "pageEditor") return pageEditorTotalPages;
+    if (currentView === "viewer") return activeFileId ? 1 : 0;
     return activeFiles.length;
-  }, [currentView, pageEditorTotalPages, activeFiles.length]);
+  }, [currentView, pageEditorTotalPages, activeFiles.length, activeFileId]);
 
   const selectedCount = useMemo(() => {
     if (currentView === "pageEditor") return pageEditorSelectedCount;
@@ -187,13 +187,22 @@ export default function WorkbenchBar({
     }).filter((entry) => entry.buttons.length > 0);
   }, [buttons]);
 
+  const toolLeadButtons = useMemo(
+    () =>
+      buttons.filter(
+        (btn) => btn.section === "tool-lead" && (btn.visible ?? true),
+      ),
+    [buttons],
+  );
+
   const handleExportAll = useCallback(
     async (forceNewFile = false) => {
       if (currentView === "viewer") {
         const buffer = await viewerContext?.exportActions?.saveAsCopy?.();
         if (!buffer) return;
-        const fileToExport =
-          selectedFiles.length > 0 ? selectedFiles[0] : activeFiles[0];
+        const fileToExport = activeFiles.find(
+          (file) => isStirlingFile(file) && file.fileId === activeFileId,
+        );
         if (!fileToExport) return;
         const stub = isStirlingFile(fileToExport)
           ? selectors.getStirlingFileStub(fileToExport.fileId)
@@ -279,6 +288,7 @@ export default function WorkbenchBar({
       currentView,
       selectedFiles,
       activeFiles,
+      activeFileId,
       pageEditorFunctions,
       viewerContext,
       selectors,
@@ -291,43 +301,12 @@ export default function WorkbenchBar({
   }, [viewerContext]);
 
   const handleClose = useCallback(async () => {
-    if (currentView === "fileEditor") {
-      await fileActions.clearAllFiles();
-    } else if (currentView === "viewer") {
-      const file =
-        (activeFileId
-          ? activeFiles.find(
-              (f) => isStirlingFile(f) && f.fileId === activeFileId,
-            )
-          : null) ?? activeFiles[0];
-      const countBeforeRemove = activeFiles.length;
-      if (file && isStirlingFile(file)) {
-        // Pick the next file to show before removing, so the sidebar stays in sync.
-        const remaining = activeFiles.filter(
-          (f) => isStirlingFile(f) && f.fileId !== file.fileId,
-        );
-        const nextFile = remaining.find(isStirlingFile) ?? null;
-        await fileActions.removeFiles([file.fileId], false);
-        if (countBeforeRemove <= 1) {
-          setCurrentView("fileEditor");
-        } else if (nextFile) {
-          setActiveFileId(nextFile.fileId);
-        }
-      } else if (countBeforeRemove <= 1) {
-        setCurrentView("fileEditor");
-      }
+    if (currentView === "viewer" || currentView === "fileEditor") {
+      setActiveFileId(null);
     } else if (currentView === "pageEditor") {
       pageEditorFunctions?.closePdf?.();
     }
-  }, [
-    currentView,
-    fileActions,
-    activeFiles,
-    activeFileId,
-    setActiveFileId,
-    pageEditorFunctions,
-    setCurrentView,
-  ]);
+  }, [currentView, setActiveFileId, pageEditorFunctions]);
 
   const downloadTooltip = useMemo(() => {
     if (currentView === "pageEditor")
@@ -337,8 +316,7 @@ export default function WorkbenchBar({
     return terminology.downloadAll;
   }, [currentView, selectedCount, t, terminology]);
 
-  const actionsDisabled =
-    totalItems === 0 || allButtonsDisabled || disableForFullscreen;
+  const actionsDisabled = totalItems === 0 || allButtonsDisabled;
 
   // Shared by the mobile overflow menu and the desktop icon cluster so the two
   // stay in step; each renders the same actions in its own shape.
@@ -369,9 +347,7 @@ export default function WorkbenchBar({
   const renderButton = useCallback(
     (btn: WorkbenchBarButtonConfig) => {
       const action = actions[btn.id];
-      const disabled = Boolean(
-        btn.disabled || allButtonsDisabled || disableForFullscreen,
-      );
+      const disabled = Boolean(btn.disabled || allButtonsDisabled);
       const isActive = Boolean(btn.active);
 
       const triggerAction = () => {
@@ -410,39 +386,45 @@ export default function WorkbenchBar({
       );
       return renderWithTooltip(buttonNode, btn.tooltip);
     },
-    [actions, allButtonsDisabled, disableForFullscreen],
+    [actions, allButtonsDisabled],
   );
 
-  // View options
-  // Tools that own a custom workbench ship their own canvas.
-  const ownsCustomWorkbenchAsDefault = selectedTool === "pdfTextEditor";
+  const handleViewChange = (view: WorkbenchType) => {
+    if (view === "pageEditor" && selectedTool !== "multiTool") {
+      handleToolSelect("multiTool");
+    } else if (
+      view === PDF_EDITOR_WORKBENCH &&
+      (selectedTool !== "pdfTextEditor" ||
+        leftPanelView === "toolPicker" ||
+        !customWorkbenchViews.some(
+          (customView) =>
+            customView.workbenchId === view && customView.data != null,
+        ))
+    ) {
+      handleToolSelect("pdfTextEditor");
+    } else {
+      setCurrentView(view);
+    }
+  };
+
   const viewOptions: ViewOption[] = [
-    ...(ownsCustomWorkbenchAsDefault
-      ? []
-      : [
-          {
-            value: "viewer" as WorkbenchType,
-            label: t("workbenchBar.viewer", "Viewer"),
-            icon: <Icon name="file" size={20} />,
-          },
-        ]),
     {
-      value: "fileEditor",
-      label: t("workbenchBar.activeFiles", "Active Files"),
-      icon: <Icon name="folder" size={20} />,
+      value: "viewer",
+      label: t("workbenchBar.read", "Read"),
+      icon: <Icon name="file" size={20} />,
     },
-    ...(selectedTool === "multiTool"
-      ? [
-          {
-            value: "pageEditor" as WorkbenchType,
-            label: t("workbenchBar.multiTool", "Multi-Tool"),
-            // The registry's multiTool glyph: one tool, one mark, wherever it is drawn.
-            icon: <Icon name="grid-2x2-plus" size="1rem" />,
-          },
-        ]
-      : []),
+    {
+      value: "pageEditor",
+      label: t("workbenchBar.organize", "Organize"),
+      icon: <Icon name="grid-2x2-plus" size="1rem" />,
+    },
+    {
+      value: PDF_EDITOR_WORKBENCH,
+      label: t("workbenchBar.edit", "Edit"),
+      icon: <Icon name="file-text" size="1rem" />,
+    },
     ...customWorkbenchViews
-      .filter((v) => v.data != null)
+      .filter((v) => v.data != null && v.workbenchId !== PDF_EDITOR_WORKBENCH)
       .map((v) => ({
         value: v.workbenchId,
         label: v.label,
@@ -450,9 +432,8 @@ export default function WorkbenchBar({
       })),
   ];
 
-  // Left: optional "Back to File library" + view switcher.
-  const viewsCluster = (
-    <div className="workbench-bar-views" data-tour="view-switcher">
+  const leadingCluster = (
+    <div className="workbench-bar-leading">
       {returnRoute && hasFiles && (
         <>
           <Button
@@ -481,26 +462,6 @@ export default function WorkbenchBar({
           <div className="workbench-bar-divider" />
         </>
       )}
-      {/* Not in the library: it browses files rather than showing one, and the
-          rail is what moves between surfaces. */}
-      {currentView !== "myFiles" && (hasFiles || isCustomView) && (
-        <SegmentedControl<WorkbenchType>
-          className="workbench-bar-views"
-          size="sm"
-          value={currentView}
-          onChange={setCurrentView}
-          variant="secondary"
-          options={viewOptions.map((opt) => ({
-            value: opt.value,
-            label: (
-              <>
-                {opt.icon}
-                <span className="workbench-bar-view-label">{opt.label}</span>
-              </>
-            ),
-          }))}
-        />
-      )}
       {barLeadButtons.map((btn) => {
         const content = renderButton(btn);
         if (!content) return null;
@@ -514,11 +475,37 @@ export default function WorkbenchBar({
     </div>
   );
 
+  const viewsCluster = (
+    <div className="workbench-bar-views" data-tour="view-switcher">
+      {/* Not in the library: it browses files rather than showing one, and the
+          rail is what moves between surfaces. */}
+      {currentView !== "myFiles" && (
+        <SegmentedControl<WorkbenchType>
+          className="workbench-bar-views"
+          size="sm"
+          value={currentView}
+          onChange={handleViewChange}
+          variant="secondary"
+          options={viewOptions.map((opt) => ({
+            value: opt.value,
+            label: (
+              <>
+                {opt.icon}
+                <span className="workbench-bar-view-label">{opt.label}</span>
+              </>
+            ),
+          }))}
+        />
+      )}
+    </div>
+  );
+
   // Tool buttons - second row, only rendered when buttons exist. In the viewer
   // the row is retractable: a handle on its right edge hides the whole row;
   // Workbench then shows a tab below the bar to bring it back.
   const toolRow =
-    sectionsWithButtons.length > 0 && !(isViewer && viewerToolbarCollapsed) ? (
+    (sectionsWithButtons.length > 0 || toolLeadButtons.length > 0) &&
+    !(isViewer && viewerToolbarCollapsed) ? (
       <div
         className={`workbench-bar-center${
           isMobile && mobileToolsExpanded
@@ -526,6 +513,15 @@ export default function WorkbenchBar({
             : ""
         }`}
       >
+        {toolLeadButtons.length > 0 && (
+          <div className="workbench-bar-tool-lead">
+            {toolLeadButtons.map((btn) => (
+              <div key={btn.id} className="workbench-bar-action-wrapper">
+                {renderButton(btn)}
+              </div>
+            ))}
+          </div>
+        )}
         <div className="workbench-bar-center-scroll">
           {sectionsWithButtons.map(
             ({ section, buttons: sectionButtons }, idx) => (
@@ -594,7 +590,14 @@ export default function WorkbenchBar({
   if (strip.enabled) {
     return (
       <>
-        {strip.viewsSlot && createPortal(viewsCluster, strip.viewsSlot)}
+        {strip.viewsSlot &&
+          createPortal(
+            <div className="workbench-bar-strip-views">
+              {leadingCluster}
+              {viewsCluster}
+            </div>,
+            strip.viewsSlot,
+          )}
         {strip.globalsSlot && createPortal(globalsCluster, strip.globalsSlot)}
         {toolRow && (
           <div
@@ -615,9 +618,12 @@ export default function WorkbenchBar({
       data-wrapped={isMobile}
       data-tour="workbench-bar"
     >
-      {viewsCluster}
+      <div className="workbench-bar-top-row">
+        {leadingCluster}
+        {viewsCluster}
+        {globalsCluster}
+      </div>
       {toolRow}
-      {globalsCluster}
     </div>
   );
 }

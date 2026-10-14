@@ -1,0 +1,38 @@
+.list {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.25rem;
+  border-bottom: 1px solid var(--c-border-subtle);
+  min-width: 0;
+}
+
+.handle {
+  display: flex;
+  color: var(--c-text-subtle);
+  cursor: grab;
+}
+
+.position {
+  font-size: 0.75rem;
+  color: var(--c-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

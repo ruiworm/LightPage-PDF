@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigationActions } from "@app/contexts/NavigationContext";
+import { useViewActive } from "@app/components/layout/RetainedView";
 
 // Guard unsaved edits on BOTH exit routes.
 //
@@ -9,23 +10,25 @@ import { useNavigationActions } from "@app/contexts/NavigationContext";
 // app's own in-app guard - it is what PageEditor uses - and it drives
 // NavigationWarningModal.
 export function useUnsavedChangesGuard(dirty: boolean): void {
+  const viewActive = useViewActive();
   const { actions } = useNavigationActions();
   const setHasUnsavedChanges = actions.setHasUnsavedChanges;
 
   useEffect(() => {
-    if (!dirty) return;
+    if (!viewActive || !dirty) return;
     const handler = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = "";
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [dirty]);
+  }, [dirty, viewActive]);
 
   useEffect(() => {
+    if (!viewActive) return;
     setHasUnsavedChanges(dirty);
     // Clear on unmount so a stale flag cannot block navigation after the
     // editor is gone.
     return () => setHasUnsavedChanges(false);
-  }, [dirty, setHasUnsavedChanges]);
+  }, [dirty, viewActive, setHasUnsavedChanges]);
 }

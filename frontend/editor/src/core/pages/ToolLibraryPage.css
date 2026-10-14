@@ -1,0 +1,219 @@
+.tool-library {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  color: var(--c-text);
+  background: var(--c-bg);
+}
+
+.tool-library__header {
+  flex-shrink: 0;
+  padding: 0.875rem 2rem;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border-subtle);
+}
+
+.tool-library__controls,
+.tool-library__groups,
+.tool-library__count {
+  max-width: 80rem;
+  margin-inline: auto;
+}
+
+.tool-library__footer {
+  flex-shrink: 0;
+  padding: 0.625rem 2rem;
+  border-top: 1px solid var(--c-border-subtle);
+  background: var(--c-surface);
+}
+
+.tool-library__count {
+  display: block;
+  color: var(--c-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.tool-library__controls {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.tool-library__controls > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.tool-library__controls > :last-child {
+  flex-shrink: 0;
+}
+
+.tool-library__content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1.5rem 2rem 2rem;
+  scrollbar-color: var(--c-border) transparent;
+}
+
+.tool-library__group + .tool-library__group {
+  margin-top: 2rem;
+}
+
+.tool-library__group h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tool-library__group h2 span {
+  color: var(--c-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.tool-library__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.tool-library__tool {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: start;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--c-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--c-surface);
+}
+
+.tool-library__tool-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.tool-library__tool h3 {
+  flex: 1;
+  min-width: 0;
+  align-self: center;
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.tool-library__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-md);
+  background: var(--c-surface-sunken);
+  color: var(--c-text-muted);
+}
+
+.tool-library__description,
+.tool-library__unavailable {
+  width: 100%;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--c-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.tool-library__tool-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  max-width: 50%;
+}
+
+.tool-library__added {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--c-text-muted);
+  font-size: 0.8125rem;
+}
+
+.tool-library__grid--compact .tool-library__tool {
+  padding: 0.875rem 1rem;
+}
+
+.tool-library__empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--c-text-muted);
+}
+
+.tool-library__empty h2 {
+  margin: 1rem 0 0.5rem;
+  color: var(--c-text);
+  font-size: 1.125rem;
+}
+
+.tool-library__empty p {
+  margin: 0 0 1.25rem;
+}
+
+.tool-library__announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (max-width: 64rem) {
+  .tool-library__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 48rem) {
+  .tool-library__header {
+    padding: 0.75rem 1rem;
+  }
+
+  .tool-library__controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .tool-library__controls > :last-child {
+    align-self: flex-end;
+  }
+
+  .tool-library__content {
+    padding: 1.25rem 1rem 2rem;
+  }
+
+  .tool-library__footer {
+    padding-inline: 1rem;
+  }
+
+  .tool-library__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

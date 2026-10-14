@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useViewActive } from "@app/components/layout/RetainedView";
 import type { EditorStore } from "@app/tools/pdfTextEditor/store/EditorStore";
 import {
   findVisiblePageIndex,
@@ -24,6 +25,7 @@ interface KeyboardShortcutCallbacks {
 
 /** Bind every editor-level keyboard shortcut to `window` for the session. */
 export function useEditorKeyboardShortcuts(cbs: KeyboardShortcutCallbacks) {
+  const viewActive = useViewActive();
   const {
     store,
     onUndo,
@@ -40,6 +42,7 @@ export function useEditorKeyboardShortcuts(cbs: KeyboardShortcutCallbacks) {
   } = cbs;
 
   useEffect(() => {
+    if (!viewActive) return;
     function onMetaKey(e: KeyboardEvent) {
       const meta = e.ctrlKey || e.metaKey;
       if (!meta) return;
@@ -175,6 +178,7 @@ export function useEditorKeyboardShortcuts(cbs: KeyboardShortcutCallbacks) {
       window.removeEventListener("keydown", onPageNav);
     };
   }, [
+    viewActive,
     store,
     onUndo,
     onRedo,

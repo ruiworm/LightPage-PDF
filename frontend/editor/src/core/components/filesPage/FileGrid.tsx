@@ -763,9 +763,6 @@ const FolderCard = React.memo(function FolderCard({
           fileCount={fileCount}
           iconGlyph={findFolderIcon(folder.icon)?.glyph}
         />
-        <div className="files-page-card-origin">
-          <FolderOriginBadge folder={folder} />
-        </div>
       </div>
       <div className="files-page-card-body">
         <div className="files-page-card-name" title={folder.name}>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Container } from "@mantine/core";
 import { Dropzone } from "@mantine/dropzone";
+import { useViewer } from "@app/contexts/ViewerContext";
 import { useFileHandler } from "@app/hooks/useFileHandler";
 import { useFileActionTerminology } from "@app/hooks/useFileActionTerminology";
 import MobileUploadModal from "@app/components/shared/MobileUploadModal";
@@ -12,13 +13,18 @@ import "@app/components/shared/LandingPage.css";
 
 const LandingPage = () => {
   const { addFiles } = useFileHandler();
+  const { setActiveFileId } = useViewer();
+  const openAddedFiles = async (files: File[]) => {
+    const added = await addFiles(files);
+    if (added[0]) setActiveFileId(added[0].fileId);
+  };
   const getDropzoneFiles = useDropzoneFiles();
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const terminology = useFileActionTerminology();
   const [mobileUploadModalOpen, setMobileUploadModalOpen] = useState(false);
 
   const handleFileDrop = async (files: File[]) => {
-    await addFiles(files);
+    await openAddedFiles(files);
   };
 
   const handleNativeUploadClick = async () => {
@@ -27,7 +33,7 @@ const LandingPage = () => {
       onFallbackOpen: () => fileInputRef.current?.click(),
     });
     if (files.length > 0) {
-      await addFiles(files);
+      await openAddedFiles(files);
     }
   };
 
@@ -36,14 +42,14 @@ const LandingPage = () => {
   ) => {
     const files = Array.from(event.target.files || []);
     if (files.length > 0) {
-      await addFiles(files);
+      await openAddedFiles(files);
     }
     event.target.value = "";
   };
 
   const handleFilesReceivedFromMobile = async (files: File[]) => {
     if (files.length > 0) {
-      await addFiles(files);
+      await openAddedFiles(files);
     }
   };
 

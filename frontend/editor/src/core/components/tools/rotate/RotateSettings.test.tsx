@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MantineProvider } from "@mantine/core";
 
-const viewer = { activeFileIndex: 0 };
+const viewer = { activeFileId: "a" };
 const files = {
   files: [
     { fileId: "a", name: "alpha.pdf" },
@@ -18,7 +18,10 @@ vi.mock("@app/contexts/ViewerContext", () => ({ useViewer: () => viewer }));
 vi.mock("@app/contexts/NavigationContext", () => ({
   useNavigationState: () => ({ workbench: "viewer" }),
 }));
-vi.mock("@app/contexts/FileContext", () => ({ useAllFiles: () => files }));
+vi.mock("@app/contexts/FileContext", () => ({
+  useAllFiles: () => files,
+  useFileSelection: () => ({ selectedFileIds: ["a", "b"] }),
+}));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (_key: string, fallback?: string, values?: Record<string, unknown>) =>
@@ -37,7 +40,7 @@ const parameters = {
 } as never;
 
 const renderAt = (activeFileIndex: number) => {
-  viewer.activeFileIndex = activeFileIndex;
+  viewer.activeFileId = files.files[activeFileIndex].fileId;
   return render(
     <MantineProvider>
       <RotateSettings parameters={parameters} />
@@ -57,7 +60,7 @@ describe("RotateSettings preview", () => {
     const { rerender } = renderAt(0);
     expect(screen.getByAltText("Preview of alpha.pdf")).toBeInTheDocument();
 
-    viewer.activeFileIndex = 1;
+    viewer.activeFileId = "b";
     rerender(
       <MantineProvider>
         <RotateSettings parameters={parameters} />

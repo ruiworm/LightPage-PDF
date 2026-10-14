@@ -20,6 +20,7 @@ import type {
 import type { SignParameters } from "@app/hooks/tools/sign/useSignParameters";
 import { useViewer } from "@app/contexts/ViewerContext";
 import { useDocumentReady } from "@app/components/viewer/hooks/useDocumentReady";
+import { useViewActive } from "@app/components/layout/RetainedView";
 
 // The signature tools stash the source image on stamp annotations via custom fields
 type StampAnnotation = PdfAnnotationObject & {
@@ -194,6 +195,7 @@ export const SignatureAPIBridge = forwardRef<
   SignatureAPI,
   SignatureAPIBridgeProps
 >(function SignatureAPIBridge({ isSignMode = false }, ref) {
+  const viewActive = useViewActive();
   const { provides: annotationApi } = useAnnotationCapability();
   const {
     signatureConfig,
@@ -319,7 +321,12 @@ export const SignatureAPIBridge = forwardRef<
   // Enable keyboard deletion of selected annotations
   useEffect(() => {
     // Always enable delete key when we have annotation API and are in sign mode
-    if (!annotationApi || isPlacementMode === undefined || !documentReady)
+    if (
+      !viewActive ||
+      !annotationApi ||
+      isPlacementMode === undefined ||
+      !documentReady
+    )
       return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -382,7 +389,13 @@ export const SignatureAPIBridge = forwardRef<
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [annotationApi, storeImageData, isPlacementMode]);
+  }, [
+    viewActive,
+    annotationApi,
+    storeImageData,
+    isPlacementMode,
+    documentReady,
+  ]);
 
   useImperativeHandle(
     ref,

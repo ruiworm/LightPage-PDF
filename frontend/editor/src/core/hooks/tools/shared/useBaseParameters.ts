@@ -7,6 +7,8 @@ export interface BaseParametersHook<T> {
   resetParameters: () => void;
   validateParameters: () => boolean;
   getEndpointName: () => string;
+  /** Parameters explicitly configured before files arrive should survive selection. */
+  isModified?: boolean;
 }
 
 export interface BaseParametersConfig<T> {
@@ -48,6 +50,7 @@ export function useBaseParameters<T>(
 
   return {
     parameters,
+    isModified: parameters !== config.defaultParameters,
     setParameters,
     updateParameter,
     resetParameters,

@@ -124,6 +124,10 @@ export function ReaderRail() {
     [buttons],
   );
 
+  // The landing page already has Add file. Document-only controls have no action
+  // until a document is open, so do not present an empty strip of disabled icons.
+  if (!openFileId) return null;
+
   return (
     <nav
       className="reader-rail"

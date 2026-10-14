@@ -28,7 +28,9 @@ interface PageEditorControlsProps {
   // Selection state
   selectionMode: boolean;
   selectedPageIds: string[];
-  displayDocument?: { pages: { id: string; pageNumber: number }[] };
+  displayDocument?: {
+    pages: { id: string; pageNumber: number; isPlaceholder?: boolean }[];
+  };
 
   // Split state (for tooltip logic)
   splitPositions?: Set<string>;
@@ -49,14 +51,20 @@ const PageEditorControls = ({
   splitPositions,
 }: PageEditorControlsProps) => {
   const { t } = useTranslation();
+  const pages =
+    displayDocument?.pages.filter((page) => !page.isPlaceholder) ?? [];
+  const currentIds = new Set(pages.map((page) => page.id));
+  const selectedPageCount = selectedPageIds.filter((id) =>
+    currentIds.has(id),
+  ).length;
   // Calculate split tooltip text using smart toggle logic
   const getSplitTooltip = () => {
     if (!splitPositions || !displayDocument || selectedPageIds.length === 0) {
-      return "Split Selected";
+      return t("pageEditor.toolbar.splitSelected", "Split Selected");
     }
 
-    const totalPages = displayDocument.pages.length;
-    const selectedValidPageIds = displayDocument.pages
+    const totalPages = pages.length;
+    const selectedValidPageIds = pages
       .filter(
         (page, index) =>
           selectedPageIds.includes(page.id) && index < totalPages - 1,
@@ -64,7 +72,7 @@ const PageEditorControls = ({
       .map((page) => page.id);
 
     if (selectedValidPageIds.length === 0) {
-      return "Split Selected";
+      return t("pageEditor.toolbar.splitSelected", "Split Selected");
     }
 
     const existingSplitsCount = selectedValidPageIds.filter((id) =>
@@ -76,20 +84,31 @@ const PageEditorControls = ({
 
     if (willRemoveSplits) {
       return existingSplitsCount === selectedValidPageIds.length
-        ? "Remove All Selected Splits"
-        : "Remove Selected Splits";
+        ? t(
+            "pageEditor.toolbar.removeAllSelectedSplits",
+            "Remove All Selected Splits",
+          )
+        : t(
+            "pageEditor.toolbar.removeSelectedSplits",
+            "Remove Selected Splits",
+          );
     } else {
       return existingSplitsCount === 0
-        ? "Split Selected"
-        : "Complete Selected Splits";
+        ? t("pageEditor.toolbar.splitSelected", "Split Selected")
+        : t(
+            "pageEditor.toolbar.completeSelectedSplits",
+            "Complete Selected Splits",
+          );
     }
   };
 
   // Calculate page break tooltip text
   const getPageBreakTooltip = () => {
-    return selectedPageIds.length > 0
-      ? `Insert ${selectedPageIds.length} Page Break${selectedPageIds.length > 1 ? "s" : ""}`
-      : "Insert Page Breaks";
+    const label = t(
+      "pageEditor.toolbar.insertBlankPages",
+      "Insert Blank Pages",
+    );
+    return selectedPageCount > 0 ? `${label} (${selectedPageCount})` : label;
   };
 
   return (
@@ -129,7 +148,7 @@ const PageEditorControls = ({
             variant="tertiary"
             size="md"
             onClick={() => onRotate("left")}
-            disabled={selectedPageIds.length === 0}
+            disabled={selectedPageCount === 0}
             aria-label={t(
               "pageEditor.toolbar.rotateLeft",
               "Rotate Selected Left",
@@ -145,7 +164,7 @@ const PageEditorControls = ({
             variant="tertiary"
             size="md"
             onClick={() => onRotate("right")}
-            disabled={selectedPageIds.length === 0}
+            disabled={selectedPageCount === 0}
             aria-label={t(
               "pageEditor.toolbar.rotateRight",
               "Rotate Selected Right",
@@ -159,7 +178,7 @@ const PageEditorControls = ({
             variant="tertiary"
             size="md"
             onClick={onDelete}
-            disabled={selectedPageIds.length === 0}
+            disabled={selectedPageCount === 0}
             aria-label={t("pageEditor.toolbar.delete", "Delete Selected")}
           >
             <Icon name="trash" />
@@ -170,7 +189,7 @@ const PageEditorControls = ({
             variant="tertiary"
             size="md"
             onClick={onSplit}
-            disabled={selectedPageIds.length === 0}
+            disabled={selectedPageCount === 0}
             aria-label={getSplitTooltip()}
           >
             <Icon name="scissors" />
@@ -181,7 +200,7 @@ const PageEditorControls = ({
             variant="tertiary"
             size="md"
             onClick={onPageBreak}
-            disabled={selectedPageIds.length === 0}
+            disabled={selectedPageCount === 0}
             aria-label={getPageBreakTooltip()}
           >
             <Icon name="square-split-vertical" />

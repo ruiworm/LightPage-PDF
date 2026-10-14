@@ -14,6 +14,7 @@ export interface RankedToolItem {
 export function filterToolRegistryByQuery(
   toolRegistry: Partial<ToolRegistry>,
   query: string,
+  returnAllOnNoMatch = true,
 ): RankedToolItem[] {
   // The single funnel into the editor's tool list, so hiding here hides it everywhere the user
   // browses - while getExecutableTools still offers it to a pipeline.
@@ -125,6 +126,7 @@ export function filterToolRegistryByQuery(
   for (const { id, tool, text } of fuzzySyn) push(id, tool, text);
 
   if (ordered.length > 0) return ordered;
+  if (!returnAllOnNoMatch) return [];
 
   // Fallback: return everything unchanged
   return entries.map(([id, tool]) => ({

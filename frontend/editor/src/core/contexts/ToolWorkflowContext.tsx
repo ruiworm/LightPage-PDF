@@ -235,9 +235,9 @@ export function ToolWorkflowProvider({ children }: ToolWorkflowProviderProps) {
   );
 
   const setToolPanelMode = useCallback(
-    (mode: ToolPanelMode) => {
-      dispatch({ type: "SET_TOOL_PANEL_MODE", payload: mode });
-      updatePreference("defaultToolPanelMode", mode);
+    (_mode: ToolPanelMode) => {
+      dispatch({ type: "SET_TOOL_PANEL_MODE", payload: "sidebar" });
+      updatePreference("defaultToolPanelMode", "sidebar");
       updatePreference("hasSelectedToolPanelMode", true);
     },
     [updatePreference],
@@ -380,17 +380,13 @@ export function ToolWorkflowProvider({ children }: ToolWorkflowProviderProps) {
     navigationState.showNavigationWarning,
   ]);
 
-  // Persisted via PreferencesContext; no direct localStorage writes needed here
-
-  // Keep tool panel mode in sync with user preference. This ensures the
-  // Config setting (Default tool picker mode) immediately affects the app
-  // and persists across reloads.
+  // Older sessions may have selected the retired fullscreen picker.
   useEffect(() => {
-    const preferredMode = preferences.defaultToolPanelMode;
+    const preferredMode = "sidebar";
     if (preferredMode !== state.toolPanelMode) {
       dispatch({ type: "SET_TOOL_PANEL_MODE", payload: preferredMode });
     }
-  }, [preferences.defaultToolPanelMode, state.toolPanelMode]);
+  }, [state.toolPanelMode]);
 
   // Apply default startup view preference on initial load.
   // This runs once to navigate to the user's preferred tab (read/automate)
@@ -478,7 +474,7 @@ export function ToolWorkflowProvider({ children }: ToolWorkflowProviderProps) {
         navigationState.selectedTool &&
         navigationState.selectedTool !== toolId
       ) {
-        actions.requestNavigation(() => handleToolSelect(toolId));
+        actions.requestNavigation(() => handleToolSelectRef.current(toolId));
         return;
       }
 
@@ -486,7 +482,7 @@ export function ToolWorkflowProvider({ children }: ToolWorkflowProviderProps) {
       const importPreview = previewImportRef.current;
       if (importPreview) {
         previewImportRef.current = null;
-        void importPreview().then(() => handleToolSelect(toolId));
+        void importPreview().then(() => handleToolSelectRef.current(toolId));
         return;
       }
 
@@ -511,9 +507,15 @@ export function ToolWorkflowProvider({ children }: ToolWorkflowProviderProps) {
         // The page editor is the tool, so the panel beside it stays on the picker:
         // left on toolContent it would render this tool's header over no body.
         setLeftPanelView("toolPicker");
-        actions.setSelectedTool("multiTool");
-        actions.setWorkbench(
-          wasInCustomWorkbench ? getDefaultWorkbench() : "pageEditor",
+        const retainEditorTool =
+          navigationState.selectedTool === "pdfTextEditor" &&
+          customWorkbenchViews.some(
+            (view) =>
+              view.workbenchId === "custom:pdfTextEditor" && view.data != null,
+          );
+        actions.setToolAndWorkbench(
+          retainEditorTool ? "pdfTextEditor" : "multiTool",
+          "pageEditor",
         );
         setSearchQuery("");
         return;
@@ -521,14 +523,24 @@ export function ToolWorkflowProvider({ children }: ToolWorkflowProviderProps) {
 
       // Set the selected tool and determine the appropriate workbench
       const validToolId = isValidToolId(toolId) ? toolId : null;
-      actions.setSelectedTool(validToolId);
-
-      // Switch workbench only when required: leaving a custom view, or the tool declares one.
       const tool = getSelectedTool(toolId);
-      if (wasInCustomWorkbench) {
-        actions.setWorkbench(getDefaultWorkbench());
-      } else if (tool && tool.workbench) {
-        actions.setWorkbench(tool.workbench);
+      const retainedEditor =
+        toolId === "pdfTextEditor" &&
+        customWorkbenchViews.some(
+          (view) =>
+            view.workbenchId === "custom:pdfTextEditor" && view.data != null,
+        );
+      // A registered editor already owns its document; selecting it and its canvas
+      // together avoids rendering the previous view before the pin effect runs.
+      if (retainedEditor) {
+        actions.setToolAndWorkbench(validToolId, "custom:pdfTextEditor");
+      } else {
+        actions.setToolAndWorkbench(
+          validToolId,
+          wasInCustomWorkbench
+            ? getDefaultWorkbench()
+            : (tool?.workbench ?? navigationState.workbench),
+        );
       }
 
       // Clear search query when selecting a tool
@@ -546,6 +558,7 @@ export function ToolWorkflowProvider({ children }: ToolWorkflowProviderProps) {
       setReaderMode,
       setSearchQuery,
       toolAvailability,
+      customWorkbenchViews,
     ],
   );
 
@@ -668,6 +681,13 @@ export function ToolWorkflowProvider({ children }: ToolWorkflowProviderProps) {
     [],
   );
 
+  const unregisterCustomViewRef = useRef(unregisterCustomWorkbenchView);
+  unregisterCustomViewRef.current = unregisterCustomWorkbenchView;
+  const stableUnregisterCustomView = useCallback(
+    (id: string) => unregisterCustomViewRef.current(id),
+    [],
+  );
+
   const actionsValue = useMemo<ToolWorkflowActionsValue>(
     () => ({
       selectTool: stableSelectTool,
@@ -735,14 +755,14 @@ export function ToolWorkflowProvider({ children }: ToolWorkflowProviderProps) {
 
       // Actions
       setLeftPanelView,
-      setReaderMode,
-      setToolPanelMode,
-      setPreviewFile,
+      setReaderMode: stableSetReaderMode,
+      setToolPanelMode: stableSetToolPanelMode,
+      setPreviewFile: stableSetPreviewFile,
       registerPreviewImport,
       setPageEditorFunctions,
       setSearchQuery,
       selectTool: actions.setSelectedTool,
-      clearToolSelection: () => actions.setSelectedTool(null),
+      clearToolSelection: stableClearToolSelection,
 
       // Tool Reset Actions
       toolResetFunctions,
@@ -751,10 +771,10 @@ export function ToolWorkflowProvider({ children }: ToolWorkflowProviderProps) {
       toolAvailability,
 
       // Workflow Actions
-      handleToolSelect,
-      handleToolSelectForced,
-      handleBackToTools,
-      handleReaderToggle,
+      handleToolSelect: stableHandleToolSelect,
+      handleToolSelectForced: stableHandleToolSelectForced,
+      handleBackToTools: stableHandleBackToTools,
+      handleReaderToggle: stableHandleReaderToggle,
 
       // Computed
       filteredTools,
@@ -767,7 +787,7 @@ export function ToolWorkflowProvider({ children }: ToolWorkflowProviderProps) {
       // Custom workbench views
       customWorkbenchViews,
       registerCustomWorkbenchView,
-      unregisterCustomWorkbenchView,
+      unregisterCustomWorkbenchView: stableUnregisterCustomView,
       setCustomWorkbenchViewData,
       clearCustomWorkbenchViewData,
     }),
@@ -779,24 +799,26 @@ export function ToolWorkflowProvider({ children }: ToolWorkflowProviderProps) {
       getSelectedTool,
       toolAvailability,
       setLeftPanelView,
-      setReaderMode,
-      setToolPanelMode,
-      setPreviewFile,
+      stableSetReaderMode,
+      stableSetToolPanelMode,
+      stableSetPreviewFile,
       setPageEditorFunctions,
       setSearchQuery,
       actions.setSelectedTool,
       registerToolReset,
       resetTool,
-      handleToolSelect,
-      handleBackToTools,
-      handleReaderToggle,
+      stableHandleToolSelect,
+      stableHandleToolSelectForced,
+      stableHandleBackToTools,
+      stableHandleReaderToggle,
+      stableClearToolSelection,
       filteredTools,
       favoriteTools,
       toggleFavorite,
       isFavorite,
       customWorkbenchViews,
       registerCustomWorkbenchView,
-      unregisterCustomWorkbenchView,
+      stableUnregisterCustomView,
       setCustomWorkbenchViewData,
       clearCustomWorkbenchViewData,
     ],

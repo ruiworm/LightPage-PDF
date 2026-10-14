@@ -71,13 +71,11 @@ export function FileOriginBadge({
       default:
         return {
           label: t("filesPage.origin.local", "Local"),
-          icon: (
-            <Icon name={onDisk ? "monitor" : "cloud-off"} size={"0.85rem"} />
-          ),
+          icon: <Icon name={onDisk ? "monitor" : "folder"} size={"0.85rem"} />,
           style: styles.local,
           tooltip: onDisk
             ? t("filesPage.origin.diskFileHint", "Stored on your computer")
-            : t("filesPage.origin.localHint", "Not backed up"),
+            : t("filesPage.origin.localHint", "Stored in this browser"),
         };
     }
   })();

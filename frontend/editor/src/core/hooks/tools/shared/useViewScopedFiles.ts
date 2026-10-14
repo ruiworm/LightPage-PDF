@@ -1,22 +1,26 @@
 import { useMemo } from "react";
-import { useAllFiles } from "@app/contexts/FileContext";
+import { useAllFiles, useFileSelection } from "@app/contexts/FileContext";
 import { useViewer } from "@app/contexts/ViewerContext";
 import { useNavigationState } from "@app/contexts/NavigationContext";
 import { StirlingFile, StirlingFileStub } from "@app/types/fileContext";
 
 export function useViewScopedFiles(ignoreViewerScope = false): StirlingFile[] {
-  const { activeFileIndex } = useViewer();
+  const { activeFileId } = useViewer();
+  const { selectedFileIds } = useFileSelection();
   const { files: allFiles } = useAllFiles();
   const { workbench } = useNavigationState();
 
   return useMemo(() => {
     if (workbench === "viewer" && !ignoreViewerScope) {
-      const viewerFile = allFiles[activeFileIndex];
-      return viewerFile ? [viewerFile] : allFiles;
+      const viewerFile = allFiles.find((file) => file.fileId === activeFileId);
+      return viewerFile ? [viewerFile] : [];
     }
-
-    return allFiles;
-  }, [workbench, allFiles, activeFileIndex, ignoreViewerScope]);
+    const filesById = new Map(allFiles.map((file) => [file.fileId, file]));
+    return selectedFileIds.flatMap((id) => {
+      const file = filesById.get(id);
+      return file ? [file] : [];
+    });
+  }, [workbench, allFiles, activeFileId, selectedFileIds, ignoreViewerScope]);
 }
 
 /**

@@ -158,10 +158,10 @@ export function ThumbnailSidebar({
       {/* Thumbnail Sidebar */}
       {visible && (
         <Box
-          className="sidebar-base"
+          className="sidebar-base sidebar-base--left"
           style={{
             position: "fixed",
-            right: 0,
+            left: 0,
             top: 0,
             bottom: 0,
             width: "15rem",

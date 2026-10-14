@@ -1,4 +1,5 @@
-import { lazy, useMemo } from "react";
+import { useMemo } from "react";
+import { lazyWithPreload as lazy } from "@app/utils/lazyWithPreload";
 import { Icon } from "@app/ui/Icon";
 import { useTranslation } from "react-i18next";
 import { devApiLink } from "@app/constants/links";
@@ -1281,7 +1282,19 @@ export function useTranslatedToolCatalog(): TranslatedToolCatalog {
         categoryId: ToolCategoryId.RECOMMENDED_TOOLS,
         subcategoryId: SubcategoryId.GENERAL,
         maxFiles: -1,
-        endpoints: ["auto-redact"],
+        endpoints: [],
+        supportedFormats: [
+          "pdf",
+          "docx",
+          "doc",
+          "xlsx",
+          "csv",
+          "png",
+          "jpg",
+          "jpeg",
+          "webp",
+          "bmp",
+        ],
         operationConfig: asRegistryConfig(redactOperationConfig),
         automationSettings: lazySettings(
           () => import("@app/components/tools/redact/RedactSingleStepSettings"),

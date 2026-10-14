@@ -36,6 +36,23 @@ function stateWith(stubs: StirlingFileStub[]): FileContextState {
   };
 }
 
+it("does not notify UI consumers again for an unchanged processing state", () => {
+  const payload = { isProcessing: true, progress: 50 };
+  const start = fileContextReducer(initialFileContextState, {
+    type: "SET_PROCESSING",
+    payload,
+  });
+  expect(fileContextReducer(start, { type: "SET_PROCESSING", payload })).toBe(
+    start,
+  );
+  const next = fileContextReducer(start, {
+    type: "SET_PROCESSING",
+    payload: { isProcessing: true, progress: 75 },
+  });
+  expect(next.ui.processingProgress).toBe(75);
+  expect(next.files).toBe(start.files);
+});
+
 describe("fileContextReducer — derivedFromTool provenance", () => {
   it("ADD_FILES leaves uploads unmarked (a genuine upload is not tool-derived)", () => {
     const next = fileContextReducer(initialFileContextState, {

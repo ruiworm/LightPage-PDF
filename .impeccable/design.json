@@ -1,0 +1,417 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-09T14:05:35Z",
+  "title": "Design System: 轻页 PDF",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "选择蓝",
+        "tonalRamp": [
+          "var(--color-primary-900)",
+          "var(--color-primary-800)",
+          "var(--color-primary-700)",
+          "var(--color-primary-600)",
+          "var(--color-primary-500)",
+          "var(--color-primary-300)",
+          "var(--color-primary-100)",
+          "var(--color-primary-50)"
+        ]
+      },
+      "accent-text": {
+        "role": "primary",
+        "displayName": "深蓝强调文字",
+        "tonalRamp": [
+          "var(--color-primary-900)",
+          "var(--color-primary-800)",
+          "var(--color-primary-700)",
+          "var(--color-primary-600)",
+          "var(--color-primary-500)",
+          "var(--color-primary-300)",
+          "var(--color-primary-100)",
+          "var(--color-primary-50)"
+        ]
+      },
+      "primary-subtle": {
+        "role": "primary",
+        "displayName": "浅蓝状态面",
+        "tonalRamp": [
+          "var(--color-primary-900)",
+          "var(--color-primary-800)",
+          "var(--color-primary-700)",
+          "var(--color-primary-600)",
+          "var(--color-primary-500)",
+          "var(--color-primary-300)",
+          "var(--color-primary-100)",
+          "var(--color-primary-50)"
+        ]
+      },
+      "operation-charcoal": {
+        "role": "neutral",
+        "displayName": "深色操作底",
+        "tonalRamp": [
+          "#111827",
+          "#1f2937",
+          "#374151",
+          "#4b5563",
+          "#6b7280",
+          "#d1d5db",
+          "#f3f4f6",
+          "#f9fafb"
+        ]
+      },
+      "operation-inverse": {
+        "role": "neutral",
+        "displayName": "操作反色文字",
+        "tonalRamp": [
+          "#111827",
+          "#1f2937",
+          "#374151",
+          "#4b5563",
+          "#6b7280",
+          "#d1d5db",
+          "#f3f4f6",
+          "#f9fafb"
+        ]
+      },
+      "canvas-paper": {
+        "role": "neutral",
+        "displayName": "纸色画布",
+        "tonalRamp": [
+          "#111827",
+          "#1f2937",
+          "#374151",
+          "#4b5563",
+          "#6b7280",
+          "#d1d5db",
+          "#f3f4f6",
+          "#f9fafb"
+        ]
+      },
+      "panel-white": {
+        "role": "neutral",
+        "displayName": "白色面板",
+        "tonalRamp": [
+          "#111827",
+          "#1f2937",
+          "#374151",
+          "#4b5563",
+          "#6b7280",
+          "#d1d5db",
+          "#f3f4f6",
+          "#f9fafb"
+        ]
+      },
+      "surface-snow": {
+        "role": "neutral",
+        "displayName": "雪白通用表面",
+        "tonalRamp": [
+          "#111827",
+          "#1f2937",
+          "#374151",
+          "#4b5563",
+          "#6b7280",
+          "#d1d5db",
+          "#f3f4f6",
+          "#f9fafb"
+        ]
+      },
+      "recess-neutral": {
+        "role": "neutral",
+        "displayName": "浅灰凹面",
+        "tonalRamp": [
+          "#111827",
+          "#1f2937",
+          "#374151",
+          "#4b5563",
+          "#6b7280",
+          "#d1d5db",
+          "#f3f4f6",
+          "#f9fafb"
+        ]
+      },
+      "text-ink": {
+        "role": "neutral",
+        "displayName": "正文墨色",
+        "tonalRamp": [
+          "#111827",
+          "#1f2937",
+          "#374151",
+          "#4b5563",
+          "#6b7280",
+          "#d1d5db",
+          "#f3f4f6",
+          "#f9fafb"
+        ]
+      },
+      "text-muted": {
+        "role": "neutral",
+        "displayName": "辅助文字",
+        "tonalRamp": [
+          "#111827",
+          "#1f2937",
+          "#374151",
+          "#4b5563",
+          "#6b7280",
+          "#d1d5db",
+          "#f3f4f6",
+          "#f9fafb"
+        ]
+      },
+      "text-subtle": {
+        "role": "neutral",
+        "displayName": "次级文字",
+        "tonalRamp": [
+          "#111827",
+          "#1f2937",
+          "#374151",
+          "#4b5563",
+          "#6b7280",
+          "#d1d5db",
+          "#f3f4f6",
+          "#f9fafb"
+        ]
+      },
+      "border-subtle": {
+        "role": "neutral",
+        "displayName": "细分隔线",
+        "tonalRamp": [
+          "#111827",
+          "#1f2937",
+          "#374151",
+          "#4b5563",
+          "#6b7280",
+          "#d1d5db",
+          "#f3f4f6",
+          "#f9fafb"
+        ]
+      },
+      "border-strong": {
+        "role": "neutral",
+        "displayName": "强调边框",
+        "tonalRamp": [
+          "#111827",
+          "#1f2937",
+          "#374151",
+          "#4b5563",
+          "#6b7280",
+          "#d1d5db",
+          "#f3f4f6",
+          "#f9fafb"
+        ]
+      },
+      "hover-neutral": {
+        "role": "neutral",
+        "displayName": "中性悬停面",
+        "tonalRamp": [
+          "#111827",
+          "#1f2937",
+          "#374151",
+          "#4b5563",
+          "#6b7280",
+          "#d1d5db",
+          "#f3f4f6",
+          "#f9fafb"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "sans-token": {
+        "displayName": "Existing Sans Token",
+        "purpose": "dimensions.css 的共享字体变量；不会重写 body 或 Mantine 的现有字体映射。"
+      },
+      "mono-token": {
+        "displayName": "Existing Mono Token",
+        "purpose": "共享代码及数字类组件已有的字体变量。"
+      },
+      "title": {
+        "displayName": "Tool Title",
+        "purpose": "共享工具标题。"
+      },
+      "group": {
+        "displayName": "Functional Group",
+        "purpose": "工具设置具名分组。"
+      },
+      "body": {
+        "displayName": "Tool Body",
+        "purpose": "工具字段和内容的基础字号；字重按组件继承。"
+      },
+      "label": {
+        "displayName": "Field Label",
+        "purpose": "输入字段标题。"
+      },
+      "supporting": {
+        "displayName": "Supporting Copy",
+        "purpose": "帮助说明；顶部描述保留 1.65 行高。"
+      },
+      "metadata": {
+        "displayName": "Metadata",
+        "purpose": "文件元信息与执行范围。"
+      },
+      "navigation": {
+        "displayName": "Navigation",
+        "purpose": "顶部同级入口。"
+      }
+    },
+    "shadows": [
+      {
+        "name": "sui-elevation-raised",
+        "value": "0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.06)",
+        "purpose": "Surface.css 的可选浅色 raised 表面；工具分组不采用此阴影。"
+      },
+      {
+        "name": "sui-elevation-raised-dark",
+        "value": "0 1px 2px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.35)",
+        "purpose": "Surface.css 现存暗色映射；此次未视觉验收。"
+      }
+    ],
+    "motion": [
+      {
+        "name": "motion-fast",
+        "value": "0.15s ease",
+        "purpose": "dimensions.css：导航和共享组件的短状态变化。"
+      },
+      {
+        "name": "motion-base",
+        "value": "0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "dimensions.css：既有通用状态过渡。"
+      },
+      {
+        "name": "mantine-button-transition",
+        "value": "all 0.2s ease",
+        "purpose": "mantineTheme.ts 的现有按钮过渡；不扩展到新布局动画。"
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.001ms",
+        "purpose": "tokens.css：prefers-reduced-motion 将现有动画与过渡时长缩短，并限制动画为一次。"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "editor-narrow",
+        "value": "48rem"
+      },
+      {
+        "name": "navigation-extra-narrow",
+        "value": "23rem"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Tool Primary Operation",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "工具面板中的默认执行操作；最小高度而非高度上限。Source: Button.tsx, accents.css, ToolInspector.css, Mantine styles.css.",
+      "html": "<button type=\"button\" class=\"ds-primary\">处理文件</button>",
+      "css": ".ds-primary{font-family:inherit;font-size:0.8125rem;font-weight:500;line-height:1.4;min-height:2.5rem;height:auto;padding:0 1.125rem;border:1px solid transparent;border-radius:0.75rem;cursor:pointer;transition:all 0.2s ease;white-space:normal;background:var(--c-btn-solid);color:var(--c-btn-inverse);border-color:transparent;}.ds-primary:hover:not(:disabled){background:color-mix(in srgb, var(--c-btn-solid) 85%, var(--c-btn-inverse));}.ds-primary:focus-visible{outline:2px solid var(--c-primary);outline-offset:0.125rem;}.ds-primary:active:not(:disabled){transform:translateY(0.0625rem);}.ds-primary:disabled{background:var(--mantine-color-disabled);color:var(--mantine-color-disabled-color);border-color:transparent;cursor:not-allowed;}"
+    },
+    {
+      "name": "Tool Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "与主操作并列的辅助动作。Source: Button.tsx, accents.css, ToolInspector.css.",
+      "html": "<button type=\"button\" class=\"ds-secondary\">添加文件</button>",
+      "css": ".ds-secondary{font-family:inherit;font-size:0.8125rem;font-weight:500;line-height:1.4;min-height:2.5rem;height:auto;padding:0 1.125rem;border:1px solid transparent;border-radius:0.75rem;cursor:pointer;transition:all 0.2s ease;white-space:normal;background:var(--c-btn-secondary);color:var(--c-btn-solid);border-color:var(--c-btn-secondary-border);}.ds-secondary:hover:not(:disabled){background:color-mix(in srgb, var(--c-btn-secondary) 92%, var(--c-btn-solid));}.ds-secondary:focus-visible{outline:2px solid var(--c-primary);outline-offset:0.125rem;}.ds-secondary:active:not(:disabled){transform:translateY(0.0625rem);}.ds-secondary:disabled{background:var(--mantine-color-disabled);color:var(--mantine-color-disabled-color);border-color:transparent;cursor:not-allowed;}"
+    },
+    {
+      "name": "Tool Tertiary Button",
+      "kind": "button",
+      "refersTo": "button-tertiary",
+      "description": "透明底的较轻辅助动作。Source: Button.tsx, accents.css, ToolInspector.css.",
+      "html": "<button type=\"button\" class=\"ds-tertiary\">返回设置</button>",
+      "css": ".ds-tertiary{font-family:inherit;font-size:0.8125rem;font-weight:500;line-height:1.4;min-height:2.5rem;height:auto;padding:0 1.125rem;border:1px solid transparent;border-radius:0.75rem;cursor:pointer;transition:all 0.2s ease;white-space:normal;background:transparent;color:var(--c-text);border-color:transparent;}.ds-tertiary:hover:not(:disabled){background:var(--c-hover);}.ds-tertiary:focus-visible{outline:2px solid var(--c-primary);outline-offset:0.125rem;}.ds-tertiary:active:not(:disabled){transform:translateY(0.0625rem);}.ds-tertiary:disabled{background:var(--mantine-color-disabled);color:var(--mantine-color-disabled-color);border-color:transparent;cursor:not-allowed;}"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "默认 accent 的文字级动作；quiet 不新增悬停底色。Source: Button.tsx, accents.css.",
+      "html": "<button type=\"button\" class=\"ds-quiet\">查看说明</button>",
+      "css": ".ds-quiet{font-family:inherit;font-size:var(--mantine-font-size-sm,0.875rem);font-weight:500;line-height:1.4;min-height:30px;height:auto;padding:0 1.125rem;border:1px solid transparent;border-radius:var(--mantine-radius-default,var(--radius-sm));background:transparent;color:var(--c-accent-text);cursor:pointer;transition:all 0.2s ease;}.ds-quiet:hover{color:var(--c-text);}.ds-quiet:focus-visible{outline:2px solid var(--c-primary);outline-offset:0.125rem;}.ds-quiet:active{transform:translateY(0.0625rem);}"
+    },
+    {
+      "name": "Tool Input",
+      "kind": "input",
+      "refersTo": "tool-input",
+      "description": "工具内的 Mantine 文本字段外观；示例不是新的全局 SUI Input 尺寸。Source: ToolInspector.css, mantineTheme.ts.",
+      "html": "<label class=\"ds-tool-field\">文件名称<input class=\"ds-tool-input\" type=\"text\" placeholder=\"输入名称\" /></label>",
+      "css": ".ds-tool-field{display:flex;flex-direction:column;gap:0.375rem;color:var(--c-text);font-family:inherit;font-size:0.8125rem;font-weight:500;line-height:1.5;}.ds-tool-input{font-family:inherit;font-size:0.8125rem;font-weight:400;min-height:2.5rem;border:1px solid var(--c-border-subtle);border-radius:0.75rem;background:var(--c-input-bg);color:var(--c-text);padding:0 0.75rem;caret-color:var(--c-primary);}.ds-tool-input::placeholder{color:var(--c-text-muted);}.ds-tool-input:focus{outline:none;border-color:var(--c-primary);box-shadow:0 0 0 1px var(--color-primary-500);}"
+    },
+    {
+      "name": "Top Navigation View",
+      "kind": "nav",
+      "refersTo": "navigation-view",
+      "description": "保留原顶部同级入口的当前、悬停与焦点状态。Source: AppNavigationBar.css.",
+      "html": "<nav aria-label=\"主要入口\" class=\"ds-nav\"><button type=\"button\" class=\"ds-nav-view\">我的文件</button><button type=\"button\" class=\"ds-nav-view\" aria-current=\"page\">编辑器</button><button type=\"button\" class=\"ds-nav-view\">工具库</button></nav>",
+      "css": ".ds-nav{display:flex;gap:0.25rem;padding:0.1875rem;border-radius:var(--radius-lg);background:var(--c-bg);}.ds-nav-view{display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;min-height:2.25rem;padding:0.375rem 1rem;border:0;border-radius:var(--radius-md);font-family:inherit;font-size:0.875rem;font-weight:var(--font-weight-medium);background:transparent;color:var(--c-text-muted);white-space:nowrap;cursor:pointer;transition:background-color var(--motion-fast),color var(--motion-fast);}.ds-nav-view:hover{background:var(--c-hover);color:var(--c-text);}.ds-nav-view[aria-current=\"page\"]{background:var(--c-primary-subtle);color:var(--c-text);}.ds-nav-view:focus-visible{outline:2px solid var(--c-primary);outline-offset:2px;}.ds-nav-view:disabled{opacity:0.5;cursor:not-allowed;}"
+    },
+    {
+      "name": "Secondary Chip",
+      "kind": "chip",
+      "refersTo": "chip-secondary",
+      "description": "已有默认 secondary 标签的静态外观；不是新增加到工具标题上的标签。Source: Chip.tsx/.css, accents.css, Mantine Pill styles.css.",
+      "html": "<span class=\"ds-chip\">PDF</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;gap:0.35em;width:auto;height:1.5625rem;padding-inline:0.8em;border:1px solid color-mix(in srgb,var(--c-primary) 38%,var(--c-surface));border-radius:1000rem;font-family:inherit;font-size:0.875rem;font-weight:500;line-height:1;white-space:nowrap;background:color-mix(in srgb,var(--c-primary) 12%,transparent);color:var(--c-accent-text);}"
+    },
+    {
+      "name": "Shared Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "已有默认 Card/Surface 的静态表面；工具分组不强制使用卡片。Source: Card.tsx/.css, Surface.css.",
+      "html": "<div class=\"ds-card\">文件信息</div>",
+      "css": ".ds-card{position:relative;background:var(--c-surface);color:var(--c-text);border:1px solid var(--c-border-subtle);border-radius:var(--radius-nav);padding:1.125rem 1.25rem;transition:border-color var(--motion-fast),transform var(--motion-fast);}"
+    },
+    {
+      "name": "Tool Panel Header",
+      "kind": "custom",
+      "refersTo": "tool-header",
+      "description": "共享工具标题、安静图标方块及圆形关闭操作。Source: ToolPanelHeader.tsx/.css, ActionIcon.tsx, accents.css.",
+      "html": "<div class=\"ds-tool-header\"><div class=\"ds-tool-header-bar\"><span class=\"ds-tool-header-icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><path d=\"M14 2v6h6M8 13h8M8 17h6\"/></svg></span><span class=\"ds-tool-title\">文件工具</span></div><button type=\"button\" class=\"ds-tool-close\" aria-label=\"关闭工具\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m18 6-12 12M6 6l12 12\"/></svg></button></div>",
+      "css": ".ds-tool-header{display:flex;align-items:center;gap:0.75rem;padding:1rem;background:var(--c-bg-raised);border-bottom:1px solid var(--c-border-subtle);}.ds-tool-header-bar{display:flex;align-items:center;gap:0.75rem;flex:1;min-width:0;color:var(--c-text);}.ds-tool-header-icon{display:inline-flex;align-items:center;justify-content:center;width:2rem;height:2rem;border-radius:0.625rem;background:var(--c-surface-sunken);color:var(--c-text-muted);flex-shrink:0;}.ds-tool-header-icon svg{width:1.125rem;height:1.125rem;}.ds-tool-title{font-family:inherit;font-size:1rem;font-weight:650;line-height:1.4;overflow-wrap:anywhere;min-width:0;}.ds-tool-close{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;flex-shrink:0;border:1px solid transparent;border-radius:50%;background:transparent;color:var(--c-text-muted);cursor:pointer;}.ds-tool-close:hover{background:var(--c-hover);color:var(--c-text);}.ds-tool-close:focus-visible{outline:2px solid var(--c-primary);outline-offset:0.125rem;}.ds-tool-close:active{transform:translateY(0.0625rem);}"
+    },
+    {
+      "name": "Tool File Context",
+      "kind": "custom",
+      "refersTo": "tool-file-context",
+      "description": "当前文件名称及元信息的紧凑信息块。Source: ToolInspector.css.",
+      "html": "<div class=\"ds-file-context\"><span class=\"ds-file-icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><path d=\"M14 2v6h6M8 13h8M8 17h6\"/></svg></span><div class=\"ds-file-name\">示例文件.pdf<span class=\"ds-file-meta\">38.87 KB</span></div></div>",
+      "css": ".ds-file-context{display:flex;gap:0.75rem;align-items:flex-start;padding:0.75rem;background:var(--c-input-bg);border:1px solid var(--c-border-subtle);border-radius:0.75rem;color:var(--c-text);font-family:inherit;font-size:0.8125rem;}.ds-file-icon{display:inline-flex;color:var(--c-text-muted);flex-shrink:0;padding-top:2px;}.ds-file-name{min-width:0;overflow-wrap:anywhere;line-height:1.55;font-weight:500;}.ds-file-meta{display:block;margin-top:0.25rem;color:var(--c-text-muted);font-size:0.6875rem;font-variant-numeric:tabular-nums;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "简洁的设置面板",
+    "overview": "这是已有编辑器视觉系统的延伸。界面以安静的中性色面、清楚的文字层级和克制的状态提示承载文件操作。保留轻页 PDF 名称、标志、顶部导航、文件栏及文档预览所形成的既有视觉关系。\n\n本次系统记录覆盖编辑器的共享视觉基础与已完成的工具检查面板。功能分组、文件上下文和操作区的具体组合见 [.impeccable/surfaces/tool-inspector.md](.impeccable/surfaces/tool-inspector.md)；它们不要求其他产品区域使用同一页面构图。",
+    "keyCharacteristics": [
+      "中性色面承载工作内容，蓝色提示选择、焦点和链接。",
+      "深色主操作、轻量辅助操作，保持执行层级清楚。",
+      "紧凑文字和柔和圆角适合持续操作的编辑器。",
+      "工具设置按功能直接分组，文档预览保持可见。"
+    ],
+    "rules": [
+      {
+        "name": "The Semantic Color Rule",
+        "body": "消费组件使用现有语义变量；新增颜色须先进入 primitives.css，再建立所需语义映射。",
+        "section": "colors"
+      },
+      {
+        "name": "The Quiet Panel Rule",
+        "body": "工具分组以间距、文字和细分隔线建立层级；需要 raised 表面时复用已有组件的层级样式。",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** 使用现有语义颜色变量，并把新 palette literal 留在 primitives.css。",
+      "**Do** 保留轻页 PDF 名称、标志及编辑器既有导航与预览关系。",
+      "**Do** 在工具检查面板复用本记录的文字层级、控件形状与分组内边距。",
+      "**Do** 保留长文字换行、可见焦点、工具校验与结果操作状态。"
+    ],
+    "donts": [
+      "**Don't** 为本次工具面板新增品牌配色、宣传式大标题或装饰性视觉材料。",
+      "**Don't** 将工具分组构图或控件最小高度机械覆盖到导航、图标按钮与其他产品区域。",
+      "**Don't** 从桌面截图推断移动端、暗色模式或导出执行已完成验收。",
+      "**Don't** 将 legacy 字体、阴影或主题说明的差异当作这次系统扩展的新规则。"
+    ]
+  }
+}

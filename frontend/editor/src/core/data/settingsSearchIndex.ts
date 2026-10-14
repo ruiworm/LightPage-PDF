@@ -47,38 +47,10 @@ export const SETTINGS_SEARCH_INDEX: SettingsSearchEntry[] = [
   // --- General > Behaviour ---
   {
     section: "general",
-    anchor: "setting-tool-picker-mode",
-    labelKey: "settings.general.defaultToolPickerMode",
-    labelFallback: "Default tool picker mode",
-    keywords: ["sidebar", "fullscreen", "tools", "panel"],
-  },
-  {
-    section: "general",
-    anchor: "setting-startup-view",
-    labelKey: "settings.general.defaultStartupView",
-    labelFallback: "Default view on launch",
-    keywords: ["startup", "launch", "home", "reader", "automate"],
-  },
-  {
-    section: "general",
     anchor: "setting-reader-zoom",
     labelKey: "settings.general.defaultViewerZoom",
     labelFallback: "Default reader zoom",
     keywords: ["zoom", "viewer", "fit width", "fit page", "magnification"],
-  },
-  {
-    section: "general",
-    anchor: "setting-hide-unavailable-tools",
-    labelKey: "settings.general.hideUnavailableTools",
-    labelFallback: "Hide unavailable tools",
-    keywords: ["disabled", "greyed", "tools"],
-  },
-  {
-    section: "general",
-    anchor: "setting-hide-unavailable-conversions",
-    labelKey: "settings.general.hideUnavailableConversions",
-    labelFallback: "Hide unavailable conversions",
-    keywords: ["disabled", "convert", "conversions"],
   },
   {
     section: "general",

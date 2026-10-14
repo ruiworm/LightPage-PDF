@@ -88,6 +88,7 @@ export function LibraryFilePicker({
     [activeFileIds],
   );
   const { config } = useAppConfig();
+  const localLibrary = config?.storageEnabled !== true;
   const { sharingEnabled } = useSharingEnabled();
   const drive = useGoogleDrivePicker();
   const isPhone = useIsMobile();
@@ -106,6 +107,11 @@ export function LibraryFilePicker({
     typeFilter,
     setTypeFilter,
   } = useLibraryViewState(destination ? "all" : "recent");
+  useEffect(() => {
+    if (!destination && localLibrary && originFilter !== "all") {
+      setOriginFilter("all");
+    }
+  }, [destination, localLibrary, originFilter, setOriginFilter]);
   const browserRef = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState<Map<string, PickerItem>>(
     () => new Map(),
@@ -691,6 +697,7 @@ export function LibraryFilePicker({
         )}
         <div className="files-page-toolbar-actions">
           <LibraryToolbar
+            hideOriginFilter={localLibrary}
             hideFilters={Boolean(destination)}
             dropdownZIndex={Z_INDEX_OVER_FILE_MANAGER_MODAL}
             isMobile={compact}

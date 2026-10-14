@@ -13,6 +13,7 @@ interface FilesToolbarFilterMenuProps {
   typeFilter: string[];
   onTypeChange: (value: string[]) => void;
   zIndex?: number;
+  hideOriginFilter?: boolean;
 }
 
 export function FilesToolbarFilterMenu({
@@ -22,11 +23,21 @@ export function FilesToolbarFilterMenu({
   typeFilter,
   onTypeChange,
   zIndex,
+  hideOriginFilter = false,
 }: FilesToolbarFilterMenuProps) {
   const { t } = useTranslation();
 
+  if (
+    hideOriginFilter &&
+    availableTypes.length < 2 &&
+    typeFilter.length === 0
+  ) {
+    return null;
+  }
+
   const activeCount =
-    (originFilter !== "all" ? 1 : 0) + (typeFilter.length > 0 ? 1 : 0);
+    (!hideOriginFilter && originFilter !== "all" ? 1 : 0) +
+    (typeFilter.length > 0 ? 1 : 0);
   const label = t("filesPage.filters.label", "Filters");
 
   const clearAll = () => {
@@ -71,24 +82,29 @@ export function FilesToolbarFilterMenu({
       </Popover.Target>
       <Popover.Dropdown>
         <Stack gap="xs">
-          <Select
-            size="xs"
-            value={originFilter}
-            onChange={(value) =>
-              value && onOriginChange(value as FilesPageOriginFilter)
-            }
-            data={[
-              { value: "all", label: t("filesPage.origin.all", "All sources") },
-              { value: "local", label: t("filesPage.origin.local", "Local") },
-              { value: "cloud", label: t("filesPage.origin.cloud", "Cloud") },
-              {
-                value: "shared-with-me",
-                label: t("filesPage.origin.shared", "Shared"),
-              },
-            ]}
-            label={t("filesPage.originFilter", "Filter by source")}
-            comboboxProps={{ withinPortal: false }}
-          />
+          {!hideOriginFilter && (
+            <Select
+              size="xs"
+              value={originFilter}
+              onChange={(value) =>
+                value && onOriginChange(value as FilesPageOriginFilter)
+              }
+              data={[
+                {
+                  value: "all",
+                  label: t("filesPage.origin.all", "All sources"),
+                },
+                { value: "local", label: t("filesPage.origin.local", "Local") },
+                { value: "cloud", label: t("filesPage.origin.cloud", "Cloud") },
+                {
+                  value: "shared-with-me",
+                  label: t("filesPage.origin.shared", "Shared"),
+                },
+              ]}
+              label={t("filesPage.originFilter", "Filter by source")}
+              comboboxProps={{ withinPortal: false }}
+            />
+          )}
           {(availableTypes.length > 1 || typeFilter.length > 0) && (
             <MultiSelect
               size="xs"

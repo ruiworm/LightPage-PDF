@@ -5,12 +5,14 @@ import { ActionIcon } from "@app/ui/ActionIcon";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@app/ui/Icon";
 import type { FileId } from "@app/types/file";
+import { Checkbox } from "@app/ui/Checkbox";
 import { FileDocIcon } from "@app/components/shared/FileDocIcon";
+import { getFileColor } from "@app/components/pageEditor/fileColors";
+import { getFileDocVariant } from "@app/components/shared/filePreview/getFileTypeIcon";
 import {
   PolicyBadges,
   type FileItemPolicyRef,
 } from "@app/components/shared/PolicyBadges";
-import { getFileDocVariant } from "@app/components/shared/filePreview/getFileTypeIcon";
 import { useLazyThumbnail } from "@app/hooks/useLazyThumbnail";
 import { useFileActionIcons } from "@app/hooks/useFileActionIcons";
 import { useFileActionTerminology } from "@app/hooks/useFileActionTerminology";
@@ -86,48 +88,19 @@ export function formatFileDate(lastModifiedTs: number): string {
   });
 }
 
-function CheckIcon({
-  className,
-  style,
-}: {
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <svg
-      className={className}
-      style={style}
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
-  );
-}
-
-function getSidebarFileIcon(ext: string): React.ReactElement {
-  const cls = "file-sidebar-file-icon file-sidebar-file-icon-hover-hide";
-  return <FileDocIcon className={cls} variant={getFileDocVariant(ext)} />;
-}
-
 export interface FileItemProps {
   fileId: FileId;
   name: string;
   size?: number;
   lastModified?: number;
   isSelected: boolean;
+  fileColorIndex?: number;
   isActive: boolean;
   isViewedInViewer: boolean;
   isToolSkipped?: boolean;
   thumbnailUrl?: string;
   onClick: (fileId: FileId) => void;
-  onEyeClick: (fileId: FileId, e: React.MouseEvent) => void;
+  onSelectionToggle: (fileId: FileId) => void;
   /** Policies that have run on this file — rendered as small shield badges. */
   policies?: FileItemPolicyRef[];
   /** The file's primary classification label (display name), shown in the meta
@@ -206,13 +179,14 @@ export const FileItem = React.memo(function FileItem({
   size,
   lastModified,
   isSelected,
+  fileColorIndex,
   isActive,
   isViewedInViewer,
   isToolSkipped = false,
   dataUnavailable,
   thumbnailUrl,
   onClick,
-  onEyeClick,
+  onSelectionToggle,
   policies = [],
   primaryLabel,
   onDelete,
@@ -233,6 +207,7 @@ export const FileItem = React.memo(function FileItem({
   const terminology = useFileActionTerminology();
   const downloadIcon = useFileActionIcons().download;
   const ext = getFileExtension(name);
+  const viewerLabel = t("fileSidebar.fileItem.openInViewer", "Open in viewer");
   const dateLabel = lastModified ? formatFileDate(lastModified) : "";
   const typeLabel = ext ? ext.toUpperCase() : "File";
   const metaLine = [typeLabel, size ? formatFileSize(size) : null, dateLabel]
@@ -271,10 +246,6 @@ export const FileItem = React.memo(function FileItem({
     return null;
   };
 
-  const viewerLabel = isViewedInViewer
-    ? t("fileSidebar.fileItem.closeViewer", "Close viewer")
-    : t("fileSidebar.fileItem.openInViewer", "Open in viewer");
-
   // Only use raster thumbnails for PDFs and images — everything else uses scalable SVG icons
   const useRasterThumb = ext === "pdf" || IMAGE_EXTENSIONS.has(ext);
   const resolvedThumbnail = useLazyThumbnail(
@@ -311,26 +282,42 @@ export const FileItem = React.memo(function FileItem({
         title={toolSkipReason}
         aria-description={toolSkipReason}
         className={`file-sidebar-file-item${isSelected ? " selected" : ""}${isActive ? " active" : ""}${isViewedInViewer ? " viewed" : ""}`}
-        onClick={() => onClick(fileId)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && onClick(fileId)}
+        style={
+          !isSelected || fileColorIndex === undefined
+            ? undefined
+            : ({
+                "--file-selection-color": getFileColor(fileColorIndex),
+              } as React.CSSProperties)
+        }
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         <div className="file-sidebar-file-icon-wrapper">
-          {isSelected ? (
-            <div className="file-sidebar-file-check">
-              <CheckIcon className="file-sidebar-check-svg" />
-            </div>
-          ) : (
-            <>
-              <div className="file-sidebar-file-checkbox-hover" />
-              {getSidebarFileIcon(ext)}
-            </>
-          )}
+          <span className="file-sidebar-file-selection-icon" aria-hidden="true">
+            <FileDocIcon variant={getFileDocVariant(ext)} />
+          </span>
+          <Checkbox
+            className="file-sidebar-file-selection"
+            checked={isSelected}
+            disabled={policyEnforcing || dataUnavailable}
+            aria-label={t(
+              "workspaceFiles.selectFile",
+              "Select {{fileName}} for processing",
+              { fileName: name },
+            )}
+            onChange={() => onSelectionToggle(fileId)}
+          />
         </div>
-        <div className="file-sidebar-file-info">
+        <button
+          type="button"
+          className="file-sidebar-file-info file-sidebar-open-file"
+          data-tool-skipped={isToolSkipped}
+          aria-description={toolSkipReason}
+          onClick={() => onClick(fileId)}
+          aria-current={isViewedInViewer ? "true" : undefined}
+          title={name}
+          disabled={policyEnforcing || dataUnavailable}
+        >
           <span
             className={`file-sidebar-file-name${isSelected ? " selected" : ""}`}
           >
@@ -383,30 +370,8 @@ export const FileItem = React.memo(function FileItem({
             )}
             <PolicyBadges policies={policies} />
           </span>
-        </div>
+        </button>
         <div className="file-sidebar-file-actions">
-          <ActionIcon
-            variant="tertiary"
-            size="sm"
-            className="file-sidebar-eye-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEyeClick(fileId, e);
-            }}
-            tabIndex={-1}
-            aria-label={viewerLabel}
-          >
-            <Icon
-              name="eye"
-              size={"1.1rem"}
-              className="file-sidebar-eye-open"
-            />
-            <Icon
-              name="eye-off"
-              size={"1.1rem"}
-              className="file-sidebar-eye-closed"
-            />
-          </ActionIcon>
           <Menu
             position="bottom-end"
             withinPortal
@@ -420,7 +385,7 @@ export const FileItem = React.memo(function FileItem({
                 size="sm"
                 className="file-sidebar-kebab-btn"
                 onClick={(e) => e.stopPropagation()}
-                tabIndex={-1}
+                tabIndex={0}
                 aria-label={t(
                   "fileSidebar.fileItem.moreActions",
                   "More actions",
@@ -441,14 +406,8 @@ export const FileItem = React.memo(function FileItem({
 
               <FileMenuItem
                 disabledReason={blockedReason(viewerLabel)}
-                icon={
-                  isViewedInViewer ? (
-                    <Icon name="eye-off" size={16} />
-                  ) : (
-                    <Icon name="eye" size={16} />
-                  )
-                }
-                onClick={(e) => onEyeClick(fileId, e)}
+                icon={<Icon name="file" size={16} />}
+                onClick={() => onClick(fileId)}
               >
                 {viewerLabel}
               </FileMenuItem>

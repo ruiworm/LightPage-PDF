@@ -7,6 +7,7 @@ import { FolderRecord } from "@app/types/folder";
 import { ProcessingFolderState } from "@app/hooks/useProcessingFolders";
 import { FolderAppearanceModal } from "@app/components/filesPage/FolderAppearanceModal";
 import { ProcessingMenuItems } from "@app/components/filesPage/ProcessingMenuItems";
+import { usePoliciesEnabled } from "@app/components/policies/usePoliciesEnabled";
 import { ActionIcon } from "@app/ui/ActionIcon";
 import { Button } from "@app/ui/Button";
 
@@ -68,6 +69,7 @@ export function FolderMenu({
   triggerRef,
 }: FolderMenuProps) {
   const { t } = useTranslation();
+  const processingEnabled = usePoliciesEnabled();
   const [appearanceOpen, setAppearanceOpen] = useState(false);
   const settingsLabel = t("filesPage.folderSettings", "Folder settings");
 
@@ -136,19 +138,21 @@ export function FolderMenu({
               <Menu.Divider />
             </>
           )}
-          <ProcessingMenuItems
-            processing={processing}
-            continuous={continuous}
-            disabled={editsDisabled || Boolean(processingBlock)}
-            disabledHint={processingBlock ?? editsDisabledHint}
-            onRun={onRunProcessing}
-            onStop={onStopProcessing}
-            onStart={onStartProcessing}
-            onResume={onResumeProcessing}
-            onEdit={onEditProcessing}
-            onRemove={onRemoveProcessing}
-            onRevertAll={onRevertAll}
-          />
+          {processingEnabled && (
+            <ProcessingMenuItems
+              processing={processing}
+              continuous={continuous}
+              disabled={editsDisabled || Boolean(processingBlock)}
+              disabledHint={processingBlock ?? editsDisabledHint}
+              onRun={onRunProcessing}
+              onStop={onStopProcessing}
+              onStart={onStartProcessing}
+              onResume={onResumeProcessing}
+              onEdit={onEditProcessing}
+              onRemove={onRemoveProcessing}
+              onRevertAll={onRevertAll}
+            />
+          )}
           {(!isMount || canUnmount) && (
             <>
               <Menu.Divider />

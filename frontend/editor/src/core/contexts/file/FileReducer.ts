@@ -299,6 +299,11 @@ export function fileContextReducer(
 
     case "SET_PROCESSING": {
       const { isProcessing, progress } = action.payload;
+      if (
+        state.ui.isProcessing === isProcessing &&
+        state.ui.processingProgress === progress
+      )
+        return state;
       return {
         ...state,
         ui: {

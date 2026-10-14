@@ -507,6 +507,7 @@ describe("library file picker", () => {
   });
 
   it("filters staged imports out of Cloud without losing their selection", async () => {
+    state.storageEnabled = true;
     const serverFile = { ...file("server", "Server.pdf"), remoteStorageId: 1 };
     state.files.push(serverFile);
     const user = userEvent.setup();
@@ -723,6 +724,7 @@ describe("library file picker", () => {
     );
   });
   it("restores each tab's folder and filters while keeping the cross-folder selection", async () => {
+    state.storageEnabled = true;
     state.folders = [folder("folder", "Invoices")];
     state.files[1] = file("two", "Two.pdf", "folder");
     const user = userEvent.setup();

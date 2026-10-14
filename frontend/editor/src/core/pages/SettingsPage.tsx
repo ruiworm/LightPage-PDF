@@ -6,20 +6,12 @@ import React, {
   Suspense,
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Icon } from "@app/ui/Icon";
 import { useTranslation } from "react-i18next";
 import { LoadingFallback } from "@app/components/shared/LoadingFallback";
-import { useSectionHeadings } from "@app/components/settings/useSectionHeadings";
 import { useActiveHeading } from "@app/components/settings/useActiveHeading";
-import { InfoTooltip } from "@app/ui/InfoTooltip";
 import LoginRequiredBanner from "@app/components/shared/config/LoginRequiredBanner";
-import { Badge, Tooltip } from "@mantine/core";
-import { SettingsMobileBackButton } from "@app/components/shared/config/SettingsMobileBackButton";
-import { SettingsNavChevron } from "@app/components/shared/config/SettingsNavChevron";
 import { useSettingsNav } from "@app/components/settings/useSettingsNav";
 import type { NavKey } from "@app/components/shared/config/types";
-import { useIsMobile } from "@app/hooks/useIsMobile";
-import { useLicenseAlert } from "@app/hooks/useLicenseAlert";
 import {
   UnsavedChangesProvider,
   useUnsavedChanges,
@@ -30,7 +22,6 @@ import { READER_PATH } from "@app/routes/readerRoute";
 import { usePreferences } from "@app/contexts/PreferencesContext";
 import { stripBasePath } from "@app/constants/app";
 import { takeSettingsOrigin } from "@app/utils/settingsNavigation";
-import { Z_INDEX_OVER_CONFIG_MODAL } from "@app/styles/zIndex";
 import "@app/components/shared/config/settingsSections.css";
 import "@app/pages/SettingsPage.css";
 
@@ -49,8 +40,6 @@ const SettingsPageInner: React.FC = () => {
   const [contentRef, setContentRef] = useState<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useIsMobile();
-  const licenseAlert = useLicenseAlert();
   const { confirmIfDirty } = useUnsavedChanges();
   const { preferences, updatePreference } = usePreferences();
   const goToStartupView = () => {
@@ -63,9 +52,6 @@ const SettingsPageInner: React.FC = () => {
           : EDITOR_BASENAME,
     );
   };
-  const [mobilePane, setMobilePane] = useState<"nav" | "content">(() =>
-    sectionFromPath(window.location.pathname) ? "content" : "nav",
-  );
   // Leaving restores where the user came from (the editor, the processor,
   // wherever) by replacement, or the editor for a deep link with no origin.
   const leave = useCallback(() => {
@@ -92,13 +78,6 @@ const SettingsPageInner: React.FC = () => {
     () => items.find((i) => i.key === urlSection) ?? null,
     [items, urlSection],
   );
-  const activeGroup = useMemo(
-    () =>
-      sections.find((s) => s.items.some((i) => i.key === activeItem?.key))
-        ?.title,
-    [sections, activeItem],
-  );
-
   // The URL always names what is shown. `/settings` and an unknown key land on
   // the first section; a retired key (an old bookmark, an older search result)
   // follows its alias to whatever replaced it.
@@ -134,21 +113,7 @@ const SettingsPageInner: React.FC = () => {
     [navigate],
   );
 
-  const handleNavigation = useCallback(
-    async (key: NavKey) => {
-      if (!(await confirmIfDirty())) return;
-      switchSection(key);
-      setMobilePane("content");
-    },
-    [confirmIfDirty, switchSection],
-  );
-
-  const handleMobileBack = useCallback(async () => {
-    if (!(await confirmIfDirty())) return;
-    setMobilePane("nav");
-  }, [confirmIfDirty]);
-
-  // The rail sits beside the page, so its entries are exits too.
+  // The app navigation also leaves settings, so keep the unsaved-change guard.
   const requestNavigation = useCallback(
     (go: () => void) => {
       void confirmIfDirty().then((ok) => {
@@ -168,11 +133,9 @@ const SettingsPageInner: React.FC = () => {
     return () => window.removeEventListener("appConfig:navigate", handler);
   }, [switchSection]);
 
-  const headings = useSectionHeadings(activeItem?.key, contentRef);
-  const { active: activeHeading, focus: focusHeading } = useActiveHeading(
-    contentRef,
-    headings,
-  );
+  // Keep deep links without observing headings for the removed navigation.
+  const headings = useMemo(() => [], []);
+  const { focus: focusHeading } = useActiveHeading(contentRef, headings);
 
   const anchor = decodeURIComponent(location.hash.replace(/^#/, ""));
   const activeKey = activeItem?.key;
@@ -203,8 +166,7 @@ const SettingsPageInner: React.FC = () => {
     };
   }, [activeKey, anchor, focusHeading]);
 
-  // Sections that bring their own page header get the whole pane; on mobile the
-  // bar stays anyway, because it carries the only way back to the list.
+  // Sections that bring their own page header get the whole pane.
   const fullBleed = activeItem?.fullBleed ?? false;
 
   return (
@@ -216,186 +178,38 @@ const SettingsPageInner: React.FC = () => {
         onGoToStartupView={goToStartupView}
       />
 
-      <aside
-        className={`settings-page__nav modal-nav ${isMobile ? "mobile" : ""}`}
-        style={
-          isMobile && mobilePane !== "nav" ? { display: "none" } : undefined
-        }
-        aria-label={t("settings.title", "Settings")}
-      >
-        <div className="settings-page__nav-head">
-          <span className="settings-page__nav-title">
-            {t("settings.title", "Settings")}
-          </span>
-        </div>
-
-        <div className="modal-nav-scroll">
-          {sections.map((section) => {
-            const groupId = section.id ?? section.title;
-            // A header that toggles a single row costs a line and a click to
-            // show what it already named; the row stands on its own instead.
-            const solo = section.items.length === 1;
-            return (
-              <div
-                key={groupId}
-                className="modal-nav-section"
-                data-group={!solo || undefined}
-              >
-                {!solo && (
-                  // A plain label, not a disclosure: the rail is short enough
-                  // that hiding rows only cost a click to find them again.
-                  <h2 className="settings-page__group">{section.title}</h2>
-                )}
-                <div
-                  id={`settings-group-${groupId}`}
-                  className="modal-nav-section-items"
-                >
-                  {section.items.map((item) => {
-                    const isActive = activeItem?.key === item.key;
-                    const isDisabled = item.disabled ?? false;
-                    const showPlanWarning =
-                      item.key === "adminPlan" &&
-                      licenseAlert.active &&
-                      licenseAlert.audience === "admin";
-                    const row = (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!isDisabled) void handleNavigation(item.key);
-                        }}
-                        className={`modal-nav-item ${isActive ? "active" : ""} ${isMobile ? "mobile" : ""}`}
-                        data-tour={`admin-${item.key}-nav`}
-                        aria-current={isActive ? "page" : undefined}
-                        // Not `disabled`: it stays focusable, so the tooltip
-                        // saying why it is off is reachable by keyboard.
-                        aria-disabled={isDisabled || undefined}
-                      >
-                        <Icon
-                          name={item.icon}
-                          size={18}
-                          className="settings-page__nav-icon"
-                        />
-                        <span className="settings-page__nav-label">
-                          {item.label}
-                        </span>
-                        {item.badge && (
-                          <Badge
-                            size="xs"
-                            variant="light"
-                            color={item.badgeColor ?? "orange"}
-                            className="modal-nav-item-badge"
-                          >
-                            {item.badge}
-                          </Badge>
-                        )}
-                        {showPlanWarning && (
-                          <Icon
-                            name="triangle-alert"
-                            size={14}
-                            className="settings-page__nav-warning"
-                          />
-                        )}
-                        <SettingsNavChevron show={isMobile} />
-                      </button>
-                    );
-                    return isDisabled && item.disabledTooltip ? (
-                      <Tooltip
-                        key={item.key}
-                        label={item.disabledTooltip}
-                        position="right"
-                        withArrow
-                        zIndex={Z_INDEX_OVER_CONFIG_MODAL}
-                      >
-                        {row}
-                      </Tooltip>
-                    ) : (
-                      <React.Fragment key={item.key}>
-                        {row}
-                        {isActive && headings.length > 1 && (
-                          <ul className="settings-page__subnav">
-                            {headings.map((h) => (
-                              <li key={h.id}>
-                                <a
-                                  href={`#${h.id}`}
-                                  className="settings-page__subnav-item"
-                                  aria-current={
-                                    activeHeading === h.id ? "true" : undefined
-                                  }
-                                  onClick={(event) => {
-                                    event.preventDefault();
-                                    focusHeading(h.id);
-                                  }}
-                                >
-                                  {h.label}
-                                </a>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </aside>
-
-      <div
+      <main
         className="settings-page__main modal-content"
         data-tour="settings-content-area"
-        style={
-          isMobile && mobilePane !== "content" ? { display: "none" } : undefined
-        }
       >
         <div className="modal-content-scroll" ref={setContentRef}>
-          {isMobile && (
-            <div className="settings-page__mobile-bar modal-header">
-              <SettingsMobileBackButton
-                show
-                onClick={() => void handleMobileBack()}
-              />
-              <span className="settings-page__mobile-bar-title">
-                {activeGroup}
-              </span>
-            </div>
-          )}
           <div className={`modal-body${fullBleed ? " is-full-bleed" : ""}`}>
             {activeItem && !fullBleed && (
               <header className="settings-page__header">
-                {activeGroup && (
-                  <span className="settings-page__eyebrow">{activeGroup}</span>
-                )}
-                <div className="settings-page__title-row">
-                  <h1 className="settings-page__title">{activeItem.label}</h1>
-                  {activeItem.description && (
-                    <InfoTooltip
-                      label={activeItem.description}
-                      position="right"
-                    />
-                  )}
-                </div>
+                <h1 className="settings-page__title">
+                  {activeItem.key === "general"
+                    ? t("settings.title", "Settings")
+                    : activeItem.label}
+                </h1>
               </header>
             )}
             {/* Once, here: every admin section used to draw this itself, so an
                 admin with login off met the same block on all thirteen. */}
             <LoginRequiredBanner show={activeItem?.disabled ?? false} />
-            {/* Its own boundary: a section that suspends must not take the
-                nav and the header down with it. */}
+            {/* A loading section keeps the page header and app navigation visible. */}
             <Suspense fallback={<LoadingFallback />}>
               {activeItem?.component}
             </Suspense>
           </div>
         </div>
-      </div>
+      </main>
 
       {overlay}
     </div>
   );
 };
 
-/** Full-page settings: account, preferences and every server setting. */
+/** Settings in a single content pane beneath the app navigation. */
 export default function SettingsPage() {
   return (
     <UnsavedChangesProvider>

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useViewActive } from "@app/components/layout/RetainedView";
 import { isFocusInContentEditable } from "@app/tools/pdfTextEditor/util/dom";
 
 export interface EditorClipboardCallbacks {
@@ -33,10 +34,12 @@ function getSink(): HTMLTextAreaElement | null {
 
 /** Object-level cut/copy/paste for the editor. */
 export function useEditorClipboard(cbs: EditorClipboardCallbacks) {
+  const viewActive = useViewActive();
   const ref = useRef(cbs);
   ref.current = cbs;
 
   useEffect(() => {
+    if (!viewActive) return;
     // ClipboardEvent carries no modifier state, so Ctrl+Shift+V is remembered
     // from the keystroke that triggered it.
     let pastePlain = false;
@@ -171,5 +174,5 @@ export function useEditorClipboard(cbs: EditorClipboardCallbacks) {
       window.removeEventListener("keydown", onKeyDown);
       document.getElementById(SINK_ID)?.remove();
     };
-  }, []);
+  }, [viewActive]);
 }

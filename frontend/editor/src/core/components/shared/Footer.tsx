@@ -46,7 +46,8 @@ export default function Footer({
   const finalPrivacyUrl = finalPrivacyPolicy || defaultPrivacyUrl;
 
   // Helper to check if a value is valid (not null/undefined/empty string)
-  const isValidLink = (link?: string) => Boolean(link && link.trim().length > 0);
+  const isValidLink = (link?: string) =>
+    Boolean(link && link.trim().length > 0);
 
   return (
     <div

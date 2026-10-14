@@ -20,10 +20,11 @@ export function QuickNavRailHost() {
   const appMounted = Boolean(host?.appMounted);
   const path = stripBasePath(pathname);
   const inSettings = path.startsWith("/settings");
+  const inToolLibrary = path === "/tools" || path === "/tools/";
   const inPortal = path.startsWith(PORTAL_BASENAME);
   // Settings and the docs browser are pages in their own right, so neither app
   // is the current one while you are on them.
-  const inEditor = !inPortal && !inSettings;
+  const inEditor = !inPortal && !inSettings && !inToolLibrary;
 
   // Only the app knows its own default state.
   const returnHome = () => {
@@ -62,7 +63,17 @@ export function QuickNavRailHost() {
     },
   };
 
-  const surfaces: QuickNavEntry[] = [editor];
+  const surfaces: QuickNavEntry[] = [
+    editor,
+    {
+      id: "tools",
+      label: t("toolLibrary.title", "Tool library"),
+      icon: <Icon name="layout-grid" size={SIZE} />,
+      current: inToolLibrary,
+      testId: "tool-library-button",
+      onClick: () => go("/tools"),
+    },
+  ];
 
   const within: QuickNavEntry[] = [
     {
@@ -80,7 +91,7 @@ export function QuickNavRailHost() {
         const show = host?.actions.current?.showFileLibrary;
         // Unwrapped: setting the view runs the app's own unsaved-changes check, and
         // asking twice leaves the second ask with nowhere to prompt.
-        if (show) show();
+        if (show && !inToolLibrary) show();
         else go("/files");
       },
     },

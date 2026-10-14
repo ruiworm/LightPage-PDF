@@ -11,14 +11,12 @@ import {
   Box,
   Divider,
   Group,
-  Paper,
   Stack,
   Text,
   TextInput,
 } from "@mantine/core";
 import { Button } from "@app/ui/Button";
 import { useTranslation } from "react-i18next";
-import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
 import { useHotkeys } from "@app/contexts/HotkeyContext";
 import { ToolId } from "@app/types/toolId";
 import HotkeyDisplay from "@app/components/hotkeys/HotkeyDisplay";
@@ -27,7 +25,6 @@ import {
   eventToBinding,
   HotkeyBinding,
 } from "@app/utils/hotkeys";
-import { ToolRegistryEntry } from "@app/data/toolsTaxonomy";
 
 const rowStyle: React.CSSProperties = {
   display: "flex",
@@ -44,15 +41,15 @@ const rowHeaderStyle: React.CSSProperties = {
 };
 
 /**
- * One rebindable shortcut per registered tool. While a capture is armed this
+ * One rebindable shortcut per visible, openable tool. While a capture is armed this
  * swallows every keystroke in the window, so it disarms as soon as the pointer
  * or the focus leaves the row being rebound - otherwise the first character of
  * a password typed in a sibling card would be captured as a shortcut.
  */
 export function HotkeysCard() {
   const { t } = useTranslation();
-  const { toolRegistry } = useToolWorkflow();
   const {
+    tools,
     hotkeys,
     defaults,
     updateHotkey,
@@ -66,11 +63,6 @@ export function HotkeysCard() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const editingRowRef = useRef<HTMLDivElement | null>(null);
-
-  const tools = useMemo(
-    () => Object.entries(toolRegistry) as [ToolId, ToolRegistryEntry][],
-    [toolRegistry],
-  );
 
   const filteredTools = useMemo(() => {
     if (!searchQuery.trim()) return tools;
@@ -160,9 +152,8 @@ export function HotkeysCard() {
       if (conflictEntry) {
         const conflictKey = conflictEntry[0];
         const conflictTool =
-          conflictKey in toolRegistry
-            ? toolRegistry[conflictKey]?.name
-            : conflictKey;
+          tools.find(([toolId]) => toolId === conflictKey)?.[1].name ??
+          conflictKey;
         setError(
           t(
             "settings.hotkeys.errorConflict",
@@ -182,7 +173,7 @@ export function HotkeysCard() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, [editingTool, hotkeys, toolRegistry, updateHotkey, t]);
+  }, [editingTool, hotkeys, tools, updateHotkey, t]);
 
   const handleStartCapture = (toolId: ToolId) => {
     setEditingTool(toolId);
@@ -193,6 +184,7 @@ export function HotkeysCard() {
     <>
       <TextInput
         id="setting-hotkeys-search"
+        label={t("settings.hotkeys.title", "Keyboard Shortcuts")}
         placeholder={t("settings.hotkeys.searchPlaceholder", "Search tools...")}
         value={searchQuery}
         onChange={(event) => setSearchQuery(event.currentTarget.value)}
@@ -200,98 +192,93 @@ export function HotkeysCard() {
         radius="md"
       />
 
-      <Paper withBorder p="md" radius="md">
-        <Stack gap="md">
-          {filteredTools.length === 0 ? (
-            <Text c="dimmed" ta="center" py="xl">
-              {t("toolPicker.noToolsFound", "No tools found")}
-            </Text>
-          ) : (
-            filteredTools.map(([toolId, tool], index) => {
-              const currentBinding = hotkeys[toolId];
-              const defaultBinding = defaults[toolId];
-              const isEditing = editingTool === toolId;
-              const defaultParts = getDisplayParts(defaultBinding);
-              const defaultLabel =
-                defaultParts.length > 0
-                  ? defaultParts.join(" + ")
-                  : t("settings.hotkeys.none", "Not assigned");
+      <Stack gap="md" className="preferences-hotkey-list">
+        {filteredTools.length === 0 ? (
+          <Text c="dimmed" ta="center" py="xl">
+            {t("toolPicker.noToolsFound", "No tools found")}
+          </Text>
+        ) : (
+          filteredTools.map(([toolId, tool], index) => {
+            const currentBinding = hotkeys[toolId];
+            const defaultBinding = defaults[toolId];
+            const isEditing = editingTool === toolId;
+            const defaultParts = getDisplayParts(defaultBinding);
+            const defaultLabel =
+              defaultParts.length > 0
+                ? defaultParts.join(" + ")
+                : t("settings.hotkeys.none", "Not assigned");
 
-              return (
-                <React.Fragment key={toolId}>
-                  <Box
-                    ref={isEditing ? editingRowRef : undefined}
-                    style={rowStyle}
-                    data-testid={`hotkey-row-${toolId}`}
-                  >
-                    <div style={rowHeaderStyle}>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "0.25rem",
-                          minWidth: 0,
-                        }}
-                      >
-                        <Text fw={600}>{tool.name}</Text>
-                        <Group gap="xs" wrap="wrap" align="center">
-                          <HotkeyDisplay binding={currentBinding} size="md" />
-                          {!bindingEquals(currentBinding, defaultBinding) && (
-                            <Badge variant="light" color="orange" radius="sm">
-                              {t("settings.hotkeys.customBadge", "Custom")}
-                            </Badge>
+            return (
+              <React.Fragment key={toolId}>
+                <Box
+                  ref={isEditing ? editingRowRef : undefined}
+                  style={rowStyle}
+                  data-testid={`hotkey-row-${toolId}`}
+                >
+                  <div style={rowHeaderStyle}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.25rem",
+                        minWidth: 0,
+                      }}
+                    >
+                      <Text fw={600}>{tool.name}</Text>
+                      <Group gap="xs" wrap="wrap" align="center">
+                        <HotkeyDisplay binding={currentBinding} size="md" />
+                        {!bindingEquals(currentBinding, defaultBinding) && (
+                          <Badge variant="light" color="orange" radius="sm">
+                            {t("settings.hotkeys.customBadge", "Custom")}
+                          </Badge>
+                        )}
+                        <Text size="xs" c="dimmed">
+                          {t(
+                            "settings.hotkeys.defaultLabel",
+                            "Default: {{shortcut}}",
+                            { shortcut: defaultLabel },
                           )}
-                          <Text size="xs" c="dimmed">
-                            {t(
-                              "settings.hotkeys.defaultLabel",
-                              "Default: {{shortcut}}",
-                              { shortcut: defaultLabel },
-                            )}
-                          </Text>
-                        </Group>
-                      </div>
-
-                      <Group gap="xs">
-                        <Button
-                          size="sm"
-                          variant={isEditing ? "primary" : "secondary"}
-                          onClick={() => handleStartCapture(toolId)}
-                        >
-                          {isEditing
-                            ? t(
-                                "settings.hotkeys.capturing",
-                                "Press keys… (Esc to cancel)",
-                              )
-                            : t("settings.hotkeys.change", "Change shortcut")}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="tertiary"
-                          disabled={bindingEquals(
-                            currentBinding,
-                            defaultBinding,
-                          )}
-                          onClick={() => resetHotkey(toolId)}
-                        >
-                          {t("settings.hotkeys.reset", "Reset")}
-                        </Button>
+                        </Text>
                       </Group>
                     </div>
 
-                    {isEditing && error && (
-                      <Alert color="red" radius="sm" variant="filled">
-                        {error}
-                      </Alert>
-                    )}
-                  </Box>
+                    <Group gap="xs">
+                      <Button
+                        size="sm"
+                        variant={isEditing ? "primary" : "secondary"}
+                        onClick={() => handleStartCapture(toolId)}
+                      >
+                        {isEditing
+                          ? t(
+                              "settings.hotkeys.capturing",
+                              "Press keys… (Esc to cancel)",
+                            )
+                          : t("settings.hotkeys.change", "Change shortcut")}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="tertiary"
+                        disabled={bindingEquals(currentBinding, defaultBinding)}
+                        onClick={() => resetHotkey(toolId)}
+                      >
+                        {t("settings.hotkeys.reset", "Reset")}
+                      </Button>
+                    </Group>
+                  </div>
 
-                  {index < filteredTools.length - 1 && <Divider />}
-                </React.Fragment>
-              );
-            })
-          )}
-        </Stack>
-      </Paper>
+                  {isEditing && error && (
+                    <Alert color="red" radius="sm" variant="filled">
+                      {error}
+                    </Alert>
+                  )}
+                </Box>
+
+                {index < filteredTools.length - 1 && <Divider />}
+              </React.Fragment>
+            );
+          })
+        )}
+      </Stack>
     </>
   );
 }

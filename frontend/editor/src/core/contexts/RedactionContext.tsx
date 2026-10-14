@@ -8,7 +8,7 @@ import React, {
   useEffect,
 } from "react";
 import { RedactParameters } from "@app/hooks/tools/redact/useRedactParameters";
-import { useNavigationGuard } from "@app/contexts/NavigationContext";
+import { useNavigationActions } from "@app/contexts/NavigationContext";
 import { RedactionMode } from "@embedpdf/plugin-redaction";
 import { leaveRedactionMode } from "@app/components/viewer/leaveRedactionMode";
 
@@ -107,7 +107,9 @@ export const RedactionProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [state, setState] = useState<RedactionState>(initialState);
   const redactionApiRef = useRef<RedactionAPI | null>(null);
-  const { setHasUnsavedChanges } = useNavigationGuard();
+  const {
+    actions: { setHasUnsavedChanges },
+  } = useNavigationActions();
 
   // Actions for tool configuration
   const setRedactionConfig = useCallback((config: RedactParameters | null) => {
@@ -118,10 +120,14 @@ export const RedactionProvider: React.FC<{ children: ReactNode }> = ({
   }, []);
 
   const setRedactionMode = useCallback((enabled: boolean) => {
-    setState((prev) => ({
-      ...prev,
-      isRedactionMode: enabled,
-    }));
+    setState((prev) =>
+      prev.isRedactionMode === enabled
+        ? prev
+        : {
+            ...prev,
+            isRedactionMode: enabled,
+          },
+    );
   }, []);
 
   const setRedactionsApplied = useCallback((applied: boolean) => {

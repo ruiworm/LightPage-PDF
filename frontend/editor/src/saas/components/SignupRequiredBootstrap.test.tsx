@@ -12,8 +12,6 @@ import SignupRequiredBootstrap from "@app/components/SignupRequiredBootstrap";
 import { ChatFAB } from "@app/components/chat/ChatFAB";
 import { useToolRunComplete } from "@app/hooks/useToolRunComplete";
 import { useProcessingFolderCreation } from "@app/hooks/useProcessingFolderCreation";
-import { QuickNavRailHost } from "@app/components/shared/quickNav/QuickNavRailHost";
-import type { QuickNavEntry } from "@app/components/shared/quickNav/QuickNavRailBase";
 
 const auth = vi.hoisted(() => ({
   isAnonymous: true,
@@ -38,21 +36,6 @@ vi.mock("@app/components/policies/ProcessingFolderSetupFlow", () => ({
 }));
 vi.mock("@app/hooks/useAiEngineEnabled", () => ({
   useAiEngineEnabled: () => true,
-}));
-vi.mock("@app/components/shared/quickNav/QuickNavRailContainer", () => ({
-  QuickNavRailContainer: ({ groups }: { groups: QuickNavEntry[][] }) => (
-    <>
-      {groups.flat().map((entry) => (
-        <button
-          key={entry.id}
-          disabled={entry.disabled}
-          onClick={entry.onClick}
-        >
-          {entry.label}
-        </button>
-      ))}
-    </>
-  ),
 }));
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -82,12 +65,11 @@ function GuestActions() {
   );
 }
 
-function renderPrompt(withRail = false, withChat = false, withActions = false) {
+function renderPrompt(withChat = false, withActions = false) {
   return render(
     <MemoryRouter initialEntries={["/editor?tool=compress"]}>
       <MantineProvider>
         <SignupRequiredBootstrap />
-        {withRail && <QuickNavRailHost />}
         {withChat && <ChatFAB />}
         {withActions && <GuestActions />}
         <Destination />
@@ -102,29 +84,8 @@ describe("guest signup prompt", () => {
     localStorage.clear();
   });
 
-  it("opens the Processor signup modal from the enabled guest rail without navigating", async () => {
-    renderPrompt(true);
-    const processor = screen.getByRole("button", { name: "Processor" });
-    expect(processor).toBeEnabled();
-    fireEvent.click(processor);
-    expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(
-      screen.getByText("Create an account to unlock the best of Stirling"),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("destination")).toHaveTextContent(
-      "/editor?tool=compress",
-    );
-  });
-
-  it("keeps Processor disabled for registered users without access", () => {
-    auth.isAnonymous = false;
-    renderPrompt(true);
-    expect(screen.getByRole("button", { name: "Processor" })).toBeDisabled();
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  });
-
   it("opens signup instead of the assistant for guests without navigating", async () => {
-    renderPrompt(false, true);
+    renderPrompt(true);
     const assistant = screen.getByRole("button", {
       name: "Open LightPage AI assistant",
     });
@@ -138,7 +99,7 @@ describe("guest signup prompt", () => {
 
   it("opens the assistant without a signup prompt for registered users", () => {
     auth.isAnonymous = false;
-    renderPrompt(false, true);
+    renderPrompt(true);
     const assistant = screen.getByRole("button", {
       name: "Open LightPage AI assistant",
     });
@@ -148,7 +109,7 @@ describe("guest signup prompt", () => {
   });
 
   it("reminds after every two runs, permits dismissal and preserves the login destination", async () => {
-    renderPrompt(false, false, true);
+    renderPrompt(false, true);
     const complete = screen.getByRole("button", { name: "Complete tool run" });
     fireEvent.click(complete);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -168,19 +129,8 @@ describe("guest signup prompt", () => {
     );
   });
 
-  it("prompts guests from the quick access processing folder action without navigating", async () => {
-    renderPrompt(true);
-    fireEvent.click(
-      screen.getByRole("button", { name: "processingFolders.setup.title" }),
-    );
-    expect(await screen.findByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByTestId("destination")).toHaveTextContent(
-      "/editor?tool=compress",
-    );
-  });
-
   it("prompts guests from landing-page folder creation without mounting setup", async () => {
-    renderPrompt(false, false, true);
+    renderPrompt(false, true);
     fireEvent.click(
       screen.getByRole("button", { name: "Landing page processing folder" }),
     );
@@ -192,7 +142,7 @@ describe("guest signup prompt", () => {
 
   it("lets registered users open folder setup without a signup prompt", async () => {
     auth.isAnonymous = false;
-    renderPrompt(false, false, true);
+    renderPrompt(false, true);
     fireEvent.click(
       screen.getByRole("button", { name: "Landing page processing folder" }),
     );

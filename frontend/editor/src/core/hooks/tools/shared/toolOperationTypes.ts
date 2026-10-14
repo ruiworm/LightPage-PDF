@@ -47,6 +47,12 @@ export interface CustomProcessorResult {
    * When false/undefined, uses filename-based mapping to determine which inputs succeeded.
    */
   consumedAllInputs?: boolean;
+  /** Exact input objects that produced outputs; avoids guessing provenance from output names. */
+  successfulInputs?: File[];
+  /** Per-input failures when a processor keeps other successful outputs. */
+  failedInputs?: { file: File; error: unknown }[];
+  /** Inputs not attempted after cancellation or an account gate, without a failure flag. */
+  unprocessedInputs?: File[];
 }
 
 /**

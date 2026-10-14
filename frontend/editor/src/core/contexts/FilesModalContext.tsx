@@ -8,6 +8,7 @@ import React, {
 import { useTranslation } from "react-i18next";
 import { useFileHandler } from "@app/hooks/useFileHandler";
 import { useFileActions } from "@app/contexts/FileContext";
+import { useViewer } from "@app/contexts/ViewerContext";
 import { useFileContext } from "@app/contexts/file/fileHooks";
 import {
   useNavigationActions,
@@ -67,6 +68,7 @@ export const FilesModalProvider: React.FC<{ children: React.ReactNode }> = ({
   const { actions } = useFileActions();
   const fileCtx = useFileContext();
   const { actions: navActions } = useNavigationActions();
+  const { setActiveFileId } = useViewer();
   const { workbench: currentWorkbench, selectedTool } = useNavigationState();
   const isMultiTool =
     currentWorkbench === "pageEditor" && selectedTool === "multiTool";
@@ -322,7 +324,9 @@ export const FilesModalProvider: React.FC<{ children: React.ReactNode }> = ({
 
       const totalAdded = requestedIds.length + uploads.length;
       if (!isMultiTool && totalAdded > 0) {
-        navActions.setWorkbench(totalAdded === 1 ? "viewer" : "fileEditor");
+        const firstAddedId = requestedIds[0] ?? uploadedIds[0];
+        if (firstAddedId) setActiveFileId(firstAddedId);
+        navActions.setWorkbench("viewer");
       }
       reportUnavailable();
     },
@@ -336,6 +340,7 @@ export const FilesModalProvider: React.FC<{ children: React.ReactNode }> = ({
       downloadRemoteFile,
       importBundleToWorkbench,
       navActions,
+      setActiveFileId,
       isMultiTool,
       t,
     ],

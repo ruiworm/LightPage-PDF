@@ -20,6 +20,18 @@
   backdrop-filter: blur(12px);
 }
 
+.sidebar-base--left {
+  border-left: none;
+  border-right: 1px solid
+    color-mix(in srgb, var(--c-border-subtle) 75%, transparent);
+  box-shadow: 2px 0 16px
+    color-mix(
+      in srgb,
+      var(--shadow-color, color-mix(in srgb, black 35%, transparent)) 20%,
+      transparent
+    );
+}
+
 /* Header Section */
 .sidebar-base__header {
   display: flex;

@@ -1,7 +1,5 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { Stack, Text } from "@mantine/core";
-import { Button } from "@app/ui/Button";
 import { createToolFlow } from "@app/components/tools/shared/createToolFlow";
 import MergeSettings from "@app/components/tools/merge/MergeSettings";
 import MergeFileSorter from "@app/components/tools/merge/MergeFileSorter";
@@ -10,11 +8,12 @@ import { useMergeOperation } from "@app/hooks/tools/merge/useMergeOperation";
 import { useBaseTool } from "@app/hooks/tools/shared/useBaseTool";
 import { BaseToolProps, ToolComponent } from "@app/types/tool";
 import { useMergeTips } from "@app/components/tooltips/useMergeTips";
-import { useFileManagement, useAllFiles } from "@app/contexts/FileContext";
 import {
-  useNavigationState,
-  useNavigationActions,
-} from "@app/contexts/NavigationContext";
+  useFileManagement,
+  useAllFiles,
+  useFileSelection,
+} from "@app/contexts/FileContext";
+import MergeFileOrder from "@app/components/tools/merge/MergeFileOrder";
 
 const Merge = (props: BaseToolProps) => {
   const { t } = useTranslation();
@@ -23,6 +22,7 @@ const Merge = (props: BaseToolProps) => {
   // File selection hooks for custom sorting
   const { fileIds, fileStubs } = useAllFiles();
   const { reorderFiles } = useFileManagement();
+  const { selectedFileIds, setSelectedFiles } = useFileSelection();
 
   const base = useBaseTool(
     "merge",
@@ -32,17 +32,6 @@ const Merge = (props: BaseToolProps) => {
     { minFiles: 2, ignoreViewerScope: true },
   );
 
-  const { workbench } = useNavigationState();
-  const { actions: navActions } = useNavigationActions();
-  const isViewerMode = workbench === "viewer";
-
-  const hasAutoSwitchedRef = useRef(false);
-  useEffect(() => {
-    if (isViewerMode && !hasAutoSwitchedRef.current) {
-      hasAutoSwitchedRef.current = true;
-      navActions.setWorkbench("fileEditor");
-    }
-  }, []);
   const naturalCompare = useCallback((a: string, b: string): number => {
     const isDigit = (char: string) => char >= "0" && char <= "9";
 
@@ -110,24 +99,34 @@ const Merge = (props: BaseToolProps) => {
   // Custom file sorting logic for merge tool
   const sortFiles = useCallback(
     (sortType: "filename" | "dateModified", ascending: boolean = true) => {
-      const sortedStubs = [...fileStubs].sort((stubA, stubB) => {
-        let comparison = 0;
-        switch (sortType) {
-          case "filename":
-            comparison = naturalCompare(stubA.name, stubB.name);
-            break;
-          case "dateModified":
-            comparison = stubA.lastModified - stubB.lastModified;
-            break;
-        }
-        return ascending ? comparison : -comparison;
-      });
+      const sortedStubs = fileStubs
+        .filter((stub) => selectedFileIds.includes(stub.id))
+        .sort((stubA, stubB) => {
+          let comparison = 0;
+          switch (sortType) {
+            case "filename":
+              comparison = naturalCompare(stubA.name, stubB.name);
+              break;
+            case "dateModified":
+              comparison = stubA.lastModified - stubB.lastModified;
+              break;
+          }
+          return ascending ? comparison : -comparison;
+        });
 
       const selectedIds = sortedStubs.map((record) => record.id);
       const deselectedIds = fileIds.filter((id) => !selectedIds.includes(id));
       reorderFiles([...selectedIds, ...deselectedIds]);
+      setSelectedFiles(selectedIds);
     },
-    [fileStubs, fileIds, reorderFiles, naturalCompare],
+    [
+      fileStubs,
+      fileIds,
+      selectedFileIds,
+      setSelectedFiles,
+      reorderFiles,
+      naturalCompare,
+    ],
   );
 
   return createToolFlow({
@@ -141,10 +140,27 @@ const Merge = (props: BaseToolProps) => {
         title: t("merge.sortFiles.title", "Sort Files"),
         isCollapsed: base.settingsCollapsed,
         content: (
-          <MergeFileSorter
-            onSortFiles={sortFiles}
-            disabled={!base.hasFiles || base.endpointLoading}
-          />
+          <>
+            <MergeFileOrder
+              files={base.selectedFiles}
+              onReorder={(ids) => {
+                reorderFiles([
+                  ...ids,
+                  ...fileIds.filter((id) => !ids.includes(id)),
+                ]);
+                setSelectedFiles(ids);
+              }}
+              disabled={base.operation.isLoading || base.endpointLoading}
+            />
+            <MergeFileSorter
+              onSortFiles={sortFiles}
+              disabled={
+                !base.hasFiles ||
+                base.endpointLoading ||
+                base.operation.isLoading
+              }
+            />
+          </>
         ),
       },
       {
@@ -170,26 +186,7 @@ const Merge = (props: BaseToolProps) => {
       onClick: base.handleExecute,
       endpointEnabled: base.endpointEnabled,
       paramsValid: base.params.validateParameters(),
-      disabledReason: isViewerMode ? "viewerMode" : undefined,
     },
-    belowExecuteButton:
-      isViewerMode && !base.hasResults ? (
-        <Stack align="center" gap={6} mx="md" mt={4}>
-          <Text size="xs" c="dimmed" ta="center">
-            {t(
-              "merge.viewerModeHint",
-              "Merge needs 2 or more files. Head to the file editor to select them.",
-            )}
-          </Text>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => navActions.setWorkbench("fileEditor")}
-          >
-            {t("merge.goToFileEditor", "Go to file editor")}
-          </Button>
-        </Stack>
-      ) : undefined,
     review: {
       isVisible: base.hasResults,
       operation: base.operation,

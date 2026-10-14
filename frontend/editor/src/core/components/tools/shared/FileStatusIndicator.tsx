@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
-import { Text, Anchor } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@app/ui/Icon";
+import { Button } from "@app/ui/Button";
 import { useFilesModalContext } from "@app/contexts/FilesModalContext";
 import { useAllFiles } from "@app/contexts/FileContext";
 import { useFileManager } from "@app/hooks/useFileManager";
 import { StirlingFile } from "@app/types/fileContext";
 import { PrivateContent } from "@app/components/shared/PrivateContent";
+import { formatFileSize } from "@app/utils/fileUtils";
 
 export interface FileStatusIndicatorProps {
   selectedFiles?: StirlingFile[];
@@ -19,24 +20,26 @@ const FileStatusIndicator = ({
 }: FileStatusIndicatorProps) => {
   const { t } = useTranslation();
   const { openFilesModal, onFileUpload } = useFilesModalContext();
-  const { files: stirlingFileStubs } = useAllFiles();
+  const { files: allFiles } = useAllFiles();
   const { loadRecentFiles } = useFileManager();
   const [hasRecentFiles, setHasRecentFiles] = useState<boolean | null>(null);
+  const ready = selectedFiles.length >= minFiles;
 
-  // Check if there are recent files
   useEffect(() => {
-    const checkRecentFiles = async () => {
-      try {
-        const recentFiles = await loadRecentFiles();
-        setHasRecentFiles(recentFiles.length > 0);
-      } catch {
-        setHasRecentFiles(false);
-      }
+    if (ready) return;
+    let cancelled = false;
+    void loadRecentFiles()
+      .then((files) => {
+        if (!cancelled) setHasRecentFiles(files.length > 0);
+      })
+      .catch(() => {
+        if (!cancelled) setHasRecentFiles(false);
+      });
+    return () => {
+      cancelled = true;
     };
-    checkRecentFiles();
-  }, [loadRecentFiles]);
+  }, [ready, loadRecentFiles]);
 
-  // Handle native file picker
   const handleNativeUpload = () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -44,135 +47,68 @@ const FileStatusIndicator = ({
     input.accept = ".pdf,application/pdf";
     input.onchange = (event) => {
       const files = Array.from((event.target as HTMLInputElement).files || []);
-      if (files.length > 0) {
-        onFileUpload(files);
-      }
+      if (files.length) onFileUpload(files);
     };
     input.click();
   };
 
-  // Don't render until we know if there are recent files
-  if (hasRecentFiles === null) {
-    return null;
-  }
-
-  const getPlaceholder = () => {
-    if (minFiles === undefined || minFiles === 1) {
-      return t("files.selectFromWorkbench", "Add files to the workbench or ");
-    } else {
-      return t(
-        "files.selectMultipleFromWorkbench",
-        "Add at least {{count}} files to the workbench or ",
-        { count: minFiles },
-      );
-    }
-  };
-
-  // Check if there are no files in the workbench
-  if (stirlingFileStubs.length === 0) {
-    // If no recent files, show upload button
-    if (!hasRecentFiles) {
-      return (
-        <Text size="sm" c="dimmed">
-          <Anchor
-            size="sm"
-            onClick={handleNativeUpload}
-            style={{
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.25rem",
-            }}
-          >
-            <Icon name="upload" size={"0.875rem"} />
-            {t("files.upload", "Upload")}
-          </Anchor>
-        </Text>
-      );
-    } else {
-      // If there are recent files, show add files button
-      return (
-        <Text size="sm" c="dimmed">
-          <Anchor
-            size="sm"
-            onClick={() => openFilesModal({})}
-            style={{
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.25rem",
-            }}
-          >
-            <Icon name="folder" size={"0.875rem"} />
-            {t("files.addFiles", "Add files")}
-          </Anchor>
-        </Text>
-      );
-    }
-  }
-
-  // Show selection status when there are files in workbench
-  if (selectedFiles.length < minFiles) {
-    // If no recent files, show upload option
-    if (!hasRecentFiles) {
-      return (
-        <Text size="sm" c="dimmed">
-          {getPlaceholder() + " "}
-          <Anchor
-            size="sm"
-            onClick={handleNativeUpload}
-            style={{
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.25rem",
-            }}
-          >
-            <Icon name="upload" size={"0.875rem"} />
-            {t("files.uploadFiles", "Upload Files")}
-          </Anchor>
-        </Text>
-      );
-    } else {
-      // If there are recent files, show add files option
-      return (
-        <Text size="sm" c="dimmed">
-          {getPlaceholder() + " "}
-          <Anchor
-            size="sm"
-            onClick={() => openFilesModal({})}
-            style={{
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.25rem",
-            }}
-          >
-            <Icon name="folder" size={"0.875rem"} />
-            {t("files.addFiles", "Add files")}
-          </Anchor>
-        </Text>
-      );
-    }
+  if (ready) {
+    return (
+      <div className="tool-file-status" role="status">
+        <div className="tool-file-status__ready">
+          <span className="tool-file-status__icon" aria-hidden>
+            <Icon name="file-text" size={18} />
+          </span>
+          <div className="tool-file-status__name">
+            {selectedFiles.length === 1 ? (
+              <PrivateContent>{selectedFiles[0].name}</PrivateContent>
+            ) : (
+              t("filesSelected", "{{count}} files", {
+                count: selectedFiles.length,
+              })
+            )}
+            <span className="tool-file-status__meta">
+              {formatFileSize(
+                selectedFiles.reduce((size, file) => size + file.size, 0),
+              )}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <Text
-      size="sm"
-      c="dimmed"
-      style={{ wordBreak: "break-word", whiteSpace: "normal" }}
-    >
-      ✓{" "}
-      {selectedFiles.length === 1 ? (
-        <PrivateContent>
-          {t("fileSelected", "{{filename}}", {
-            filename: selectedFiles[0]?.name,
-          })}
-        </PrivateContent>
-      ) : (
-        t("filesSelected", "{{count}} files", { count: selectedFiles.length })
+    <div className="tool-file-status">
+      {allFiles.length > 0 && (
+        <p className="tool-settings-group__help">
+          {minFiles > 1
+            ? t(
+                "files.selectMultipleFromWorkbench",
+                "Add at least {{count}} files to the workbench or ",
+                { count: minFiles },
+              )
+            : t("files.selectFromWorkbench", "Add files to the workbench or ")}
+        </p>
       )}
-    </Text>
+      <Button
+        variant="secondary"
+        size="sm"
+        fullWidth
+        leftSection={
+          <Icon name={hasRecentFiles === false ? "upload" : "plus"} size={16} />
+        }
+        onClick={
+          hasRecentFiles === false
+            ? handleNativeUpload
+            : () => openFilesModal({})
+        }
+      >
+        {hasRecentFiles === false
+          ? t("files.uploadFiles", "Upload Files")
+          : t("files.addFiles", "Add files")}
+      </Button>
+    </div>
   );
 };
 

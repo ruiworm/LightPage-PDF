@@ -10,10 +10,11 @@ interface MetaOptions {
   ogUrl?: string;
 }
 
-export const useDocumentMeta = (meta: MetaOptions) => {
+export const useDocumentMeta = (meta: MetaOptions, enabled = true) => {
   const { i18n } = useTranslation();
 
   useEffect(() => {
+    if (!enabled) return;
     const originalTitle = document.title;
     const originalDescription =
       document
@@ -117,6 +118,7 @@ export const useDocumentMeta = (meta: MetaOptions) => {
       });
     };
   }, [
+    enabled,
     meta.title,
     meta.description,
     meta.ogTitle,

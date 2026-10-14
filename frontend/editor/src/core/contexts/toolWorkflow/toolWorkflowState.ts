@@ -1,6 +1,5 @@
 import { PageEditorFunctions } from "@app/types/pageEditor";
 import { type ToolPanelMode } from "@app/constants/toolPanel";
-import { preferencesService } from "@app/services/preferencesService";
 import { stripBasePath } from "@app/constants/app";
 import { READER_PATH } from "@app/routes/readerRoute";
 
@@ -51,7 +50,7 @@ function startsInReader(): boolean {
 export const createInitialState = (): ToolWorkflowState => ({
   ...baseState,
   readerMode: startsInReader(),
-  toolPanelMode: preferencesService.getPreference("defaultToolPanelMode"),
+  toolPanelMode: "sidebar",
 });
 
 export function toolWorkflowReducer(
@@ -60,16 +59,22 @@ export function toolWorkflowReducer(
 ): ToolWorkflowState {
   switch (action.type) {
     case "SET_LEFT_PANEL_VIEW":
+      if (state.leftPanelView === action.payload) return state;
       return { ...state, leftPanelView: action.payload };
     case "SET_READER_MODE":
+      if (state.readerMode === action.payload) return state;
       return { ...state, readerMode: action.payload };
     case "SET_TOOL_PANEL_MODE":
+      if (state.toolPanelMode === action.payload) return state;
       return { ...state, toolPanelMode: action.payload };
     case "SET_PREVIEW_FILE":
+      if (state.previewFile === action.payload) return state;
       return { ...state, previewFile: action.payload };
     case "SET_PAGE_EDITOR_FUNCTIONS":
+      if (state.pageEditorFunctions === action.payload) return state;
       return { ...state, pageEditorFunctions: action.payload };
     case "SET_SEARCH_QUERY":
+      if (state.searchQuery === action.payload) return state;
       return { ...state, searchQuery: action.payload };
     case "RESET_UI_STATE":
       return {

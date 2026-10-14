@@ -1,17 +1,24 @@
-import { useState, useEffect, useRef, Suspense, lazy } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  Suspense,
+  lazy,
+  memo,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { Icon } from "@app/ui/Icon";
 import { Box, Loader, Center, Stack, Text } from "@mantine/core";
 import { Button } from "@app/ui/Button";
 import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
-import { useFileHandler } from "@app/hooks/useFileHandler";
+import { useViewer } from "@app/contexts/ViewerContext";
 import { useAllFiles } from "@app/contexts/FileContext";
 import {
   useNavigationState,
   useNavigationActions,
 } from "@app/contexts/NavigationContext";
 import { isBaseWorkbench } from "@app/types/workbench";
-import { VIEWER_SUPPORTED_EXTENSIONS } from "@app/utils/fileUtils";
 import { useSigningOverlay } from "@app/contexts/SigningOverlayContext";
 import styles from "@app/components/layout/Workbench.module.css";
 
@@ -20,22 +27,30 @@ import { useWorkbenchTakeover } from "@app/components/layout/WorkbenchTakeover";
 import LandingPage from "@app/components/shared/LandingPage";
 import DismissAllErrorsButton from "@app/components/shared/DismissAllErrorsButton";
 import { ChatFAB } from "@app/components/chat/ChatFAB";
+import {
+  RetainedView,
+  useViewActive,
+} from "@app/components/layout/RetainedView";
+import ToolLoadingFallback from "@app/components/tools/ToolLoadingFallback";
+import { useIsMobile } from "@app/hooks/useIsMobile";
 
 // Workbench panels are loaded on demand. Viewer pulls in pdfjs-dist and the
 // full @embedpdf plugin set; FileEditor/PageEditor are only needed once a file
 // is open. Lazy-loading keeps all of that out of the initial bundle.
-const FileEditor = lazy(() => import("@app/components/fileEditor/FileEditor"));
-const PageEditor = lazy(() => import("@app/components/pageEditor/PageEditor"));
-const PageEditorControls = lazy(
-  () => import("@app/components/pageEditor/PageEditorControls"),
+const PageEditor = memo(
+  lazy(() => import("@app/components/pageEditor/PageEditor")),
 );
-const Viewer = lazy(() => import("@app/components/viewer/Viewer"));
+const PageEditorControls = memo(
+  lazy(() => import("@app/components/pageEditor/PageEditorControls")),
+);
+const Viewer = memo(lazy(() => import("@app/components/viewer/Viewer")));
 const FileManagerView = lazy(
   () => import("@app/components/filesPage/FileManagerView"),
 );
 
 // No props needed - component uses contexts directly
 export default function Workbench() {
+  const viewActive = useViewActive();
   // A flow that owns the canvas outright (desktop onboarding's Downloads sweep).
   // Null in every other case, which is every case in core.
   const takeover = useWorkbenchTakeover();
@@ -54,17 +69,20 @@ export default function Workbench() {
     readerMode,
   } = useToolWorkflow();
 
-  const { handleToolSelect } = useToolWorkflow();
+  const { handleToolSelect, selectedToolKey } = useToolWorkflow();
   const { overlay: signingOverlay } = useSigningOverlay();
 
   // Get navigation state - this is the source of truth
-  const { selectedTool: selectedToolId } = useNavigationState();
 
   // Get tool registry from context (instead of direct hook call)
-  const { toolRegistry } = useToolWorkflow();
-  const selectedTool = selectedToolId ? toolRegistry[selectedToolId] : null;
-  const { addFiles } = useFileHandler();
+  const { activeFileId } = useViewer();
   const hasFiles = activeFiles.length > 0;
+  const viewerVisible =
+    !takeover &&
+    (currentView === "viewer" || currentView === "fileEditor") &&
+    Boolean(
+      signingOverlay?.file || (hasFiles && (activeFileId || previewFile)),
+    );
   const { t } = useTranslation();
 
   // The viewer's tool row can be retracted to give the document more height.
@@ -73,24 +91,22 @@ export default function Workbench() {
   const [viewerToolbarCollapsed, setViewerToolbarCollapsed] = useState(false);
   const showReopenTab = currentView === "viewer" && viewerToolbarCollapsed;
 
-  // The WorkbenchBar carries file-scoped actions, so it only shows once a file
-  // is open or a custom view supplies content.
   const activeCustomView = customWorkbenchViews.find(
     (v) => v.workbenchId === currentView,
   );
+  const textEditorView = customWorkbenchViews.find(
+    (v) => v.workbenchId === "custom:pdfTextEditor" && v.data != null,
+  );
+  const TextEditorCanvas = textEditorView?.component;
   const topControlsAvailable = !activeCustomView?.hideTopControls;
-  const hasWorkbenchContent =
-    hasFiles ||
-    fileIds.length > 0 ||
-    !isBaseWorkbench(currentView) ||
-    // The library browses stored files, so it has content of its own with none open.
-    currentView === "myFiles" ||
-    // Shared signing drives the viewer from the sidebar with no file in context.
-    (currentView === "viewer" && !!signingOverlay?.file);
   // Reading hides the bar; the rail's Reader entry is the way back. A takeover hides
   // the switcher and search too: both navigate away from a flow that must finish.
+  const isMobile = useIsMobile();
   const showWorkbenchBar =
-    topControlsAvailable && hasWorkbenchContent && !readerMode && !takeover;
+    topControlsAvailable &&
+    !readerMode &&
+    !takeover &&
+    (currentView !== "myFiles" || isMobile);
 
   // On the transition, so reading sets the toolbar's start state without locking it.
   const prevReaderModeRef = useRef(readerMode);
@@ -101,7 +117,7 @@ export default function Workbench() {
     }
   }, [readerMode]);
 
-  const handlePreviewClose = () => {
+  const handlePreviewClose = useCallback(() => {
     setPreviewFile(null);
     const previousMode = sessionStorage.getItem("previousMode");
     if (previousMode === "split") {
@@ -115,11 +131,12 @@ export default function Workbench() {
       handleToolSelect("convert");
       sessionStorage.removeItem("previousMode");
     } else {
-      setCurrentView("fileEditor");
+      setCurrentView("viewer");
     }
-  };
+  }, [setPreviewFile, handleToolSelect, setCurrentView]);
 
   const renderMainContent = () => {
+    if (!viewActive) return null;
     // Ahead of every view check: a takeover replaces the canvas whatever the current
     // workbench happens to be, so navigation underneath it cannot surface.
     if (takeover) return takeover;
@@ -127,6 +144,8 @@ export default function Workbench() {
     // Check if we're showing a custom workbench first
     // Custom workbenches may not require files in FileContext (e.g., sign request workbench)
     if (!isBaseWorkbench(currentView)) {
+      // This document session is retained below, independently of the active tab.
+      if (currentView === "custom:pdfTextEditor") return null;
       const customView = customWorkbenchViews.find(
         (view) => view.workbenchId === currentView && view.data != null,
       );
@@ -145,18 +164,7 @@ export default function Workbench() {
     // Shared Signing drives the main viewer from the sidebar (document + overlays
     // via context), ahead of the empty-state landing page.
     if (currentView === "viewer" && signingOverlay?.file) {
-      return (
-        <Viewer
-          previewFile={signingOverlay.file}
-          signaturePreviews={signingOverlay.signaturePreviews}
-          signaturePreviewsReadOnly={signingOverlay.signaturePreviewsReadOnly}
-          signaturePlacementMode={signingOverlay.signaturePlacementMode}
-          signaturePlacementData={signingOverlay.signaturePlacementData}
-          signaturePlacementType={signingOverlay.signaturePlacementType}
-          onSignaturePreviewsChange={signingOverlay.onSignaturePreviewsChange}
-          signatureOverlayApiRef={signingOverlay.signatureOverlayApiRef}
-        />
-      );
+      return null;
     }
 
     if (activeFiles.length === 0) {
@@ -179,67 +187,9 @@ export default function Workbench() {
 
     switch (currentView) {
       case "fileEditor":
-        return (
-          <FileEditor
-            toolMode={!!selectedToolId}
-            supportedExtensions={
-              selectedTool?.supportedFormats || VIEWER_SUPPORTED_EXTENSIONS
-            }
-            {...(!selectedToolId && {
-              onOpenPageEditor: () => {
-                setCurrentView("pageEditor");
-              },
-              onMergeFiles: (filesToMerge) => {
-                addFiles(filesToMerge);
-                setCurrentView("viewer");
-              },
-            })}
-          />
-        );
-
       case "viewer":
-        return (
-          <Viewer previewFile={previewFile} onClose={handlePreviewClose} />
-        );
-
-      case "pageEditor":
-        return (
-          <div style={{ position: "relative", flex: "1 1 0", height: 0 }}>
-            <PageEditor onFunctionsReady={setPageEditorFunctions} />
-            {pageEditorFunctions && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  zIndex: 100,
-                }}
-              >
-                <PageEditorControls
-                  onClosePdf={pageEditorFunctions.closePdf}
-                  onUndo={pageEditorFunctions.handleUndo}
-                  onRedo={pageEditorFunctions.handleRedo}
-                  canUndo={pageEditorFunctions.canUndo}
-                  canRedo={pageEditorFunctions.canRedo}
-                  onRotate={pageEditorFunctions.handleRotate}
-                  onDelete={pageEditorFunctions.handleDelete}
-                  onSplit={pageEditorFunctions.handleSplit}
-                  onSplitAll={pageEditorFunctions.handleSplitAll}
-                  onPageBreak={pageEditorFunctions.handlePageBreak}
-                  onPageBreakAll={pageEditorFunctions.handlePageBreakAll}
-                  onExportAll={pageEditorFunctions.onExportAll}
-                  exportLoading={pageEditorFunctions.exportLoading}
-                  selectionMode={pageEditorFunctions.selectionMode}
-                  selectedPageIds={pageEditorFunctions.selectedPageIds}
-                  displayDocument={pageEditorFunctions.displayDocument}
-                  splitPositions={pageEditorFunctions.splitPositions}
-                  totalPages={pageEditorFunctions.totalPages}
-                />
-              </div>
-            )}
-          </div>
-        );
+        if (!activeFileId && !previewFile) return <LandingPage />;
+        return null;
 
       default:
         return null;
@@ -285,7 +235,9 @@ export default function Workbench() {
       <DismissAllErrorsButton />
 
       {/* Floating AI chat button + panel */}
-      {currentView !== "myFiles" && <ChatFAB />}
+      {viewActive &&
+        currentView !== "myFiles" &&
+        selectedToolKey !== "redact" && <ChatFAB />}
 
       {/* Main content area */}
       <Box
@@ -300,13 +252,79 @@ export default function Workbench() {
           ...(currentView === "pageEditor" && { height: 0 }),
         }}
       >
-        <Suspense
-          fallback={
-            <Center style={{ height: "100%" }}>
-              <Loader />
-            </Center>
-          }
-        >
+        <RetainedView active={viewerVisible}>
+          <Suspense fallback={<ToolLoadingFallback />}>
+            {signingOverlay?.file ? (
+              <Viewer
+                previewFile={signingOverlay.file}
+                signaturePreviews={signingOverlay.signaturePreviews}
+                signaturePreviewsReadOnly={
+                  signingOverlay.signaturePreviewsReadOnly
+                }
+                signaturePlacementMode={signingOverlay.signaturePlacementMode}
+                signaturePlacementData={signingOverlay.signaturePlacementData}
+                signaturePlacementType={signingOverlay.signaturePlacementType}
+                onSignaturePreviewsChange={
+                  signingOverlay.onSignaturePreviewsChange
+                }
+                signatureOverlayApiRef={signingOverlay.signatureOverlayApiRef}
+              />
+            ) : (
+              <Viewer previewFile={previewFile} onClose={handlePreviewClose} />
+            )}
+          </Suspense>
+        </RetainedView>
+        {viewActive && hasFiles && (
+          <RetainedView active={!takeover && currentView === "pageEditor"}>
+            <Suspense fallback={<ToolLoadingFallback />}>
+              <div style={{ position: "relative", height: "100%" }}>
+                <PageEditor onFunctionsReady={setPageEditorFunctions} />
+                {pageEditorFunctions && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      zIndex: 100,
+                    }}
+                  >
+                    <PageEditorControls
+                      onClosePdf={pageEditorFunctions.closePdf}
+                      onUndo={pageEditorFunctions.handleUndo}
+                      onRedo={pageEditorFunctions.handleRedo}
+                      canUndo={pageEditorFunctions.canUndo}
+                      canRedo={pageEditorFunctions.canRedo}
+                      onRotate={pageEditorFunctions.handleRotate}
+                      onDelete={pageEditorFunctions.handleDelete}
+                      onSplit={pageEditorFunctions.handleSplit}
+                      onSplitAll={pageEditorFunctions.handleSplitAll}
+                      onPageBreak={pageEditorFunctions.handlePageBreak}
+                      onPageBreakAll={pageEditorFunctions.handlePageBreakAll}
+                      onExportAll={pageEditorFunctions.onExportAll}
+                      exportLoading={pageEditorFunctions.exportLoading}
+                      selectionMode={pageEditorFunctions.selectionMode}
+                      selectedPageIds={pageEditorFunctions.selectedPageIds}
+                      displayDocument={pageEditorFunctions.displayDocument}
+                      splitPositions={pageEditorFunctions.splitPositions}
+                      totalPages={pageEditorFunctions.totalPages}
+                    />
+                  </div>
+                )}
+              </div>
+            </Suspense>
+          </RetainedView>
+        )}
+        {TextEditorCanvas && (
+          <RetainedView
+            active={!takeover && currentView === "custom:pdfTextEditor"}
+          >
+            <Suspense fallback={<ToolLoadingFallback />}>
+              <TextEditorCanvas data={textEditorView.data} />
+            </Suspense>
+          </RetainedView>
+        )}
+        <Suspense fallback={<ToolLoadingFallback />}>
           {renderMainContent()}
         </Suspense>
       </Box>

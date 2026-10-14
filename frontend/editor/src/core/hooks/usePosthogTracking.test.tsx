@@ -59,7 +59,7 @@ describe("usePosthogTracking", () => {
     });
   });
 
-  it("initializes PostHog when analytics is enabled", async () => {
+  it("ignores server analytics opt-in and supplied tracking credentials", async () => {
     const wrapper = ({ children }: { children: ReactNode }) => (
       <TestQueryProvider>
         <AppConfigProvider
@@ -75,7 +75,9 @@ describe("usePosthogTracking", () => {
     renderHook(() => usePosthogTracking(), { wrapper });
 
     await waitFor(() => {
-      expect(posthogMock.init).toHaveBeenCalledTimes(1);
+      expect(posthogMock.init).not.toHaveBeenCalled();
+      expect(posthogMock.set_config).not.toHaveBeenCalled();
+      expect(posthogMock.opt_in_capturing).not.toHaveBeenCalled();
     });
   });
 });

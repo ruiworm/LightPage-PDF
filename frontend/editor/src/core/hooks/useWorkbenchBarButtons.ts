@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react";
-import { useWorkbenchBar } from "@app/contexts/WorkbenchBarContext";
+import { useWorkbenchBarActions } from "@app/contexts/WorkbenchBarContext";
+import { useViewActive } from "@app/components/layout/RetainedView";
 import {
   WorkbenchBarAction,
   WorkbenchBarButtonConfig,
@@ -17,7 +18,9 @@ export interface WorkbenchBarButtonWithAction extends WorkbenchBarButtonConfig {
 export function useWorkbenchBarButtons(
   buttons: readonly WorkbenchBarButtonWithAction[],
 ) {
-  const { registerButtons, unregisterButtons, setAction } = useWorkbenchBar();
+  const viewActive = useViewActive();
+  const { registerButtons, unregisterButtons, setAction } =
+    useWorkbenchBarActions();
 
   // Memoize configs and ids to reduce churn
   const configs: WorkbenchBarButtonConfig[] = useMemo(
@@ -27,7 +30,7 @@ export function useWorkbenchBarButtons(
   const ids: string[] = useMemo(() => buttons.map((b) => b.id), [buttons]);
 
   useEffect(() => {
-    if (!buttons || buttons.length === 0) return;
+    if (!viewActive || !buttons || buttons.length === 0) return;
 
     // DEV warnings for duplicate ids or missing handlers
     if (process.env.NODE_ENV === "development") {
@@ -49,5 +52,13 @@ export function useWorkbenchBarButtons(
 
     // Cleanup unregisters by ids present in this call
     return () => unregisterButtons(ids);
-  }, [registerButtons, unregisterButtons, setAction, configs, ids, buttons]);
+  }, [
+    viewActive,
+    registerButtons,
+    unregisterButtons,
+    setAction,
+    configs,
+    ids,
+    buttons,
+  ]);
 }

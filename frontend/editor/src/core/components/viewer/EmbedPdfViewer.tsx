@@ -32,8 +32,8 @@ import { BookmarkSidebar } from "@app/components/viewer/BookmarkSidebar";
 import { AttachmentSidebar } from "@app/components/viewer/AttachmentSidebar";
 import { LayerSidebar } from "@app/components/viewer/LayerSidebar";
 import {
-  useNavigationGuard,
-  useNavigationState,
+  useNavigationActions,
+  useSelectedTool,
 } from "@app/contexts/NavigationContext";
 import { useSignature } from "@app/contexts/SignatureContext";
 import { useRedaction } from "@app/contexts/RedactionContext";
@@ -52,19 +52,15 @@ import {
 } from "@app/types/fileContext";
 import { useViewerWorkbenchBarButtons } from "@app/components/viewer/useViewerWorkbenchBarButtons";
 import { StampPlacementOverlay } from "@app/components/viewer/StampPlacementOverlay";
-import {
-  RulerOverlay,
-  type RulerOverlayHandle,
-} from "@app/components/viewer/RulerOverlay";
 import { useWheelZoom } from "@app/hooks/useWheelZoom";
 import { useFormFill } from "@app/tools/formFill/FormFillContext";
 import { FormSaveBar } from "@app/tools/formFill/FormSaveBar";
 import { FORM_APPLY_EVENT } from "@app/tools/formFill/formFillEvents";
 import { useViewerKeyCommand } from "@app/hooks/useViewerKeyCommand";
-import { useMeasurementManager } from "@app/hooks/useMeasurementManager";
-import { ScaleCalibrationDialog } from "@app/components/viewer/ScaleCalibrationDialog";
+import { useIsMobile } from "@app/hooks/useIsMobile";
 import { usePolicyFileBadges } from "@app/hooks/usePolicyFileBadges";
 import { alert } from "@app/components/toast";
+import { useViewActive } from "@app/components/layout/RetainedView";
 
 // ──────────────────────────────────────────────────────────────────────────────
 
@@ -122,6 +118,7 @@ const EmbedPdfViewerContent = ({
   signatureOverlayApiRef,
   portfolioPinned,
 }: EmbedPdfViewerProps) => {
+  const viewActive = useViewActive();
   const { t } = useTranslation();
   const viewerRef = React.useRef<HTMLDivElement>(null);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
@@ -498,14 +495,16 @@ const EmbedPdfViewerContent = ({
 
   // Navigation guard for unsaved changes
   const {
-    setHasUnsavedChanges,
-    registerUnsavedChangesChecker,
-    unregisterUnsavedChangesChecker,
-    registerNavigationWarningHandlers,
-    unregisterNavigationWarningHandlers,
-  } = useNavigationGuard();
+    actions: {
+      setHasUnsavedChanges,
+      registerUnsavedChangesChecker,
+      unregisterUnsavedChangesChecker,
+      registerNavigationWarningHandlers,
+      unregisterNavigationWarningHandlers,
+    },
+  } = useNavigationActions();
 
-  const { selectedTool } = useNavigationState();
+  const selectedTool = useSelectedTool();
 
   useEffect(() => {
     if (selectedTool !== "redact") {
@@ -522,14 +521,14 @@ const EmbedPdfViewerContent = ({
     selectedTool === "addText" ||
     selectedTool === "addImage" ||
     selectedTool === "annotate";
-  const isManualRedactMode = selectedTool === "redact";
+  const isManualRedactMode = false;
 
   // Live layer visibility is controlled via showBakedAnnotations CSS; unmounting
   // AnnotationPlugin on visibility toggle destroys in-memory annotations.
   const shouldEnableAnnotations = true;
 
-  // Enable redaction only when redaction tool is selected
-  const shouldEnableRedaction = selectedTool === "redact";
+  // File redaction uses a display-only layer and exports from its own session.
+  const shouldEnableRedaction = false;
 
   // FormFill tool mode — uses PDFBox backend for full-fidelity form handling
   const isFormFillToolActive = (selectedTool as string) === "formFill";
@@ -605,7 +604,7 @@ const EmbedPdfViewerContent = ({
             (f) => isStirlingFile(f) && f.fileId === activeFileId,
           )
         : null;
-      return byId || activeFiles[0];
+      return byId ?? null;
     }
     return null;
   }, [previewFile, activeFiles, activeFileId]);
@@ -626,16 +625,16 @@ const EmbedPdfViewerContent = ({
 
   // Lineage root of the open document: saves and tool outputs add a child record,
   // so mounting on the root keeps the engine alive across reloads.
-  const currentFileRootId = React.useMemo(() => {
+  const currentFileRootId = useFileSelector((state) => {
     if (previewFile) {
       return `preview-${previewFile.name}|${previewFile.size}|${previewFile.lastModified}`;
     }
-    if (currentFile && isStirlingFile(currentFile)) {
-      const stub = selectors.getStirlingFileStub(currentFile.fileId);
-      return stub?.originalFileId ?? stub?.id ?? currentFile.fileId;
+    if (currentFileStableId) {
+      const stub = state.files.byId[currentFileStableId];
+      return stub?.originalFileId ?? stub?.id ?? currentFileStableId;
     }
     return currentFileId;
-  }, [previewFile, currentFile, currentFileId, selectors]);
+  });
 
   // Determine the effective file to display
   const effectiveFile = React.useMemo(() => {
@@ -711,6 +710,7 @@ const EmbedPdfViewerContent = ({
 
   // Handle keyboard shortcuts
   useEffect(() => {
+    if (!viewActive) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       const mod = event.ctrlKey || event.metaKey;
 
@@ -848,6 +848,7 @@ const EmbedPdfViewerContent = ({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [
+    viewActive,
     isViewerHovered,
     isSearchInterfaceVisible,
     zoomActions,
@@ -895,6 +896,7 @@ const EmbedPdfViewerContent = ({
   // We treat any change that makes the history undoable as unsaved changes until
   // the user explicitly applies them via applyChanges.
   useEffect(() => {
+    if (!viewActive) return;
     const historyApi = historyApiRef.current;
     if (!historyApi || !historyApi.subscribe) {
       return;
@@ -939,6 +941,7 @@ const EmbedPdfViewerContent = ({
       }
     };
   }, [
+    viewActive,
     historyApiRef.current,
     setHasUnsavedChanges,
     redactionsApplied,
@@ -947,7 +950,7 @@ const EmbedPdfViewerContent = ({
 
   // Register checker for unsaved changes (annotations only for now)
   useEffect(() => {
-    if (previewFile) {
+    if (previewFile || !viewActive) {
       return;
     }
 
@@ -973,6 +976,7 @@ const EmbedPdfViewerContent = ({
       unregisterUnsavedChangesChecker();
     };
   }, [
+    viewActive,
     historyApiRef,
     previewFile,
     registerUnsavedChangesChecker,
@@ -1153,6 +1157,7 @@ const EmbedPdfViewerContent = ({
   );
 
   useEffect(() => {
+    if (!viewActive) return;
     const handler = (e: Event) => {
       const blob = (e as CustomEvent).detail?.blob;
       if (blob) {
@@ -1161,7 +1166,7 @@ const EmbedPdfViewerContent = ({
     };
     window.addEventListener(FORM_APPLY_EVENT, handler);
     return () => window.removeEventListener(FORM_APPLY_EVENT, handler);
-  }, [handleFormApply]);
+  }, [handleFormApply, viewActive]);
 
   // Apply layer visibility changes - reload the modified PDF into the viewer
   const layerApplyInProgressRef = useRef(false);
@@ -1274,7 +1279,7 @@ const EmbedPdfViewerContent = ({
 
   // Register navigation warning handlers so the global modal can call our save/discard logic
   useEffect(() => {
-    if (previewFile) return;
+    if (previewFile || !viewActive) return;
 
     registerNavigationWarningHandlers({
       onApplyAndContinue: async () => {
@@ -1295,6 +1300,7 @@ const EmbedPdfViewerContent = ({
     });
     return () => unregisterNavigationWarningHandlers();
   }, [
+    viewActive,
     previewFile,
     applyChanges,
     discardAndSaveApplied,
@@ -1624,43 +1630,15 @@ const EmbedPdfViewerContent = ({
 
   // Register applyChanges with ViewerContext so tools can access it directly
   useEffect(() => {
+    if (!viewActive) return;
     setApplyChanges(applyChanges);
     return () => {
       setApplyChanges(null);
     };
-  }, [applyChanges, setApplyChanges]);
-
-  // Ruler / measurement tool state is handled by the dedicated hook.
-  const rulerOverlayRef = useRef<RulerOverlayHandle | null>(null);
-
-  const {
-    isRulerActive,
-    setIsRulerActive,
-    pageMeasureScales,
-    customScale,
-    handleSetCustomScale,
-    isScaleCalibrationActive,
-    scaleCalibrationMeasurement,
-    startScaleCalibration,
-    cancelScaleCalibration,
-    handleScaleCalibrationMeasurement,
-    applyScaleCalibration,
-  } = useMeasurementManager({
-    currentFile,
-    effectiveFile,
-    rulerOverlayRef,
-  });
+  }, [applyChanges, setApplyChanges, viewActive]);
 
   // Register workbench bar buttons for the viewer
-  useViewerWorkbenchBarButtons(
-    isRulerActive,
-    setIsRulerActive,
-    customScale,
-    handleSetCustomScale,
-    isScaleCalibrationActive,
-    startScaleCalibration,
-    cancelScaleCalibration,
-  );
+  useViewerWorkbenchBarButtons();
 
   // Auto-fetch form fields when a PDF is loaded in the viewer.
   // In normal viewer mode, this uses PDFium WASM (frontend-only).
@@ -1670,6 +1648,7 @@ const EmbedPdfViewerContent = ({
 
   // Generate a unique identifier for the current file to detect file changes
   useEffect(() => {
+    if (!viewActive) return;
     const fileChanged = currentFileId !== formFillFileIdRef.current;
     const providerChanged =
       formFillProviderRef.current !== isFormFillToolActive;
@@ -1698,6 +1677,7 @@ const EmbedPdfViewerContent = ({
       fetchFormFields(currentFile, currentFileId ?? undefined);
     }
   }, [
+    viewActive,
     isFormFillToolActive,
     currentFile,
     currentFileId,
@@ -1707,8 +1687,10 @@ const EmbedPdfViewerContent = ({
 
   const sidebarWidthRem = 15;
   const commentsSidebarWidthRem = 15;
+  const isMobile = useIsMobile();
+  const thumbnailLeftMargin =
+    isThumbnailSidebarVisible && !isMobile ? sidebarWidthRem : 0;
   const totalRightMargin =
-    (isThumbnailSidebarVisible ? sidebarWidthRem : 0) +
     (isBookmarkSidebarVisible ? sidebarWidthRem : 0) +
     (isAttachmentSidebarVisible ? sidebarWidthRem : 0) +
     (isLayerSidebarVisible ? sidebarWidthRem : 0) +
@@ -1787,8 +1769,8 @@ const EmbedPdfViewerContent = ({
               overflow: "hidden",
               minHeight: 0,
               minWidth: 0,
+              marginLeft: `${thumbnailLeftMargin}rem`,
               marginRight: `${totalRightMargin}rem`,
-              transition: "margin-right 0.3s ease",
             }}
           >
             <LocalEmbedPDF
@@ -1816,6 +1798,8 @@ const EmbedPdfViewerContent = ({
               isSignMode={selectedTool === "sign"}
               showBakedAnnotations={isAnnotationsVisible}
               enableRedaction={shouldEnableRedaction}
+              enableFileRedaction={selectedTool === "redact" && !previewFile}
+              fileRedactionId={currentFileStableId}
               enableFormFill={shouldEnableFormFill}
               formEditingActive={isFormFillToolActive}
               isManualRedactionMode={isManualRedactMode}
@@ -1827,7 +1811,7 @@ const EmbedPdfViewerContent = ({
               }
               fileId={currentFileId}
               isCommentsSidebarVisible={isCommentsSidebarVisible}
-              commentsSidebarRightOffset={`${(isThumbnailSidebarVisible ? sidebarWidthRem : 0) + (isBookmarkSidebarVisible ? sidebarWidthRem : 0) + (isAttachmentSidebarVisible ? sidebarWidthRem : 0) + (isLayerSidebarVisible ? sidebarWidthRem : 0)}rem`}
+              commentsSidebarRightOffset={`${(isBookmarkSidebarVisible ? sidebarWidthRem : 0) + (isAttachmentSidebarVisible ? sidebarWidthRem : 0) + (isLayerSidebarVisible ? sidebarWidthRem : 0)}rem`}
               onSignatureAdded={() => {
                 // Handle signature added - for debugging, enable console logs as needed
                 // Future: Handle signature completion
@@ -1852,23 +1836,7 @@ const EmbedPdfViewerContent = ({
               isActive={isPlacementOverlayActive}
               signatureConfig={signatureConfig}
             />
-            <RulerOverlay
-              ref={rulerOverlayRef}
-              containerRef={pdfContainerRef}
-              isActive={isRulerActive}
-              pageMeasureScales={pageMeasureScales}
-              customScale={customScale}
-              isCalibrationActive={isScaleCalibrationActive}
-              onCalibrationMeasure={handleScaleCalibrationMeasurement}
-            />
           </Box>
-          <ScaleCalibrationDialog
-            opened={!!scaleCalibrationMeasurement}
-            measurement={scaleCalibrationMeasurement}
-            defaultUnit={customScale?.unit ?? "m"}
-            onApplyScale={applyScaleCalibration}
-            onClose={cancelScaleCalibration}
-          />
         </>
       )}
 
@@ -1881,7 +1849,7 @@ const EmbedPdfViewerContent = ({
             // Gutter matching the workbench rails, so the bar reads as a
             // floating card rather than one welded to the viewport edge.
             bottom: "0.5rem",
-            left: 0,
+            left: `${thumbnailLeftMargin}rem`,
             right: 0,
             zIndex: 50,
             display: "flex",
@@ -1907,14 +1875,12 @@ const EmbedPdfViewerContent = ({
       />
       <BookmarkSidebar
         visible={isBookmarkSidebarVisible}
-        thumbnailVisible={isThumbnailSidebarVisible}
         documentCacheKey={bookmarkCacheKey}
         preloadCacheKeys={allBookmarkCacheKeys}
       />
       {!portfolioPinned && (
         <AttachmentSidebar
           visible={isAttachmentSidebarVisible}
-          thumbnailVisible={isThumbnailSidebarVisible}
           bookmarkVisible={isBookmarkSidebarVisible}
           documentCacheKey={bookmarkCacheKey}
           preloadCacheKeys={allBookmarkCacheKeys}
@@ -1923,7 +1889,6 @@ const EmbedPdfViewerContent = ({
       <LayerSidebar
         visible={isLayerSidebarVisible}
         rightOffset={
-          (isThumbnailSidebarVisible ? sidebarWidthRem : 0) +
           (isBookmarkSidebarVisible ? sidebarWidthRem : 0) +
           (isAttachmentSidebarVisible ? sidebarWidthRem : 0)
         }

@@ -10,6 +10,8 @@ import type { Connect, PluginOption } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 // oxlint-disable-next-line no-restricted-imports -- config runs in node, before the aliases exist
 import { iconSvgr } from "./scripts/icons/svgrOptions.mts";
+// oxlint-disable-next-line no-restricted-imports -- Vite starts this Node-only development helper before app aliases exist
+import { localRedactionServer } from "./scripts/local-redaction-server.mts";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
 const gzipPromise = promisify(gzip);
@@ -322,6 +324,10 @@ export default defineConfig(async ({ mode, command }) => {
       __DEV_WORKTREE_LABEL__: JSON.stringify(devWorktreeLabel),
     },
     plugins: [
+      localRedactionServer(
+        resolve(__dirname, "../../engine"),
+        env.VITE_LOCAL_REDACTION_URL,
+      ),
       iconSvgr(),
       react(),
       ...(runSubpath ? [subpathBareRedirectPlugin(runSubpath)] : []),
@@ -458,6 +464,7 @@ export default defineConfig(async ({ mode, command }) => {
       },
     },
     optimizeDeps: {
+      include: ["papaparse"],
       exclude: ["@embedpdf/pdfium"],
     },
     // base: "./" produces relative asset URLs which work when dist/ is served

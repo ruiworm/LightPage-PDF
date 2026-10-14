@@ -40,7 +40,6 @@ import { PreferencesProvider } from "@app/contexts/PreferencesContext";
 import { I18nextProvider } from "react-i18next";
 import i18n from "@app/i18n/config";
 import { createTestStirlingFile } from "@app/tests/utils/testFileHelpers";
-import { expectConsole } from "@app/tests/failOnConsole";
 import { fileStorage } from "@app/services/fileStorage";
 import * as thumbnailUtils from "@app/utils/thumbnailUtils";
 import {
@@ -861,11 +860,8 @@ describe("Convert Tool Integration Tests", () => {
 
   describe("File Upload Integration", () => {
     test("should handle multiple file uploads correctly", async () => {
-      // Test mocks only one apiClient.post response; the second file hits an
-      // undefined response and production warns about the conversion failure.
-      expectConsole.warn(/Failed to convert file test2\.pdf/);
       const mockBlob = new Blob(["zip-content"], { type: "application/zip" });
-      (mockedApiClient.post as Mock).mockResolvedValueOnce({ data: mockBlob });
+      (mockedApiClient.post as Mock).mockResolvedValue({ data: mockBlob });
 
       const { result } = renderHook(() => useConvertOperation(), {
         wrapper: TestWrapper,
@@ -931,6 +927,8 @@ describe("Convert Tool Integration Tests", () => {
 
       // Verify both files were uploaded
       const calls = (mockedApiClient.post as Mock).mock.calls;
+      expect(calls).toHaveLength(2);
+      expect(result.current.errorMessage).toBeNull();
 
       for (let i = 0; i < calls.length; i++) {
         const formData = calls[i][1] as FormData;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { PDFDocument } from "@app/types/pageEditor";
 import { parseSelection } from "@app/utils/bulkselection/parseSelection";
@@ -24,54 +24,55 @@ export const usePageSelectionManager = ({
   const hasInitializedSelection = useRef(false);
   const previousPageIdsRef = useRef<Set<string>>(new Set());
 
-  const totalPages = displayDocument?.pages.length ?? 0;
+  const pages = useMemo(
+    () => displayDocument?.pages.filter((page) => !page.isPlaceholder) ?? [],
+    [displayDocument],
+  );
+  const totalPages = pages.length;
 
   const getPageNumbersFromIds = useCallback(
     (pageIds: string[]) => {
-      if (!displayDocument) return [];
       return pageIds
         .map((id) => {
-          const page = displayDocument.pages.find((p) => p.id === id);
+          const page = pages.find((p) => p.id === id);
           return page?.pageNumber || 0;
         })
         .filter((num) => num > 0);
     },
-    [displayDocument],
+    [pages],
   );
 
   const getPageIdsFromNumbers = useCallback(
     (pageNumbers: number[]) => {
-      if (!displayDocument) return [];
       return pageNumbers
         .map((num) => {
-          const page = displayDocument.pages.find((p) => p.pageNumber === num);
+          const page = pages.find((p) => p.pageNumber === num);
           return page?.id || "";
         })
         .filter((id) => id !== "");
     },
-    [displayDocument],
+    [pages],
   );
 
   useEffect(() => {
-    if (
-      displayDocument &&
-      displayDocument.pages.length > 0 &&
-      !hasInitializedSelection.current
-    ) {
-      const allPageIds = displayDocument.pages.map((page) => page.id);
+    if (pages.length > 0 && !hasInitializedSelection.current) {
+      const allPageIds = pages.map((page) => page.id);
       setSelectedPageIds(allPageIds);
       setSelectionMode(true);
       hasInitializedSelection.current = true;
     }
-  }, [displayDocument, setSelectedPageIds, setSelectionMode]);
+  }, [pages, setSelectedPageIds, setSelectionMode]);
 
   useEffect(() => {
-    if (!displayDocument || displayDocument.pages.length === 0) {
+    if (pages.length === 0) {
       previousPageIdsRef.current = new Set();
+      hasInitializedSelection.current = false;
+      if (selectedPageIds.length > 0) setSelectedPageIds([]);
+      setSelectionMode(false);
       return;
     }
 
-    const currentIds = new Set(displayDocument.pages.map((page) => page.id));
+    const currentIds = new Set(pages.map((page) => page.id));
     const newlyAddedPageIds: string[] = [];
     currentIds.forEach((id) => {
       if (!previousPageIdsRef.current.has(id)) {
@@ -79,24 +80,23 @@ export const usePageSelectionManager = ({
       }
     });
 
-    if (newlyAddedPageIds.length > 0) {
-      const next = new Set(selectedPageIds);
-      newlyAddedPageIds.forEach((id) => next.add(id));
+    const next = new Set(selectedPageIds.filter((id) => currentIds.has(id)));
+    newlyAddedPageIds.forEach((id) => next.add(id));
+    if (next.size !== selectedPageIds.length || newlyAddedPageIds.length > 0) {
       setSelectedPageIds(Array.from(next));
     }
 
     previousPageIdsRef.current = currentIds;
-  }, [displayDocument, selectedPageIds, setSelectedPageIds]);
+  }, [pages, selectedPageIds, setSelectedPageIds, setSelectionMode]);
 
   useEffect(() => {
     setCsvInput("");
   }, [activeFilesSignature]);
 
   const handleSelectAll = useCallback(() => {
-    if (!displayDocument) return;
-    const allPageIds = displayDocument.pages.map((page) => page.id);
+    const allPageIds = pages.map((page) => page.id);
     toggleSelectAll(allPageIds);
-  }, [displayDocument, toggleSelectAll]);
+  }, [pages, toggleSelectAll]);
 
   const handleDeselectAll = useCallback(() => {
     setSelectedPageIds([]);

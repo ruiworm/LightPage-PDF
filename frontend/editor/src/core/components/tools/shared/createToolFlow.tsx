@@ -1,5 +1,4 @@
 import React from "react";
-import { Stack } from "@mantine/core";
 import {
   createToolSteps,
   ToolStepProvider,
@@ -103,7 +102,7 @@ export function createToolFlow<TParams = unknown>(
   const steps = createToolSteps();
 
   return (
-    <Stack gap="sm" p="sm">
+    <div className={classes.flow}>
       <ToolFileEligibility
         files={
           config.files.isVisible === false || config.review.isVisible
@@ -112,7 +111,10 @@ export function createToolFlow<TParams = unknown>(
         }
       />
       {/* <Stack gap="sm" p="sm" h="100%" w="100%" style={{ overflow: 'auto' }}> */}
-      <ToolStepProvider forceStepNumbers={config.forceStepNumbers}>
+      <ToolStepProvider
+        forceStepNumbers={config.forceStepNumbers}
+        expandGroups={!config.review.isVisible}
+      >
         {config.title && <ToolWorkflowTitle {...config.title} />}
 
         {/* Files Step */}
@@ -173,6 +175,7 @@ export function createToolFlow<TParams = unknown>(
               >
                 <ScopedOperationButton
                   selectedFiles={config.files.selectedFiles ?? []}
+                  usesWorkspaceSelection={(config.files.minFiles ?? 1) > 1}
                   disableScopeHints={eb.disableScopeHints}
                   onClick={eb.onClick}
                   isLoading={config.review.operation.isLoading}
@@ -202,6 +205,6 @@ export function createToolFlow<TParams = unknown>(
           onUndo: config.review.onUndo,
         })}
       </ToolStepProvider>
-    </Stack>
+    </div>
   );
 }

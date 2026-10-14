@@ -433,6 +433,10 @@ export const useToolOperation = <TParams>(
             // (used for operations that combine N inputs into fewer outputs)
             if (consumedAllInputs) {
               successSourceIds = validFiles.map((f) => f.fileId);
+            } else if (result.successfulInputs) {
+              successSourceIds = validFiles
+                .filter((file) => result.successfulInputs!.includes(file))
+                .map((file) => file.fileId);
             } else {
               // Try to map outputs back to inputs by filename (before extension)
               const inputBaseNames = new Map<string, FileId>();
@@ -455,6 +459,28 @@ export const useToolOperation = <TParams>(
                 successSourceIds = mappedSuccess;
               }
             }
+            unprocessedSourceIds = validFiles
+              .filter((file) => result.unprocessedInputs?.includes(file))
+              .map((file) => file.fileId);
+            for (const failed of result.failedInputs ?? []) {
+              const source = validFiles.find((file) => file === failed.file);
+              if (source)
+                reportFailure(
+                  failed.error,
+                  [source.fileId],
+                  runtimeEndpoint,
+                  params,
+                );
+            }
+            if (result.failedInputs?.length)
+              actions.setError(
+                result.failedInputs
+                  .map(
+                    ({ file, error }) =>
+                      `${file.name}: ${config.getErrorMessage?.(error) || extractErrorMessage(error)}`,
+                  )
+                  .join("\n"),
+              );
             break;
           }
         }
@@ -762,6 +788,9 @@ export const useToolOperation = <TParams>(
         }
 
         // The whole run failed, so every input is a casualty.
+        if (config.toolType === ToolType.custom && !wasCancelled(error)) {
+          validFiles.forEach((file) => fileActions.markFileError(file.fileId));
+        }
         reportFailure(
           error,
           validFiles.map((file) => file.fileId),

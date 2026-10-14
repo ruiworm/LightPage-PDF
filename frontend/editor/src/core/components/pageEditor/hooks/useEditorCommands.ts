@@ -222,11 +222,11 @@ export const usePageEditorCommands = ({
   const handleSplit = useCallback(() => {
     if (!displayDocument || selectedPageIds.length === 0) return;
 
-    const selectedSplitPageIds = displayDocument.pages
+    const pages = displayDocument.pages.filter((page) => !page.isPlaceholder);
+    const selectedSplitPageIds = pages
       .filter(
         (page, index) =>
-          selectedPageIds.includes(page.id) &&
-          index < displayDocument.pages.length - 1,
+          selectedPageIds.includes(page.id) && index < pages.length - 1,
       )
       .map((page) => page.id);
 

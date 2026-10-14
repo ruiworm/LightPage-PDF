@@ -16,7 +16,12 @@ import {
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useConvertOperation } from "@app/hooks/tools/convert/useConvertOperation";
 import { useConvertParameters } from "@app/hooks/tools/convert/useConvertParameters";
-import { FileContextProvider } from "@app/contexts/FileContext";
+import {
+  FileContextProvider,
+  useFileActions,
+  useFileState,
+} from "@app/contexts/FileContext";
+import { createNewStirlingFileStub } from "@app/types/fileContext";
 import { NavigationProvider } from "@app/contexts/NavigationContext";
 import { ToolRegistryProvider } from "@app/contexts/ToolRegistryProvider";
 import { PreferencesProvider } from "@app/contexts/PreferencesContext";
@@ -28,7 +33,8 @@ import {
   createTestStirlingFile,
   createTestFilesWithId,
 } from "@app/tests/utils/testFileHelpers";
-import { allowConsole, expectConsole } from "@app/tests/failOnConsole";
+import { allowConsole } from "@app/tests/failOnConsole";
+import { reportToolFailure } from "@app/services/failureReporting";
 import { fileStorage } from "@app/services/fileStorage";
 import { MantineProvider } from "@mantine/core";
 
@@ -42,6 +48,7 @@ vi.mock("axios", () => ({
       })),
     },
     isCancel: vi.fn(() => false),
+    isAxiosError: () => false,
   },
 }));
 
@@ -66,6 +73,10 @@ const mockedApiClient = vi.mocked(apiClient);
 const onToolRunComplete = vi.hoisted(() => vi.fn());
 vi.mock("@app/hooks/useToolRunComplete", () => ({
   useToolRunComplete: () => onToolRunComplete,
+}));
+vi.mock("@app/services/failureReporting", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@app/services/failureReporting")>()),
+  reportToolFailure: vi.fn().mockResolvedValue(undefined),
 }));
 
 // Usage-recommendation tracking would add its own posts to the apiClient spy.
@@ -123,6 +134,7 @@ const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 describe("Convert Tool - Smart Detection Integration Tests", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(reportToolFailure).mockResolvedValue(undefined);
 
     // Mock successful API response
     (mockedApiClient.post as Mock).mockResolvedValue({
@@ -663,57 +675,148 @@ describe("Convert Tool - Smart Detection Integration Tests", () => {
   });
 
   describe("Error Scenarios in Smart Detection", () => {
-    test("should handle partial failures in multi-file processing", async () => {
-      // Production warns when an individual file in a batch fails; the test
-      // deliberately drives one mock rejection to exercise that path.
-      expectConsole.warn(/Failed to convert file doc2\.xyz/);
-      const { result: paramsResult } = renderHook(
-        () => useConvertParameters(),
-        {
-          wrapper: TestWrapper,
-        },
+    test.each([0, 1, 2])(
+      "keeps the other inputs and outputs correctly mapped when input %i fails",
+      async (failureIndex) => {
+        const { result } = renderHook(
+          () => ({
+            params: useConvertParameters(),
+            operation: useConvertOperation(),
+            context: useFileActions(),
+            ...useFileState(),
+          }),
+          { wrapper: TestWrapper },
+        );
+        const mixedFiles = createTestFilesWithId([
+          { name: "same.txt", content: "file1", type: "text/plain" },
+          {
+            name: "same.xyz",
+            content: "file2",
+            type: "application/octet-stream",
+          },
+          {
+            name: "same.docx",
+            content: "file3",
+            type: "application/octet-stream",
+          },
+        ]);
+        const error = new Error("This input failed");
+        let calls = 0;
+        (mockedApiClient.post as Mock).mockImplementation(async () => {
+          const index = calls++;
+          if (index === failureIndex) throw error;
+          return {
+            data: new Blob(["converted"], { type: "application/pdf" }),
+            headers: {
+              "content-disposition": `attachment; filename="renamed-${index}.pdf"`,
+            },
+          };
+        });
+        act(() => {
+          result.current.context.dispatch({
+            type: "ADD_FILES",
+            payload: {
+              stirlingFileStubs: mixedFiles.map((file) =>
+                createNewStirlingFileStub(file, file.fileId),
+              ),
+            },
+          });
+          result.current.params.analyzeFileTypes(mixedFiles);
+        });
+        await act(async () => {
+          await result.current.operation.executeOperation(
+            result.current.params.parameters,
+            mixedFiles,
+          );
+        });
+        const successfulIds = mixedFiles
+          .filter((_, index) => index !== failureIndex)
+          .map((file) => file.fileId);
+        expect(result.current.operation.files).toHaveLength(2);
+        expect(mockedApiClient.post).toHaveBeenCalledTimes(3);
+        expect(result.current.operation.errorMessage).toBe(
+          `${mixedFiles[failureIndex].name}: This input failed`,
+        );
+        expect(result.current.state.ui.errorFileIds).toEqual([
+          mixedFiles[failureIndex].fileId,
+        ]);
+        expect(
+          result.current.state.files.byId[mixedFiles[failureIndex].fileId]
+            .isLeaf,
+        ).toBe(true);
+        successfulIds.forEach((id) =>
+          expect(result.current.state.files.byId[id]).toBeUndefined(),
+        );
+        const outputNames = result.current.state.files.ids
+          .filter((id) => id !== mixedFiles[failureIndex].fileId)
+          .map((id) => result.current.state.files.byId[id].name);
+        expect(outputNames).toEqual(
+          expect.arrayContaining(
+            mixedFiles.flatMap((_, index) =>
+              index === failureIndex ? [] : [`renamed-${index}.pdf`],
+            ),
+          ),
+        );
+        expect(outputNames).toHaveLength(2);
+        expect(reportToolFailure).toHaveBeenCalledExactlyOnceWith({
+          operation: "convert",
+          error,
+          fileIds: [mixedFiles[failureIndex].fileId],
+        });
+      },
+    );
+
+    test("reports every input and preserves their sources when all conversions fail", async () => {
+      const { result } = renderHook(
+        () => ({
+          params: useConvertParameters(),
+          operation: useConvertOperation(),
+          context: useFileActions(),
+          ...useFileState(),
+        }),
+        { wrapper: TestWrapper },
       );
-
-      const { result: operationResult } = renderHook(
-        () => useConvertOperation(),
-        {
-          wrapper: TestWrapper,
-        },
-      );
-
-      // Mock one success, one failure
-      (mockedApiClient.post as Mock)
-        .mockResolvedValueOnce({
-          data: new Blob(["converted1"], { type: "application/pdf" }),
-        })
-        .mockRejectedValueOnce(new Error("File 2 failed"));
-
-      const mixedFiles = createTestFilesWithId([
-        { name: "doc1.txt", content: "file1", type: "text/plain" },
-        {
-          name: "doc2.xyz",
-          content: "file2",
-          type: "application/octet-stream",
-        },
+      const files = createTestFilesWithId([
+        { name: "a.txt", content: "one", type: "text/plain" },
+        { name: "b.xyz", content: "two", type: "application/octet-stream" },
       ]);
-
-      // Set up for separate processing (mixed smart detection)
+      (mockedApiClient.post as Mock).mockRejectedValue(
+        new Error("Conversion refused"),
+      );
       act(() => {
-        paramsResult.current.analyzeFileTypes(mixedFiles);
+        result.current.context.dispatch({
+          type: "ADD_FILES",
+          payload: {
+            stirlingFileStubs: files.map((file) =>
+              createNewStirlingFileStub(file, file.fileId),
+            ),
+          },
+        });
+        result.current.params.analyzeFileTypes(files);
       });
-
       await act(async () => {
-        await operationResult.current.executeOperation(
-          paramsResult.current.parameters,
-          mixedFiles,
+        await result.current.operation.executeOperation(
+          result.current.params.parameters,
+          files,
         );
       });
-
-      await waitFor(() => {
-        // Should have processed at least one file successfully
-        expect(operationResult.current.files.length).toBeGreaterThan(0);
-        expect(mockedApiClient.post).toHaveBeenCalledTimes(2);
+      expect(result.current.operation.files).toEqual([]);
+      expect(result.current.operation.errorMessage).toBe(
+        "a.txt: Conversion refused\nb.xyz: Conversion refused",
+      );
+      expect(result.current.state.ui.errorFileIds).toEqual(
+        files.map((file) => file.fileId),
+      );
+      files.forEach((file) =>
+        expect(result.current.state.files.byId[file.fileId].isLeaf).toBe(true),
+      );
+      expect(fileStorage.persistVersionedOutputs).not.toHaveBeenCalled();
+      expect(reportToolFailure).toHaveBeenCalledExactlyOnceWith({
+        operation: "convert",
+        error: expect.any(AggregateError),
+        fileIds: files.map((file) => file.fileId),
       });
+      expect(mockedApiClient.post).toHaveBeenCalledTimes(2);
     });
   });
 

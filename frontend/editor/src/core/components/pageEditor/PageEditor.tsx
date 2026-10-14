@@ -1,11 +1,9 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { Text, Center, Box, LoadingOverlay, Stack } from "@mantine/core";
 import { useTranslation } from "react-i18next";
+import { Icon } from "@app/ui/Icon";
 import { useFileState, useFileActions } from "@app/contexts/FileContext";
-import {
-  useNavigationGuard,
-  useNavigationState,
-} from "@app/contexts/NavigationContext";
+import { useNavigationActions } from "@app/contexts/NavigationContext";
 import { usePageEditor } from "@app/contexts/PageEditorContext";
 import { PageEditorFunctions, PDFPage } from "@app/types/pageEditor";
 // Thumbnail generation is now handled by individual PageThumbnail components
@@ -21,15 +19,15 @@ import { useInitialPageDocument } from "@app/components/pageEditor/hooks/useInit
 import { usePageDocument } from "@app/components/pageEditor/hooks/usePageDocument";
 import { usePageEditorState } from "@app/components/pageEditor/hooks/usePageEditorState";
 import { usePageEditorWorkbenchBarButtons } from "@app/components/pageEditor/pageEditorWorkbenchBarButtons";
-import { useFileColorMap } from "@app/components/pageEditor/hooks/useFileColorMap";
 import { useWheelZoom } from "@app/hooks/useWheelZoom";
 import { useEditedDocumentState } from "@app/components/pageEditor/hooks/useEditedDocumentState";
 import { useUndoManagerState } from "@app/components/pageEditor/hooks/useUndoManagerState";
 import { usePageSelectionManager } from "@app/components/pageEditor/hooks/usePageSelectionManager";
 import { usePageEditorCommands } from "@app/components/pageEditor/hooks/useEditorCommands";
 import { usePageEditorExport } from "@app/components/pageEditor/hooks/usePageEditorExport";
-import { useThumbnailGeneration } from "@app/hooks/useThumbnailGeneration";
+import { usePageThumbnailLoader } from "@app/components/pageEditor/hooks/usePageThumbnailLoader";
 import { convertSplitPageIdsToIndexes } from "@app/components/pageEditor/utils/splitPositions";
+import { useViewActive } from "@app/components/layout/RetainedView";
 
 export interface PageEditorProps {
   onFunctionsReady?: (functions: PageEditorFunctions) => void;
@@ -43,6 +41,7 @@ interface PageEditorFileEntry {
 }
 
 const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
+  const viewActive = useViewActive();
   const { t } = useTranslation();
   // Use split contexts to prevent re-renders
   const { state, selectors } = useFileState();
@@ -50,16 +49,34 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
 
   // Navigation guard for unsaved changes
   const {
-    setHasUnsavedChanges,
-    registerNavigationWarningHandlers,
-    unregisterNavigationWarningHandlers,
-  } = useNavigationGuard();
-  const navigationState = useNavigationState();
+    actions: {
+      setHasUnsavedChanges: setGlobalUnsavedChanges,
+      registerNavigationWarningHandlers,
+      unregisterNavigationWarningHandlers,
+    },
+  } = useNavigationActions();
+  const activeRef = useRef(viewActive);
+  activeRef.current = viewActive;
+  const dirtyRef = useRef(false);
+  const setHasUnsavedChanges = useCallback(
+    (dirty: boolean) => {
+      dirtyRef.current = dirty;
+      if (activeRef.current) setGlobalUnsavedChanges(dirty);
+    },
+    [setGlobalUnsavedChanges],
+  );
+  useEffect(() => {
+    if (!viewActive) return;
+    setGlobalUnsavedChanges(dirtyRef.current);
+    return () => setGlobalUnsavedChanges(false);
+  }, [viewActive, setGlobalUnsavedChanges]);
+  const [discardRevision, setDiscardRevision] = useState(0);
 
   // Get PageEditor coordination functions
   const {
     updateFileOrderFromPages,
     fileOrder,
+    fileColorIndexMap,
     reorderedPages,
     clearReorderedPages,
     updateCurrentPages,
@@ -69,8 +86,6 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
   } = usePageEditor();
 
   const [visiblePageIds, setVisiblePageIds] = useState<string[]>([]);
-  const thumbnailRequestsRef = useRef<Set<string>>(new Set());
-  const { requestThumbnail, getThumbnailFromCache } = useThumbnailGeneration();
   const handleVisibleItemsChange = useCallback((items: PDFPage[]) => {
     setVisiblePageIds((prev) => {
       const ids = items.map((item) => item.id);
@@ -130,7 +145,7 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
       const isSelected = state.ui.selectedFileIds.includes(fileId);
       const isPdf = stub?.name?.toLowerCase().endsWith(".pdf") ?? false;
 
-      if (!isPdf) return; // Skip non-PDFs
+      if (!isPdf || !isSelected) return; // Skip non-PDFs
 
       const cached = cache.get(fileId);
 
@@ -168,32 +183,23 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
     return newFiles;
   }, [fileOrderKey, selectedIdsKey, filesSignature]);
 
-  // Get ALL file IDs in order (not filtered by selection)
-  const orderedFileIds = useMemo(() => {
-    return pageEditorFiles.map((f) => f.fileId);
-  }, [pageEditorFiles]);
-
   // Get selected file IDs for filtering
   const selectedFileIds = useMemo(() => {
     return pageEditorFiles.filter((f) => f.isSelected).map((f) => f.fileId);
   }, [pageEditorFiles]);
   const activeFilesSignature = selectors.getFilesSignature();
 
-  // Check if there are any PDF files in FileContext (bypasses fileOrder, which is
-  // populated asynchronously via effect). Used to avoid a one-render flash of
-  // "No PDF files loaded" when PageEditor first mounts after files are added.
+  // fileOrder catches up in an effect, so read the selection directly to avoid
+  // briefly showing the empty state after a PDF is checked.
   const hasPdfFiles = useMemo(() => {
-    return state.files.ids.some((id) => {
+    return state.ui.selectedFileIds.some((id) => {
       const stub = selectors.getStirlingFileStub(id);
       return stub?.name?.toLowerCase().endsWith(".pdf") ?? false;
     });
-  }, [state.files.ids, selectors]);
-
-  // UI state
-  const globalProcessing = state.ui.isProcessing;
+  }, [state.ui.selectedFileIds, state.files.byId, selectors]);
 
   const initialDocument = useInitialPageDocument();
-  const { document: mergedPdfDocument } = usePageDocument();
+  const { document: mergedPdfDocument, isLoading } = usePageDocument();
 
   // The undo manager is created below this hook, so the reset is forwarded
   // through a ref rather than reordering the two.
@@ -210,7 +216,7 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
       clearReorderedPages,
       fileOrder,
       updateCurrentPages,
-      contentRevision,
+      contentRevision: contentRevision + discardRevision,
       onDocumentReplaced: handleDocumentReplaced,
     });
 
@@ -219,131 +225,14 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
     displayDocumentRef.current = displayDocument;
   }, [displayDocument]);
 
-  const queueThumbnailRequestsForPages = useCallback(
-    (pageIds: string[]) => {
-      const doc = displayDocumentRef.current;
-      if (!doc || pageIds.length === 0) return;
+  usePageThumbnailLoader({
+    document: displayDocument,
+    visiblePageIds,
+    setDocument: setEditedDocument,
+    contentRevision,
+  });
 
-      const loadedCount = doc.pages.filter((p) => p.thumbnail).length;
-      const pending = thumbnailRequestsRef.current.size;
-      const MAX_CONCURRENT_THUMBNAILS =
-        loadedCount < 8
-          ? 1
-          : doc.totalPages < 20
-            ? 3
-            : doc.totalPages < 50
-              ? 5
-              : 8;
-      const available = Math.max(0, MAX_CONCURRENT_THUMBNAILS - pending);
-      if (available === 0) return;
-
-      const toLoad: string[] = [];
-      for (const pageId of pageIds) {
-        if (toLoad.length >= available) break;
-        if (thumbnailRequestsRef.current.has(pageId)) continue;
-        const page = doc.pages.find((p) => p.id === pageId);
-        if (!page || page.thumbnail) continue;
-        toLoad.push(pageId);
-      }
-
-      if (toLoad.length === 0) return;
-
-      toLoad.forEach((pageId) => {
-        const page = doc.pages.find((p) => p.id === pageId);
-        if (!page) return;
-
-        const cached = getThumbnailFromCache(pageId);
-        if (cached) {
-          thumbnailRequestsRef.current.add(pageId);
-          Promise.resolve(cached)
-            .then((cache) => {
-              setEditedDocument((prev) => {
-                if (!prev) return prev;
-                const pageIndex = prev.pages.findIndex((p) => p.id === pageId);
-                if (pageIndex === -1) return prev;
-
-                const updated = [...prev.pages];
-                updated[pageIndex] = {
-                  ...prev.pages[pageIndex],
-                  thumbnail: cache,
-                };
-                return { ...prev, pages: updated };
-              });
-            })
-            .finally(() => {
-              thumbnailRequestsRef.current.delete(pageId);
-            });
-          return;
-        }
-
-        const fileId = page.originalFileId;
-        if (!fileId) return;
-        const file = selectors.getFile(fileId);
-        if (!file) return;
-
-        thumbnailRequestsRef.current.add(pageId);
-        requestThumbnail(
-          pageId,
-          file,
-          page.originalPageNumber || page.pageNumber,
-        )
-          .then((thumbnail) => {
-            if (thumbnail) {
-              setEditedDocument((prev) => {
-                if (!prev) return prev;
-                const pageIndex = prev.pages.findIndex((p) => p.id === pageId);
-                if (pageIndex === -1) return prev;
-
-                const updated = [...prev.pages];
-                updated[pageIndex] = { ...prev.pages[pageIndex], thumbnail };
-                return { ...prev, pages: updated };
-              });
-            }
-          })
-          .catch((error) => {
-            console.error("[Thumbnail Loading] Error:", error);
-          })
-          .finally(() => {
-            thumbnailRequestsRef.current.delete(pageId);
-          });
-      });
-    },
-    [getThumbnailFromCache, requestThumbnail, selectors, setEditedDocument],
-  );
-
-  useEffect(() => {
-    if (!displayDocument) {
-      return;
-    }
-    queueThumbnailRequestsForPages(visiblePageIds);
-  }, [displayDocument, visiblePageIds, queueThumbnailRequestsForPages]);
-
-  const lastInitialDocumentSignatureRef = useRef<string | null>(null);
   const displayDocumentId = displayDocument?.id ?? null;
-  const displayDocumentLength = displayDocument?.pages.length ?? 0;
-  useEffect(() => {
-    if (!displayDocument || displayDocument.pages.length === 0) {
-      lastInitialDocumentSignatureRef.current = null;
-      return;
-    }
-
-    const signature = `${displayDocumentId}:${displayDocumentLength}`;
-    if (lastInitialDocumentSignatureRef.current === signature) {
-      return;
-    }
-
-    const INITIAL_VISIBLE_PAGE_COUNT = 8;
-    const initialIds = displayDocument.pages
-      .slice(0, INITIAL_VISIBLE_PAGE_COUNT)
-      .map((page) => page.id);
-
-    queueThumbnailRequestsForPages(initialIds);
-    lastInitialDocumentSignatureRef.current = signature;
-  }, [
-    displayDocumentId,
-    displayDocumentLength,
-    queueThumbnailRequestsForPages,
-  ]);
 
   useEffect(() => {
     setVisiblePageIds([]);
@@ -351,7 +240,7 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
 
   useEffect(() => {
     return () => {
-      if (navigationState.workbench !== "pageEditor") {
+      if (!viewActive) {
         return;
       }
 
@@ -361,7 +250,7 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
         savePersistedDocument(doc, signature);
       }
     };
-  }, [savePersistedDocument, navigationState.workbench]);
+  }, [savePersistedDocument, viewActive]);
 
   // UI state management
   const {
@@ -463,6 +352,7 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
 
   // Register navigation warning handlers for the global modal
   useEffect(() => {
+    if (!viewActive) return;
     registerNavigationWarningHandlers({
       onApplyAndContinue: async () => {
         await applyChanges();
@@ -470,9 +360,24 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
       onExportAndContinue: async () => {
         await onExportAll();
       },
+      onDiscardAndContinue: async () => {
+        // Retention must still honor an explicit discard: rebuild source pages.
+        clearPersistedDocument();
+        clearReorderedPages();
+        clearUndoHistory();
+        setSelectedPageIds([]);
+        setSplitPositions(new Set());
+        setDiscardRevision((revision) => revision + 1);
+      },
     });
     return () => unregisterNavigationWarningHandlers();
   }, [
+    viewActive,
+    clearPersistedDocument,
+    clearReorderedPages,
+    clearUndoHistory,
+    setSelectedPageIds,
+    setSplitPositions,
     applyChanges,
     onExportAll,
     registerNavigationWarningHandlers,
@@ -540,7 +445,7 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
         selectedPageIds,
         displayDocument: displayDocument || undefined,
         splitPositions,
-        totalPages: displayDocument?.pages.length || 0,
+        totalPages,
         closePdf,
       });
     }
@@ -568,6 +473,7 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
     selectedPageIds,
     splitPositions,
     displayDocument?.pages.length,
+    totalPages,
     closePdf,
   ]);
 
@@ -580,6 +486,7 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
 
   // Handle keyboard zoom shortcuts
   useEffect(() => {
+    if (!viewActive) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!(event.ctrlKey || event.metaKey)) return;
 
@@ -606,13 +513,12 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [zoomIn, zoomOut, setZoomLevel]);
+  }, [viewActive, zoomIn, zoomOut, setZoomLevel]);
 
   // Display all pages - use edited or original document
   const displayedPages = displayDocument?.pages || [];
 
   // Track color assignments by insertion order (files keep their color)
-  const fileColorIndexMap = useFileColorMap(orderedFileIds);
 
   // Memoize renderItem to prevent DragDropGrid's React.memo from blocking updates
   // when selectedPageIds changes
@@ -704,35 +610,37 @@ const PageEditor = ({ onFunctionsReady }: PageEditorProps) => {
         width: "100%",
       }}
     >
-      <LoadingOverlay visible={globalProcessing && !initialDocument} />
+      <LoadingOverlay visible={hasPdfFiles && isLoading && !initialDocument} />
 
-      {!initialDocument && !globalProcessing && !hasPdfFiles && (
+      {!hasPdfFiles && (
         <Center h="100%">
           <Stack align="center" gap="md">
-            <Text size="lg" c="dimmed">
-              📄
-            </Text>
+            <Icon
+              name="file"
+              size={32}
+              style={{ color: "var(--c-text-subtle)" }}
+            />
             <Text c="dimmed">
-              {t("pageEditor.emptyState.title", "No PDF files loaded")}
+              {t("pageEditor.emptyState.title", "No PDF files selected")}
             </Text>
             <Text size="sm" c="dimmed">
               {t(
                 "pageEditor.emptyState.body",
-                "Add files to start editing pages",
+                "Select PDF files using the checkboxes on the left to start editing pages.",
               )}
             </Text>
           </Stack>
         </Center>
       )}
 
-      {!initialDocument && (globalProcessing || hasPdfFiles) && (
+      {!initialDocument && hasPdfFiles && (
         <Box p={0}>
           <SkeletonLoader type="controls" />
           <SkeletonLoader type="pageGrid" count={8} />
         </Box>
       )}
 
-      {displayDocument && (
+      {hasPdfFiles && displayDocument && (
         <Box
           ref={gridContainerRef}
           p={0}

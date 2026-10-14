@@ -2,10 +2,11 @@ import React from "react";
 
 /** "bar-lead" follows the view switcher, for content naming what the view is showing;
  *  "bar" renders among the bar's own actions on the right; top/middle/bottom are lanes
- *  of the retractable tool row beneath it. */
+ *  of the retractable tool row beneath it; "tool-lead" is pinned to its left edge. */
 export type WorkbenchBarSection =
   | "bar-lead"
   | "bar"
+  | "tool-lead"
   | "top"
   | "middle"
   | "bottom"

@@ -391,9 +391,9 @@ describe("useNotificationActions", () => {
   });
 
   it("says it cannot hand the document over rather than navigating to nothing", async () => {
-    // Spied on the prototype: jsdom's storage is a proxy, so an own-property spy does not take.
+    // Node and jsdom can expose different Storage constructors; use the actual instance's prototype.
     const setItem = vi
-      .spyOn(Storage.prototype, "setItem")
+      .spyOn(Object.getPrototypeOf(window.sessionStorage), "setItem")
       .mockImplementation(() => {
         throw new Error("denied");
       });

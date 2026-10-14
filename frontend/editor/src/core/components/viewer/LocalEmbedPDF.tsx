@@ -121,6 +121,8 @@ import SignatureFieldOverlay from "@app/components/viewer/SignatureFieldOverlay"
 import { CommentsSidebar } from "@app/components/viewer/CommentsSidebar";
 import { CommentAuthorProvider } from "@app/contexts/CommentAuthorContext";
 import { accountService } from "@app/services/accountService";
+import FileRedactionPdfLayer from "@app/components/viewer/FileRedactionPdfLayer";
+import { useViewActive } from "@app/components/layout/RetainedView";
 
 interface LocalEmbedPDFProps {
   file?: File | Blob;
@@ -128,6 +130,8 @@ interface LocalEmbedPDFProps {
   fileName?: string;
   enableAnnotations?: boolean;
   enableRedaction?: boolean;
+  enableFileRedaction?: boolean;
+  fileRedactionId?: string | null;
   enableFormFill?: boolean;
   /** Structural create/modify overlays only mount while the Form tool owns the viewer. */
   formEditingActive?: boolean;
@@ -271,6 +275,8 @@ interface PageLayerOptions {
   formEditingActive: boolean;
   enableAnnotations: boolean;
   enableRedaction: boolean;
+  enableFileRedaction: boolean;
+  fileRedactionId?: string | null;
   showBakedAnnotations: boolean;
   onAnnotationMenuAnchor: (anchor: AnnotationMenuAnchor | null) => void;
   /** Null while the signature preview overlay is not mounted. */
@@ -303,6 +309,7 @@ function PageTiles({
 }
 
 function PageTextSelection({ documentId, pageIndex }: PageLayerProps) {
+  const viewActive = useViewActive();
   return (
     <>
       <div
@@ -317,7 +324,9 @@ function PageTextSelection({ documentId, pageIndex }: PageLayerProps) {
           documentId={documentId}
           pageIndex={pageIndex}
           background="var(--pdf-selection-bg)"
-          selectionMenu={(props) => <TextSelectionMenu {...props} />}
+          selectionMenu={(props) =>
+            viewActive ? <TextSelectionMenu {...props} /> : null
+          }
         />
       </div>
       <TextSelectionHandler documentId={documentId} pageIndex={pageIndex} />
@@ -410,6 +419,7 @@ function AnnotationEditingLayers({
   showBakedAnnotations,
   onAnnotationMenuAnchor,
 }: AnnotationEditingLayersProps) {
+  const viewActive = useViewActive();
   if (!enableAnnotations && !enableRedaction) return null;
   return (
     <>
@@ -418,12 +428,14 @@ function AnnotationEditingLayers({
         documentId={documentId}
         pageIndex={pageIndex}
         selectionOutline={{ color: "#007ACC" }}
-        selectionMenu={(props) => (
-          <AnnotationSelectionMenu
-            {...props}
-            onAnchor={onAnnotationMenuAnchor}
-          />
-        )}
+        selectionMenu={(props) =>
+          viewActive ? (
+            <AnnotationSelectionMenu
+              {...props}
+              onAnchor={onAnnotationMenuAnchor}
+            />
+          ) : null
+        }
         style={
           !showBakedAnnotations
             ? {
@@ -437,7 +449,9 @@ function AnnotationEditingLayers({
         <RedactionLayer
           documentId={documentId}
           pageIndex={pageIndex}
-          selectionMenu={(props) => <RedactionSelectionMenu {...props} />}
+          selectionMenu={(props) =>
+            viewActive ? <RedactionSelectionMenu {...props} /> : null
+          }
         />
       )}
     </>
@@ -459,6 +473,8 @@ function PageLayers({
   showBakedAnnotations,
   onAnnotationMenuAnchor,
   signatureOverlay,
+  enableFileRedaction,
+  fileRedactionId,
 }: PageGeometry & PageLayerOptions) {
   return (
     <>
@@ -506,6 +522,15 @@ function PageLayers({
           pageWidth={width}
           pageHeight={height}
           {...signatureOverlay}
+        />
+      )}
+      {enableFileRedaction && fileRedactionId && (
+        <FileRedactionPdfLayer
+          documentId={documentId}
+          fileId={fileRedactionId}
+          pageIndex={pageIndex}
+          width={width}
+          height={height}
         />
       )}
     </>
@@ -593,7 +618,8 @@ function DocumentComments({
   visible,
   rightOffset,
 }: DocumentCommentsProps) {
-  if (!enabled) return null;
+  const viewActive = useViewActive();
+  if (!enabled || !viewActive) return null;
   return (
     <CommentAuthorProvider displayName={authorName}>
       <CommentsSidebar
@@ -637,6 +663,7 @@ function EditingBridges({
   deletedAnnotationMenu,
   onDismissDeletedAnnotationMenu,
 }: EditingBridgesProps) {
+  const viewActive = useViewActive();
   const redactionActive = enableRedaction || isManualRedactionMode;
   if (!enableAnnotations && !redactionActive) return null;
   return (
@@ -646,10 +673,12 @@ function EditingBridges({
         getAnchor={getAnnotationAnchor}
         onDeleted={onAnnotationDeleted}
       />
-      <AnnotationDeletedMenu
-        anchor={deletedAnnotationMenu}
-        onDismiss={onDismissDeletedAnnotationMenu}
-      />
+      {viewActive && (
+        <AnnotationDeletedMenu
+          anchor={deletedAnnotationMenu}
+          onDismiss={onDismissDeletedAnnotationMenu}
+        />
+      )}
       {/* Always render RedactionAPIBridge when in manual redaction mode so buttons can switch from annotation mode */}
       {redactionActive && <RedactionAPIBridge />}
       {/* Always render SignatureAPIBridge so annotation tools (draw) can be activated even when starting in redaction mode */}
@@ -666,6 +695,8 @@ export function LocalEmbedPDF({
   fileName,
   enableAnnotations = false,
   enableRedaction = false,
+  enableFileRedaction = false,
+  fileRedactionId,
   enableFormFill = false,
   formEditingActive = false,
   isManualRedactionMode = false,
@@ -1238,6 +1269,8 @@ export function LocalEmbedPDF({
   };
 
   const pageOptions: ViewerPageOptions = {
+    enableFileRedaction,
+    fileRedactionId,
     file,
     fileId,
     pdfRenderMode,

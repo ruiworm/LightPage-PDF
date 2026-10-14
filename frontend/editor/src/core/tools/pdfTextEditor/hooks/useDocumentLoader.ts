@@ -7,6 +7,7 @@ import {
 } from "@app/services/pdfiumService";
 import type { EditorStore } from "@app/tools/pdfTextEditor/store/EditorStore";
 import type { PageSnapshot } from "@app/tools/pdfTextEditor/types";
+import { preloadFallbackFontBytes } from "@app/tools/pdfTextEditor/util/fallbackFont";
 
 const EAGER_PAGE_LIMIT = 5;
 
@@ -36,7 +37,10 @@ export function useDocumentLoader(store: EditorStore) {
           total: 0,
         });
         await yieldToBrowser();
-        const doc = await EditorDocument.open(bytes, password);
+        const [doc] = await Promise.all([
+          EditorDocument.open(bytes, password),
+          preloadFallbackFontBytes(),
+        ]);
         if (!store.isCurrentLoad(token)) {
           // A newer load superseded us before we installed our doc - free
           // it ourselves (setDocument never took ownership).

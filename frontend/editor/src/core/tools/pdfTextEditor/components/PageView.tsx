@@ -12,6 +12,7 @@ import { AnnotationOutline } from "@app/tools/pdfTextEditor/components/Annotatio
 import { DisplayTransform } from "@app/tools/pdfTextEditor/model/DisplayTransform";
 import { PageGuides } from "@app/tools/pdfTextEditor/components/PageRulers";
 import { useDevicePixelRatio } from "@app/tools/pdfTextEditor/hooks/useDevicePixelRatio";
+import { useViewActive } from "@app/components/layout/RetainedView";
 
 interface PageViewProps {
   document: EditorDocument;
@@ -101,6 +102,9 @@ export function PageView({
   onFirstRendered,
 }: PageViewProps) {
   const { t } = useTranslation();
+  const viewActive = useViewActive();
+  const viewActiveRef = useRef(viewActive);
+  viewActiveRef.current = viewActive;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   // `raster` is the CSS layout size; the bitmap itself renders at deviceScale
@@ -127,14 +131,24 @@ export function PageView({
   const [retryToken, setRetryToken] = useState(0);
   // True when this page is within ~one viewport of the visible area.
   const [nearViewport, setNearViewport] = useState(false);
+  const painted = useRef<{
+    document: EditorDocument;
+    pageIndex: number;
+    width: number;
+    height: number;
+    revision: number;
+    deviceScale: number;
+    retryToken: number;
+  } | null>(null);
 
   // First-visible: lazy-populate the page's runs/images.
   useEffect(() => {
     const el = containerRef.current;
-    if (!el || !onFirstVisible) return;
+    if (!viewActive || !el || !onFirstVisible) return;
     if (visibleFiredRef.current) return;
     const observer = new IntersectionObserver(
       (entries) => {
+        if (document.disposed || !viewActiveRef.current) return;
         for (const entry of entries) {
           if (entry.isIntersecting && !visibleFiredRef.current) {
             visibleFiredRef.current = true;
@@ -147,15 +161,16 @@ export function PageView({
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [page.pageIndex, onFirstVisible]);
+  }, [viewActive, document, page.pageIndex, onFirstVisible]);
 
   // Near-viewport observer drives rendering with a wide rootMargin so the
   // bitmap is ready just before the page scrolls in.
   useEffect(() => {
     const el = containerRef.current;
-    if (!el) return;
+    if (!viewActive || !el) return;
     const observer = new IntersectionObserver(
       (entries) => {
+        if (!viewActiveRef.current) return;
         for (const entry of entries) {
           setNearViewport(entry.isIntersecting);
         }
@@ -164,20 +179,52 @@ export function PageView({
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [viewActive]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    return () => {
+      if (canvas) {
+        canvas.width = 0;
+        canvas.height = 0;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    // Passive effects from an old page can run during a document replacement.
+    // Its native handles have already been released by the store.
+    if (document.disposed) return;
+    const canvas = canvasRef.current;
+    // A hidden retained view preserves only its existing nearby bitmaps.
+    if (!viewActive) {
+      setRendering(false);
+      return;
+    }
     if (!nearViewport) {
       // Far from the viewport: free the bitmap (a 4x-zoom A4 canvas is ~32MB).
       if (canvas) {
         canvas.width = 0;
         canvas.height = 0;
       }
+      painted.current = null;
       return;
     }
     let cancelled = false;
     if (!canvas) return;
+    const previous = painted.current;
+    if (
+      canvas.width > 0 &&
+      canvas.height > 0 &&
+      previous?.document === document &&
+      previous.pageIndex === page.pageIndex &&
+      previous.width === page.width &&
+      previous.height === page.height &&
+      previous.revision === page.revision &&
+      previous.deviceScale === deviceScale &&
+      previous.retryToken === retryToken
+    )
+      return;
     setRendering(true);
     setRenderError(null);
     PdfiumPageRenderer.render(
@@ -186,11 +233,20 @@ export function PageView({
       deviceScale,
     )
       .then((image) => {
-        if (cancelled || !canvasRef.current) return;
+        if (cancelled || document.disposed || !canvasRef.current) return;
         canvas.width = image.width;
         canvas.height = image.height;
         const ctx = canvas.getContext("2d");
         if (ctx) ctx.putImageData(image, 0, 0);
+        painted.current = {
+          document,
+          pageIndex: page.pageIndex,
+          width: page.width,
+          height: page.height,
+          revision: page.revision,
+          deviceScale,
+          retryToken,
+        };
         setRendering(false);
         setPaintedRevision(page.revision);
         if (!firstRenderFiredRef.current) {
@@ -216,6 +272,7 @@ export function PageView({
       cancelled = true;
     };
   }, [
+    viewActive,
     nearViewport,
     document,
     page.pageIndex,

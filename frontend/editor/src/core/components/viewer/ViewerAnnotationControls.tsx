@@ -16,12 +16,7 @@ import {
   useNavigationActions,
 } from "@app/contexts/NavigationContext";
 import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
-import { useRedactionMode, useRedaction } from "@app/contexts/RedactionContext";
-import {
-  defaultParameters,
-  RedactParameters,
-} from "@app/hooks/tools/redact/useRedactParameters";
-import { RedactionMode } from "@embedpdf/plugin-redaction";
+import { useRedaction } from "@app/contexts/RedactionContext";
 
 import { Icon } from "@app/ui/Icon";
 interface ViewerAnnotationControlsProps {
@@ -54,17 +49,8 @@ export default function ViewerAnnotationControls({
   const isRedactMode = selectedTool === "redact";
 
   // Get redaction pending state and navigation guard
-  const { isRedacting: _isRedacting } = useRedactionMode();
   const { requestNavigation, setHasUnsavedChanges } = useNavigationGuard();
-  const {
-    setRedactionMode,
-    activateRedact,
-    deactivateRedact,
-    setRedactionConfig,
-    setRedactionsApplied,
-    redactionApiRef,
-    setActiveType,
-  } = useRedaction();
+  const { setRedactionsApplied } = useRedaction();
 
   // Check if we're in any annotation tool that should disable the toggle
   const isInAnnotationTool =
@@ -114,55 +100,14 @@ export default function ViewerAnnotationControls({
     }
   };
 
-  const exitRedactionMode = useCallback(() => {
-    navActions.setToolAndWorkbench(null, "viewer");
-    setLeftPanelView("toolPicker");
-    setRedactionMode(false);
-    setActiveType(null);
-    deactivateRedact();
-  }, [
-    navActions,
-    setLeftPanelView,
-    setRedactionMode,
-    setActiveType,
-    deactivateRedact,
-  ]);
-
-  // Handle redaction mode toggle
   const handleRedactionToggle = async () => {
-    if (isRedactMode) {
-      exitRedactionMode();
-    } else {
-      const hasAnnotationChanges = historyApiRef?.current?.canUndo() ?? false;
-
-      const enterRedactionMode = async () => {
-        await saveAnnotationsIfNeeded();
-
-        const manualConfig: RedactParameters = {
-          ...defaultParameters,
-          mode: "manual",
-        };
-        setRedactionConfig(manualConfig);
-
-        navActions.setToolAndWorkbench("redact", "viewer");
-
-        setLeftPanelView("toolContent");
-
-        setRedactionMode(true);
-        setTimeout(() => {
-          const currentType = redactionApiRef.current?.getActiveType?.();
-          if (currentType !== RedactionMode.Redact) {
-            activateRedact();
-          }
-        }, 200);
-      };
-
-      if (hasAnnotationChanges) {
-        requestNavigation(enterRedactionMode);
-      } else {
-        await enterRedactionMode();
-      }
-    }
+    const enter = async () => {
+      await saveAnnotationsIfNeeded();
+      navActions.setToolAndWorkbench("redact", "viewer");
+      setLeftPanelView("toolContent");
+    };
+    if (historyApiRef?.current?.canUndo()) requestNavigation(enter);
+    else await enter();
   };
 
   const handleToggleAnnotationsVisibility = useCallback(() => {
@@ -177,11 +122,7 @@ export default function ViewerAnnotationControls({
   return (
     <>
       <Tooltip
-        content={
-          isRedactMode
-            ? t("workbenchBar.exitRedaction", "Exit Redaction Mode")
-            : t("workbenchBar.redact", "Redact")
-        }
+        content={t("workbenchBar.redact", "File Redaction")}
         position="bottom"
         offset={16}
         arrow
@@ -192,11 +133,7 @@ export default function ViewerAnnotationControls({
           className="workbench-bar-action-icon"
           onClick={handleRedactionToggle}
           disabled={disabled || currentView !== "viewer"}
-          aria-label={
-            isRedactMode
-              ? t("workbenchBar.exitRedaction", "Exit Redaction Mode")
-              : t("workbenchBar.redact", "Redact")
-          }
+          aria-label={t("workbenchBar.redact", "File Redaction")}
         >
           <Icon name="file-x" size="1.25rem" />
         </ActionIcon>

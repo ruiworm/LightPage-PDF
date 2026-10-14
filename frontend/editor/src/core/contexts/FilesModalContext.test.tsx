@@ -25,11 +25,15 @@ const state = vi.hoisted(() => ({
   addStirlingFileStubs: vi.fn().mockResolvedValue(undefined),
   setSelectedFiles: vi.fn(),
   setWorkbench: vi.fn(),
+  setActiveFileId: vi.fn(),
   getStirlingFile: vi.fn(),
   apiGet: vi.fn(),
 }));
 vi.mock("@app/hooks/useFileHandler", () => ({
   useFileHandler: () => ({ addFiles: state.addFiles }),
+}));
+vi.mock("@app/contexts/ViewerContext", () => ({
+  useViewer: () => ({ setActiveFileId: state.setActiveFileId }),
 }));
 vi.mock("@app/contexts/FileContext", () => ({
   useFileActions: () => ({
@@ -128,7 +132,7 @@ describe("file picker caller contract", () => {
       "already-open",
       ...locals.map((stub) => stub.id),
     ]);
-    expect(state.setWorkbench).toHaveBeenCalledWith("fileEditor");
+    expect(state.setWorkbench).toHaveBeenCalledWith("viewer");
   });
 
   it("preserves selection order when loading mixed sources", async () => {
@@ -267,7 +271,7 @@ describe("file picker caller contract", () => {
       stored.id,
       "uploaded",
     ]);
-    expect(state.setWorkbench).toHaveBeenCalledWith("fileEditor");
+    expect(state.setWorkbench).toHaveBeenCalledWith("viewer");
   });
 
   it("does not close a reopened picker when a previous import finishes", async () => {

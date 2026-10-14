@@ -26,29 +26,22 @@ describe("analytics", () => {
     optedIn = true;
   });
 
-  it("captures one event per uploaded PDF (no dedup)", () => {
+  it("does not capture uploads even when consent was granted", () => {
     trackPdfUploaded([pdf("a.pdf"), pdf("a.pdf"), pdf("b.pdf")]);
-    expect(capture).toHaveBeenCalledTimes(3);
-    expect(capture).toHaveBeenCalledWith("editor_pdf_uploaded", {
-      source: "editor",
-    });
+    expect(capture).not.toHaveBeenCalled();
   });
 
-  it("counts every uploaded file regardless of type", () => {
+  it("does not capture other uploaded file types", () => {
     trackPdfUploaded([
       new File(["x"], "a.png", { type: "image/png" }),
       pdf("b.pdf"),
     ]);
-    expect(capture).toHaveBeenCalledTimes(2);
+    expect(capture).not.toHaveBeenCalled();
   });
 
-  it("captures one event per editor operation run", () => {
+  it("does not capture editor operations", () => {
     trackEditorOperation("compress", 3);
-    expect(capture).toHaveBeenCalledWith("editor_operation", {
-      source: "editor",
-      tool: "compress",
-      file_count: 3,
-    });
+    expect(capture).not.toHaveBeenCalled();
   });
 
   it("does not capture when opted out", () => {

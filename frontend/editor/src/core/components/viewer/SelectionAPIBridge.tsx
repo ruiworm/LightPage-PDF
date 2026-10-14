@@ -8,11 +8,13 @@ import { useDocumentState } from "@embedpdf/core/react";
 import { useViewer } from "@app/contexts/ViewerContext";
 import { useDocumentReady } from "@app/components/viewer/hooks/useDocumentReady";
 import { useActiveDocumentId } from "@app/components/viewer/useActiveDocumentId";
+import { useViewActive } from "@app/components/layout/RetainedView";
 
 /**
  * Connects the PDF selection plugin to the shared ViewerContext.
  */
 export function SelectionAPIBridge() {
+  const viewActive = useViewActive();
   const { provides: selection } = useSelectionCapability();
   const { plugin: selectionPlugin } = useSelectionPlugin();
   const { registerBridge } = useViewer();
@@ -192,12 +194,14 @@ export function SelectionAPIBridge() {
     );
 
     const handleCopy = (event: ClipboardEvent) => {
+      if (!viewActive) return;
       if (!hasSelectionRef.current || !selectedTextRef.current) return;
       event.clipboardData?.setData("text/plain", selectedTextRef.current);
       event.preventDefault();
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (!viewActive) return;
       if (
         (event.ctrlKey || event.metaKey) &&
         event.key === "c" &&
@@ -211,6 +215,7 @@ export function SelectionAPIBridge() {
     // image" menu, and if nothing is currently selected, auto-select the
     // word under the cursor so the floating Copy menu appears in place.
     const handleContextMenu = (event: MouseEvent) => {
+      if (!viewActive) return;
       let el = event.target as HTMLElement | null;
       while (el && !el.dataset?.pageIndex) {
         el = el.parentElement;
@@ -242,6 +247,7 @@ export function SelectionAPIBridge() {
       registerBridge("selection", null);
     };
   }, [
+    viewActive,
     selection,
     selectionPlugin,
     activeDocumentId,

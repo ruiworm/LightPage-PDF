@@ -112,8 +112,12 @@ describe("formatPeriodDate", () => {
 
   it("formats the date part of an ISO string", () => {
     const out = formatPeriodDate("2026-06-24");
-    expect(out).toContain("Jun");
-    expect(out).toContain("24");
+    expect(out).toBe(
+      new Intl.DateTimeFormat(undefined, {
+        day: "numeric",
+        month: "short",
+      }).format(new Date(2026, 5, 24)),
+    );
   });
 
   it("includes the year only when asked", () => {

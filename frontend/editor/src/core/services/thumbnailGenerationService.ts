@@ -30,9 +30,14 @@ interface CachedThumbnail {
 }
 
 interface CachedPDFDocument {
-  docPtr: number;
+  source: WeakRef<ArrayBuffer>;
+  sizeBytes: number;
+  opening: Promise<number>;
+  docPtr: number | null;
   lastUsed: number;
   refCount: number;
+  retained: boolean;
+  idleTimer: ReturnType<typeof setTimeout> | null;
 }
 
 export class ThumbnailGenerationService {
@@ -44,71 +49,131 @@ export class ThumbnailGenerationService {
   private maxCacheSizeBytes = 1024 * 1024 * 1024; // 1GB cache limit
   private currentCacheSize = 0;
 
-  // PDF document cache to reuse PDF instances and avoid creating multiple workers
   private pdfDocumentCache = new Map<FileId, CachedPDFDocument>();
-  private maxPdfCacheSize = 10; // Keep up to 10 PDF documents cached
+  private pdfCacheAccess = 0;
+  private generation = 0;
 
-  constructor(private maxWorkers: number = 10) {
-    // PDF rendering requires DOM access, so we use optimized main thread processing
-  }
+  /** Active leases may exceed the cache budget until their renders finish.
+   * The byte limit budgets source bytes copied into PDFium, not its full heap. */
+  constructor(
+    private maxPdfCacheSize = 3,
+    private maxPdfCacheSizeBytes = 64 * 1024 * 1024,
+    private pdfCacheIdleMs = 30_000,
+  ) {}
 
   /**
-   * Get or create a cached PDFium document pointer.
+   * Acquires a lease on these exact bytes; replacement must not close old renders.
    */
   private async getCachedPDFDocument(
     fileId: FileId,
     pdfArrayBuffer: ArrayBuffer,
-  ): Promise<number> {
-    const cached = this.pdfDocumentCache.get(fileId);
+  ): Promise<CachedPDFDocument> {
+    let cached = this.pdfDocumentCache.get(fileId);
+    if (cached && cached.source.deref() !== pdfArrayBuffer) {
+      this.retirePDFDocument(fileId, cached);
+      cached = undefined;
+    }
     if (cached) {
-      cached.lastUsed = Date.now();
+      cached.lastUsed = ++this.pdfCacheAccess;
       cached.refCount++;
-      return cached.docPtr;
-    }
-
-    while (this.pdfDocumentCache.size >= this.maxPdfCacheSize) {
-      this.evictLeastRecentlyUsedPDF();
-    }
-
-    const docPtr = await openRawDocumentSafe(pdfArrayBuffer);
-
-    this.pdfDocumentCache.set(fileId, {
-      docPtr,
-      lastUsed: Date.now(),
-      refCount: 1,
-    });
-
-    return docPtr;
-  }
-
-  /**
-   * Release a reference to a cached PDF document
-   */
-  private releasePDFDocument(fileId: FileId): void {
-    const cached = this.pdfDocumentCache.get(fileId);
-    if (cached) {
-      cached.refCount--;
-      // Don't destroy immediately - keep in cache for potential reuse
-    }
-  }
-
-  /**
-   * Evict the least recently used PDF document
-   */
-  private evictLeastRecentlyUsedPDF(): void {
-    let oldestEntry: [FileId, CachedPDFDocument] | null = null;
-    let oldestTime = Date.now();
-
-    for (const [key, value] of this.pdfDocumentCache.entries()) {
-      if (value.lastUsed < oldestTime && value.refCount === 0) {
-        oldestTime = value.lastUsed;
-        oldestEntry = [key, value];
+      if (cached.idleTimer !== null) {
+        clearTimeout(cached.idleTimer);
+        cached.idleTimer = null;
       }
+    } else {
+      const opening = openRawDocumentSafe(pdfArrayBuffer);
+      cached = {
+        source: new WeakRef(pdfArrayBuffer),
+        sizeBytes: pdfArrayBuffer.byteLength,
+        opening,
+        docPtr: null,
+        lastUsed: ++this.pdfCacheAccess,
+        refCount: 1,
+        retained: true,
+        idleTimer: null,
+      };
+      const entry = cached;
+      entry.opening = opening.then(
+        (docPtr) => {
+          entry.docPtr = docPtr;
+          return docPtr;
+        },
+        (error: unknown) => {
+          this.retirePDFDocument(fileId, entry);
+          throw error;
+        },
+      );
+      this.pdfDocumentCache.set(fileId, entry);
+      this.trimPDFCache();
     }
 
-    if (oldestEntry) {
-      void closeRawDocument(oldestEntry[1].docPtr);
-      this.pdfDocumentCache.delete(oldestEntry[0]);
+    try {
+      await cached.opening;
+      return cached;
+    } catch (error) {
+      this.releasePDFDocument(fileId, cached);
+      throw error;
+    }
+  }
+
+  private releasePDFDocument(fileId: FileId, entry: CachedPDFDocument): void {
+    entry.refCount--;
+    if (entry.refCount > 0) return;
+    if (!entry.retained) {
+      this.closePDFDocument(entry);
+      return;
+    }
+    entry.lastUsed = ++this.pdfCacheAccess;
+    entry.idleTimer = setTimeout(
+      () => this.retirePDFDocument(fileId, entry),
+      this.pdfCacheIdleMs,
+    );
+    this.trimPDFCache();
+  }
+
+  private retirePDFDocument(fileId: FileId, entry: CachedPDFDocument): void {
+    if (this.pdfDocumentCache.get(fileId) === entry) {
+      this.pdfDocumentCache.delete(fileId);
+    }
+    entry.retained = false;
+    if (entry.idleTimer !== null) {
+      clearTimeout(entry.idleTimer);
+      entry.idleTimer = null;
+    }
+    if (entry.refCount === 0) this.closePDFDocument(entry);
+  }
+
+  private closePDFDocument(entry: CachedPDFDocument): void {
+    const docPtr = entry.docPtr;
+    entry.docPtr = null;
+    if (docPtr !== null) {
+      void closeRawDocument(docPtr).catch((error: unknown) => {
+        console.error("Failed to close thumbnail PDF document:", error);
+      });
+    }
+  }
+
+  private trimPDFCache(): void {
+    let sizeBytes = [...this.pdfDocumentCache.values()].reduce(
+      (sum, entry) => sum + entry.sizeBytes,
+      0,
+    );
+    while (
+      this.pdfDocumentCache.size > this.maxPdfCacheSize ||
+      sizeBytes > this.maxPdfCacheSizeBytes
+    ) {
+      let oldest: [FileId, CachedPDFDocument] | null = null;
+      for (const candidate of this.pdfDocumentCache.entries()) {
+        if (
+          candidate[1].refCount === 0 &&
+          (!oldest || candidate[1].lastUsed < oldest[1].lastUsed)
+        ) {
+          oldest = candidate;
+        }
+      }
+      if (!oldest) return;
+      sizeBytes -= oldest[1].sizeBytes;
+      this.retirePDFDocument(...oldest);
     }
   }
 
@@ -166,64 +231,76 @@ export class ThumbnailGenerationService {
       thumbnails: ThumbnailResult[];
     }) => void,
   ): Promise<ThumbnailResult[]> {
-    const docPtr = await this.getCachedPDFDocument(fileId, pdfArrayBuffer);
+    const generation = this.generation;
+    const entry = await this.getCachedPDFDocument(fileId, pdfArrayBuffer);
+    const docPtr = entry.docPtr!;
 
     const allResults: ThumbnailResult[] = [];
     let completed = 0;
+    let successful = false;
     const batchSize = 3; // Smaller batches for better UI responsiveness
 
-    // Process pages in small batches
-    for (let i = 0; i < pageNumbers.length; i += batchSize) {
-      const batch = pageNumbers.slice(i, i + batchSize);
+    try {
+      for (
+        let i = 0;
+        i < pageNumbers.length && generation === this.generation;
+        i += batchSize
+      ) {
+        const batch = pageNumbers.slice(i, i + batchSize);
 
-      // Process batch sequentially (to avoid canvas conflicts)
-      for (const pageNumber of batch) {
-        try {
-          const thumbnail = await renderPdfiumPageDataUrl(
-            docPtr,
-            pageNumber - 1,
-            scale,
-            { applyRotation: false, format: "jpeg", quality },
-          );
-          if (!thumbnail) {
-            throw new Error(`Could not render page ${pageNumber}`);
+        // Process batch sequentially (to avoid canvas conflicts)
+        for (const pageNumber of batch) {
+          if (generation !== this.generation) break;
+          try {
+            const thumbnail = await renderPdfiumPageDataUrl(
+              docPtr,
+              pageNumber - 1,
+              scale,
+              { applyRotation: false, format: "jpeg", quality },
+            );
+            if (!thumbnail) {
+              throw new Error(`Could not render page ${pageNumber}`);
+            }
+            allResults.push({ pageNumber, thumbnail, success: true });
+          } catch (error) {
+            console.error(
+              `Failed to generate thumbnail for page ${pageNumber}:`,
+              error,
+            );
+            allResults.push({
+              pageNumber,
+              thumbnail: "",
+              success: false,
+              error: error instanceof Error ? error.message : "Unknown error",
+            });
           }
-          allResults.push({ pageNumber, thumbnail, success: true });
-        } catch (error) {
-          console.error(
-            `Failed to generate thumbnail for page ${pageNumber}:`,
-            error,
-          );
-          allResults.push({
-            pageNumber,
-            thumbnail: "",
-            success: false,
-            error: error instanceof Error ? error.message : "Unknown error",
+        }
+
+        completed = allResults.length;
+
+        // Report progress
+        if (onProgress) {
+          onProgress({
+            completed,
+            total: pageNumbers.length,
+            thumbnails: allResults
+              .slice(-batch.length)
+              .filter((r) => r.success),
           });
         }
+
+        // Yield control to prevent UI blocking
+        await new Promise((resolve) => setTimeout(resolve, 1));
       }
 
-      completed += batch.length;
-
-      // Report progress
-      if (onProgress) {
-        onProgress({
-          completed,
-          total: pageNumbers.length,
-          thumbnails: allResults.slice(-batch.length).filter((r) => r.success),
-        });
-      }
-
-      // Yield control to prevent UI blocking
-      await new Promise((resolve) => setTimeout(resolve, 1));
+      successful =
+        generation === this.generation &&
+        allResults.every((result) => result.success);
+      return allResults;
+    } finally {
+      if (!successful) this.retirePDFDocument(fileId, entry);
+      this.releasePDFDocument(fileId, entry);
     }
-
-    // Release reference to PDF document (don't destroy - keep in cache)
-    this.releasePDFDocument(fileId);
-
-    this.cleanupCompletedDocument(fileId);
-
-    return allResults;
   }
 
   /**
@@ -283,8 +360,10 @@ export class ThumbnailGenerationService {
     };
   }
 
+  /** Stops after the current native render; future calls can start a new generation. */
   stopGeneration(): void {
-    // No-op since we removed workers
+    this.generation++;
+    this.clearPDFCache();
   }
 
   clearCache(): void {
@@ -292,37 +371,34 @@ export class ThumbnailGenerationService {
     this.currentCacheSize = 0;
   }
 
+  /** Invalidates pending and cached opens, closing active handles after their last lease. */
   clearPDFCache(): void {
-    // Destroy all cached PDF documents using worker manager
-    for (const [, cached] of this.pdfDocumentCache) {
-      void closeRawDocument(cached.docPtr);
+    for (const [fileId, cached] of this.pdfDocumentCache) {
+      this.retirePDFDocument(fileId, cached);
     }
-    this.pdfDocumentCache.clear();
   }
 
+  /** Invalidates this file's native cache without closing another caller's render. */
   clearPDFCacheForFile(fileId: FileId): void {
     const cached = this.pdfDocumentCache.get(fileId);
     if (cached) {
-      void closeRawDocument(cached.docPtr);
-      this.pdfDocumentCache.delete(fileId);
+      this.retirePDFDocument(fileId, cached);
     }
   }
 
   /**
-   * Clean up a PDF document from cache when thumbnail generation is complete
-   * This frees up workers faster for better performance
+   * Explicitly evicts an idle document; an active render keeps its lease.
    */
   cleanupCompletedDocument(fileId: FileId): void {
     const cached = this.pdfDocumentCache.get(fileId);
-    if (cached && cached.refCount <= 0) {
-      void closeRawDocument(cached.docPtr);
-      this.pdfDocumentCache.delete(fileId);
+    if (cached) {
+      this.retirePDFDocument(fileId, cached);
     }
   }
 
   destroy(): void {
     this.clearCache();
-    this.clearPDFCache();
+    this.stopGeneration();
   }
 }
 

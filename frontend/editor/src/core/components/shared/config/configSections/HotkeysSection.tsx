@@ -12,7 +12,6 @@ import {
 } from "@mantine/core";
 import { Button } from "@app/ui/Button";
 import { useTranslation } from "react-i18next";
-import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
 import { useHotkeys } from "@app/contexts/HotkeyContext";
 import { ToolId } from "@app/types/toolId";
 import HotkeyDisplay from "@app/components/hotkeys/HotkeyDisplay";
@@ -21,7 +20,6 @@ import {
   eventToBinding,
   HotkeyBinding,
 } from "@app/utils/hotkeys";
-import { ToolRegistryEntry } from "@app/data/toolsTaxonomy";
 
 const rowStyle: React.CSSProperties = {
   display: "flex",
@@ -39,8 +37,8 @@ const rowHeaderStyle: React.CSSProperties = {
 
 const HotkeysSection: React.FC = () => {
   const { t } = useTranslation();
-  const { toolRegistry } = useToolWorkflow();
   const {
+    tools,
     hotkeys,
     defaults,
     updateHotkey,
@@ -53,11 +51,6 @@ const HotkeysSection: React.FC = () => {
   const [editingTool, setEditingTool] = useState<ToolId | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-
-  const tools = useMemo(
-    () => Object.entries(toolRegistry) as [ToolId, ToolRegistryEntry][],
-    [toolRegistry],
-  );
 
   const filteredTools = useMemo(() => {
     if (!searchQuery.trim()) return tools;
@@ -115,9 +108,8 @@ const HotkeysSection: React.FC = () => {
       if (conflictEntry) {
         const conflictKey = conflictEntry[0];
         const conflictTool =
-          conflictKey in toolRegistry
-            ? toolRegistry[conflictKey]?.name
-            : conflictKey;
+          tools.find(([toolId]) => toolId === conflictKey)?.[1].name ??
+          conflictKey;
         setError(
           t(
             "settings.hotkeys.errorConflict",
@@ -137,7 +129,7 @@ const HotkeysSection: React.FC = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, [editingTool, hotkeys, toolRegistry, updateHotkey, t]);
+  }, [editingTool, hotkeys, tools, updateHotkey, t]);
 
   const handleStartCapture = (toolId: ToolId) => {
     setEditingTool(toolId);
