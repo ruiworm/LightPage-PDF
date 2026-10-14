@@ -48,6 +48,7 @@ jobs:
       - name: Restore Rust build cache
         uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
         with:
+          cache-on-failure: true
           workspaces: |
             frontend/editor/src-tauri
             frontend/editor/src-tauri/provisioner
@@ -55,10 +56,6 @@ jobs:
 
       - name: Set up Task
         uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e
-
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci
 
       - name: Prepare bundled backend and Java runtime
         run: task desktop:prepare
