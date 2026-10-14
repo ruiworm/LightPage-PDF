@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -26,8 +27,6 @@ import stirling.software.common.util.GeneralUtils;
 import stirling.software.common.util.TempFile;
 import stirling.software.common.util.TempFileManager;
 import stirling.software.common.util.WebResponseUtils;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @MiscApi
 @ConditionalOnProperty(

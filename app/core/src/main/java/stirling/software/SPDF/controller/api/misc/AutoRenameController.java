@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +31,6 @@ import stirling.software.common.service.CustomPDFDocumentFactory;
 import stirling.software.common.util.RegexPatternUtils;
 import stirling.software.common.util.TempFileManager;
 import stirling.software.common.util.WebResponseUtils;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @MiscApi
 @ConditionalOnProperty(

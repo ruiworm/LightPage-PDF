@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.media.ComposedSchema;
@@ -46,9 +45,7 @@ public class OpenApiConfig {
                 new Info()
                         .title(DEFAULT_TITLE)
                         .version(version)
-                        .license(
-                                new License()
-                                        .name("MIT Licensed"))
+                        .license(new License().name("MIT Licensed"))
                         .description(DEFAULT_DESCRIPTION);
 
         OpenAPI openAPI = new OpenAPI().info(info).openapi("3.0.3");

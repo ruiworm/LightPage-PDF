@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,6 @@ import io.swagger.v3.oas.annotations.Operation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 import stirling.software.SPDF.config.EndpointConfiguration;
 import stirling.software.SPDF.config.swagger.StandardPdfResponse;

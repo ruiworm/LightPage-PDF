@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -34,8 +35,6 @@ import lombok.extern.slf4j.Slf4j;
 import stirling.software.common.model.ApplicationProperties;
 import stirling.software.common.service.MobileScannerService;
 import stirling.software.common.service.MobileScannerService.FileMetadata;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 /**
  * REST controller for mobile scanner functionality. Allows mobile devices to upload scanned images

@@ -11,6 +11,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +37,6 @@ import stirling.software.common.util.ApplicationContextProvider;
 import stirling.software.common.util.ExceptionUtils;
 import stirling.software.common.util.TempFileManager;
 import stirling.software.common.util.WebResponseUtils;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @MiscApi
 @ConditionalOnProperty(

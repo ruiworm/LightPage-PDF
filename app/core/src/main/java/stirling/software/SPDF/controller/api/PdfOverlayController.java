@@ -12,6 +12,7 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.multipdf.Overlay;
 import org.apache.pdfbox.pdfwriter.compress.CompressParameters;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +37,6 @@ import stirling.software.common.util.GeneralUtils;
 import stirling.software.common.util.TempFile;
 import stirling.software.common.util.TempFileManager;
 import stirling.software.common.util.WebResponseUtils;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 
 @GeneralApi
 @ConditionalOnProperty(
