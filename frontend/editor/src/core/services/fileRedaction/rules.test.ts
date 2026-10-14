@@ -25,6 +25,48 @@ function documentFor(text: string): RedactionDocument {
 }
 
 describe("file redaction detection", () => {
+  it("preserves technical resume prose without seeding repeated person matches", () => {
+    const doc = documentFor(
+      "联系人：解明\n微服务封装与容器化部署：封装核心业务接口。\n字段解析与结构化处理：字段解析可复用。\n解明和张三共同负责接口开发。",
+    );
+    const hits = findHits(doc, {
+      ...defaultRedactionSettings,
+      categories: ["name"],
+    });
+    expect(hits.map((hit) => hit.original)).toEqual(["解明", "解明", "张三"]);
+    const redacted = replaceRanges(
+      doc.pages[0].text,
+      hits,
+      replacementsFor(hits, "blackout", {}),
+      true,
+    );
+    expect(redacted).toContain("微服务封装与容器化部署：封装核心业务接口。");
+    expect(redacted).toContain("字段解析与结构化处理：字段解析可复用。");
+  });
+
+  it("keeps uncommon surnames and explicit dictionary matches", () => {
+    const text =
+      "联系人：封远\n段宁和解明共同负责测试。\n微服务封装与容器化部署。";
+    const doc = documentFor(text);
+    const settings = {
+      ...defaultRedactionSettings,
+      categories: ["name" as const],
+    };
+    expect(findHits(doc, settings).map((hit) => hit.original)).toEqual([
+      "封远",
+      "段宁",
+      "解明",
+    ]);
+    expect(
+      findHits(doc, { ...settings, requiredWords: ["封装"] }).find(
+        (hit) => hit.original === "封装",
+      ),
+    ).toMatchObject({
+      source: "dictionary",
+      selected: true,
+    });
+  });
+
   it("recognizes fields and repeats of the identified person in prose", () => {
     const doc = documentFor(
       "姓名：张三\n甲方：测试信息有限公司\n地址：测试市示例路一号\n张三参加会议\n电话：13900000000\n邮箱：qa@example.test",
@@ -124,7 +166,10 @@ describe("file redaction detection", () => {
       documentFor(
         "现居地址：浙江省杭州市滨江区示例路18号\n路线说明：乘坐公交前往项目现场。",
       ),
-      { ...defaultRedactionSettings, categories: ["address"] },
+      {
+        ...defaultRedactionSettings,
+        categories: ["address"],
+      },
     );
     expect(hits.map((hit) => hit.original)).toEqual([
       "浙江省杭州市滨江区示例路18号",

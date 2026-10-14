@@ -27,6 +27,11 @@
   overflow: clip;
 }
 
+.column[data-integrated-caption="true"] {
+  --titlebar-h: 0px;
+  --titlebar-body-h: 100dvh;
+}
+
 /* The desktop title-bar row. Normal flow (first row of the frame column), so it
    reserves its own height for the whole app and nothing below it can reach the
    window-controls corner.
@@ -94,6 +99,18 @@
   align-items: stretch;
   /* Keep minimize/maximize/close in that order regardless of app direction. */
   direction: ltr;
+}
+
+.inlineControls {
+  position: static;
+  height: 2.75rem;
+  gap: 0.125rem;
+  margin-inline-start: 0.25rem;
+}
+
+.inlineControls .button {
+  width: 2.5rem;
+  border-radius: var(--radius-md);
 }
 
 .button {

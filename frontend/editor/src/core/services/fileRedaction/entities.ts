@@ -1,5 +1,8 @@
 import filters from "@app/services/fileRedaction/entityFilters.json";
-import { isLikelyPersonName } from "@app/services/fileRedaction/fields";
+import {
+  isLikelyPersonName,
+  isNonPersonText,
+} from "@app/services/fileRedaction/fields";
 import type {
   RedactionCategory,
   RedactionPage,
@@ -47,6 +50,8 @@ export function modelCandidates(
       )
         return false;
       if (filters[item.category].includes(compact(item.original))) return false;
+      if (item.category === "name" && isNonPersonText(item.original))
+        return false;
       return !protectedRanges.some(
         (range) => item.start < range.end && item.end > range.start,
       );

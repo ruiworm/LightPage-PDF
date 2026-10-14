@@ -42,6 +42,21 @@ function entity(
 }
 
 describe("combined Chinese entity recognition", () => {
+  it("rejects technical words from model results and OCR-spaced prose", () => {
+    const text = "封 装与容器化部署，字段解 析与数据处理。联系人：解明";
+    const hits = findHits(
+      fixture(text, [
+        entity(text, "封 装", "name"),
+        entity(text, "解 析", "name"),
+      ]),
+      {
+        ...defaultRedactionSettings,
+        categories: ["name"],
+      },
+    );
+    expect(hits.map((hit) => hit.original)).toEqual(["解明"]);
+  });
+
   it("protects headings and law references without excluding an ordinary Beijing address", () => {
     const text =
       "投保人信息\n被保险人资料\n原告信息\n根据第五百零九条第一款\n张三住在北京市朝阳区测试路88号。";

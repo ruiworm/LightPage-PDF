@@ -57,8 +57,14 @@ jobs:
       - name: Set up Task
         uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e
 
+      - name: Check backend resources and formatting
+        run: task backend:check
+
       - name: Prepare bundled backend and Java runtime
         run: task desktop:prepare
+
+      - name: Smoke-test bundled backend startup
+        run: ./scripts/smoke-bundled-backend.ps1
 
       - name: Check desktop types
         run: task frontend:typecheck:desktop

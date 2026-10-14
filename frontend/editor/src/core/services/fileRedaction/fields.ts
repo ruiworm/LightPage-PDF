@@ -1,4 +1,5 @@
 import type { RedactionPage } from "@app/types/fileRedaction";
+import filters from "@app/services/fileRedaction/entityFilters.json";
 
 export type SensitiveField = "name" | "address";
 export interface FieldMatch {
@@ -136,7 +137,7 @@ const PROSE_PARTICIPANT = new RegExp(
   "gu",
 );
 const PERSON_NON_NAMES =
-  /经理|先生|女士|教授|医生|同学|姓名|地址|王国|王朝|金钱|金属|周围|周边|周末|安全|常见|何时|何处|方可|费用|申请/u;
+  /经理|先生|女士|教授|医生|同学|姓名|地址|王国|王朝|金钱|金属|周围|周边|周末|安全|常见|何时|何处|方可|费用|申请|封装|解析|容器|架构|接口|算法|模型|字段|框架|协议|文档|网络/u;
 const ADDRESS_START =
   "(?:北京市?|上海市?|天津市?|重庆市?|(?:河北|山西|辽宁|吉林|黑龙江|江苏|浙江|安徽|福建|江西|山东|河南|湖北|湖南|广东|海南|四川|贵州|云南|陕西|甘肃|青海|台湾)省?|内蒙古(?:自治区)?|广西(?:壮族自治区)?|西藏(?:自治区)?|宁夏(?:回族自治区)?|新疆(?:维吾尔自治区)?|香港|澳门|(?:杭州|深圳|广州|成都|武汉|南京|苏州|郑州|西安|宁波|长沙|青岛|大连|厦门|福州|合肥|济南|沈阳|长春|哈尔滨|南昌|昆明|贵阳|兰州|南宁|海口|太原|石家庄)市)";
 const PROSE_ADDRESS = new RegExp(
@@ -148,7 +149,7 @@ function proseMatches(text: string): FieldMatch[] {
   const matches: FieldMatch[] = [];
   for (const pattern of [PROSE_PERSON, PROSE_PARTICIPANT])
     for (const match of text.matchAll(pattern)) {
-      if (PERSON_NON_NAMES.test(match[1])) continue;
+      if (isNonPersonText(match[1])) continue;
       const start = match.index + match[0].length - match[1].length;
       matches.push({
         start,
@@ -175,9 +176,15 @@ export function fieldLabelCategory(text: string): SensitiveField | undefined {
   );
 }
 
+/** Filters unlabelled name candidates; explicit name fields and user dictionaries remain authoritative. */
+export function isNonPersonText(value: string): boolean {
+  const compact = normalized(value);
+  return PERSON_NON_NAMES.test(compact) || filters.name.includes(compact);
+}
+
 export function isLikelyPersonName(value: string): boolean {
   return (
-    !PERSON_NON_NAMES.test(value) &&
+    !isNonPersonText(value) &&
     new RegExp(`^${PERSON_PATTERN}$`, "u").test(value)
   );
 }

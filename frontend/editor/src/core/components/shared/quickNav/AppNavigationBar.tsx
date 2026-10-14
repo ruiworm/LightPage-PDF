@@ -4,6 +4,7 @@ import { QuickNavRailFooterExtensions } from "@app/components/shared/quickNav/Qu
 import { Tooltip } from "@app/components/shared/Tooltip";
 import { Icon } from "@app/ui/Icon";
 import { Logo } from "@app/ui/Logo";
+import { WindowControls } from "@app/components/layout/WindowControls";
 import type { ThemeMode } from "@app/constants/theme";
 import "@app/components/shared/quickNav/AppNavigationBar.css";
 
@@ -108,6 +109,7 @@ export function AppNavigationBar({
             <Icon name="settings" size="1.25rem" />
           </button>
         </Tooltip>
+        <WindowControls />
       </div>
     </header>
   );

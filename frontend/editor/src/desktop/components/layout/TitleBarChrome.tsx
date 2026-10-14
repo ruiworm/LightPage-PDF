@@ -4,20 +4,24 @@ import {
   type TitleBarStripSlots,
 } from "@app/contexts/TitleBarStripContext";
 import { TitleBarStrip } from "@app/components/layout/TitleBarStrip";
+import { useQuickNavHost } from "@app/contexts/QuickNavHostContext";
+import { useDesktopOs } from "@app/hooks/useDesktopOs";
+import { DesktopOs } from "@app/services/platformService";
 import styles from "@app/components/layout/TitleBarStrip.module.css";
 
-/**
- * Desktop app frame: the window title-bar strip as a full-width row above the
- * rail + app, and the portal slots the app fills.
- */
+/** Windows uses app navigation as its caption once it is available; other screens retain a caption row. */
 export function TitleBarChrome({ children }: { children: ReactNode }) {
+  const host = useQuickNavHost();
+  const os = useDesktopOs();
+  const integrated =
+    os === DesktopOs.Windows && Boolean(host?.appMounted && !host.chromeless);
   const [viewsSlot, setViewsSlot] = useState<HTMLElement | null>(null);
   const [searchSlot, setSearchSlot] = useState<HTMLElement | null>(null);
   const [globalsSlot, setGlobalsSlot] = useState<HTMLElement | null>(null);
 
   const value = useMemo<TitleBarStripSlots>(
-    () => ({ enabled: true, viewsSlot, searchSlot, globalsSlot }),
-    [viewsSlot, searchSlot, globalsSlot],
+    () => ({ enabled: !integrated, viewsSlot, searchSlot, globalsSlot }),
+    [integrated, viewsSlot, searchSlot, globalsSlot],
   );
 
   const setViews = useCallback((el: HTMLDivElement | null) => {
@@ -32,12 +36,14 @@ export function TitleBarChrome({ children }: { children: ReactNode }) {
 
   return (
     <TitleBarStripContext.Provider value={value}>
-      <div className={styles.column}>
-        <TitleBarStrip>
-          <div ref={setViews} className={styles.viewsSlot} />
-          <div ref={setSearch} className={styles.searchSlot} />
-          <div ref={setGlobals} className={styles.globalsSlot} />
-        </TitleBarStrip>
+      <div className={styles.column} data-integrated-caption={integrated}>
+        {!integrated && (
+          <TitleBarStrip>
+            <div ref={setViews} className={styles.viewsSlot} />
+            <div ref={setSearch} className={styles.searchSlot} />
+            <div ref={setGlobals} className={styles.globalsSlot} />
+          </TitleBarStrip>
+        )}
         {children}
       </div>
     </TitleBarStripContext.Provider>
