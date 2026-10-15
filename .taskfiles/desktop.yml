@@ -35,6 +35,15 @@ tasks:
       - task: ":frontend:prepare"
         vars: { MODE: desktop }
       - provisioner
+    cmds:
+      - task: components:windows
+
+  components:windows:
+    desc: "Prepare bundled document components"
+    platforms: [windows]
+    dir: ..
+    cmds:
+      - powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-windows-components.ps1
 
   provisioner:
     desc: "Build installer provisioner"

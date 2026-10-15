@@ -58,6 +58,8 @@ public class ConvertOfficeController {
     private final TempFileManager tempFileManager;
 
     private boolean isUnoconvertAvailable() {
+        // The desktop runtime starts direct office processes and has no UNO server pool.
+        if (Boolean.getBoolean("STIRLING_PDF_TAURI_MODE")) return false;
         return endpointConfiguration.isGroupEnabled("Unoconvert")
                 || endpointConfiguration.isGroupEnabled("Python");
     }

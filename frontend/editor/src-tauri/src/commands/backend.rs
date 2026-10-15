@@ -227,6 +227,9 @@ fn run_stirling_pdf_jar(app: &tauri::AppHandle, java_path: &PathBuf, jar_path: &
 
     // Define all Java options with Tauri-specific paths
     let log_path_option = format!("-Dlogging.file.path={}", log_dir.display());
+    let tools_root = jar_path.parent().and_then(|path| path.parent()).unwrap().join("runtime/tools");
+    let office_path = tools_root.join("libreoffice/program/soffice.com");
+    let office_path_option = format!("-Dsystem.customPaths.operations.soffice={}", office_path.display());
 
     let mut java_options = vec![
         "-Xmx2g",
@@ -245,6 +248,10 @@ fn run_stirling_pdf_jar(app: &tauri::AppHandle, java_path: &PathBuf, jar_path: &
     // Enable the login agreement on local desktop installs when it has been provisioned.
     if crate::commands::connection::login_agreement_enabled(app) {
         java_options.push("-Dlegal.loginAgreement.enabled=true");
+    }
+
+    if cfg!(windows) && office_path.is_file() {
+        java_options.push(&office_path_option);
     }
 
     java_options.push("-jar");
@@ -301,7 +308,7 @@ fn run_stirling_pdf_jar(app: &tauri::AppHandle, java_path: &PathBuf, jar_path: &
     sweep_stale_shutdown_files(&work_dir, &shutdown_file);
     *BACKEND_SHUTDOWN_FILE.lock().unwrap() = Some(shutdown_file.clone());
 
-    let sidecar_command = app
+    let mut sidecar_command = app
         .shell()
         .command(java_path.to_str().unwrap())
         .args(java_options)
@@ -311,6 +318,21 @@ fn run_stirling_pdf_jar(app: &tauri::AppHandle, java_path: &PathBuf, jar_path: &
         .env("STIRLING_PDF_LOG_DIR", log_dir.to_str().unwrap())
         .env("STIRLING_PDF_WORK_DIR", work_dir.to_str().unwrap())
         .env("STIRLING_PDF_SHUTDOWN_FILE", shutdown_file.to_str().unwrap());
+
+    if cfg!(windows) && tools_root.is_dir() {
+        let mut paths = vec![
+            tools_root.join("tesseract"),
+            tools_root.join("poppler/Library/bin"),
+            tools_root.join("libreoffice/program"),
+        ];
+        if let Some(existing) = std::env::var_os("PATH") {
+            paths.extend(std::env::split_paths(&existing));
+        }
+        let path = std::env::join_paths(paths).map_err(|error| format!("Invalid document component path: {error}"))?;
+        sidecar_command = sidecar_command
+            .env("PATH", path)
+            .env("TESSDATA_PREFIX", tools_root.join("tesseract/tessdata"));
+    }
 
     add_log("⚙️ Starting backend with bundled JRE...".to_string());
 

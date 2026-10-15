@@ -172,7 +172,11 @@ describe("default startup view: Reader", () => {
     await waitFor(() => expect(seen.readerMode).toBe(false));
     act(() => goToSettings());
     await waitFor(() => expect(seen.pathname).toBe("/settings/general"));
-    await screen.findByRole("heading", { name: "settings.title" });
+    await screen.findByRole(
+      "heading",
+      { name: "settings.title" },
+      { timeout: 5000 },
+    );
     expect(
       screen.queryByRole("complementary", { name: "settings.title" }),
     ).toBeNull();

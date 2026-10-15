@@ -5,6 +5,7 @@ import { tauriBackendService } from "@app/services/tauriBackendService";
 import { selfHostedServerMonitor } from "@app/services/selfHostedServerMonitor";
 import { EXTENSION_TO_ENDPOINT } from "@app/constants/convertConstants";
 import { getEndpointName } from "@app/utils/convertUtils";
+import { STIRLING_SAAS_BACKEND_API_URL } from "@app/constants/connection";
 
 /**
  * Comprehensive conversion status data
@@ -83,7 +84,7 @@ export function useConversionCloudStatus(): ConversionStatus {
         return;
       }
 
-      if (mode !== "saas") {
+      if (mode !== "saas" || !STIRLING_SAAS_BACKEND_API_URL) {
         // Non-SaaS, non-self-hosted: local endpoint checking handles everything
         setStatus({ availability: {}, cloudStatus: {}, localOnly: {} });
         return;

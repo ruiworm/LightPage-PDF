@@ -7,7 +7,7 @@ import React, {
   forwardRef,
   type RefCallback,
 } from "react";
-import { Loader, Tooltip } from "@mantine/core";
+import { Loader, Select, Tooltip } from "@mantine/core";
 import { ActionIcon } from "@app/ui/ActionIcon";
 import { NavSurface } from "@app/ui/NavSurface";
 import { Button } from "@app/ui/Button";
@@ -69,6 +69,8 @@ import { FolderTreeSidebar } from "@app/components/filesPage/FolderTreeSidebar";
 import { useFilesPage } from "@app/contexts/FilesPageContext";
 import type { FolderId, FolderRecord } from "@app/types/folder";
 import { useToolEligibleFileIds } from "@app/contexts/ToolFileEligibilityContext";
+import { useWorkspaceFolder } from "@app/components/shared/useWorkspaceFolder";
+import { readDiskFile } from "@app/services/localFolderContents";
 import "@app/components/shared/FileSidebar.css";
 
 // Shared with the processor sidebar via tokens, so the two cannot drift.
@@ -475,6 +477,7 @@ interface FileLibrarySectionProps extends Omit<
   onAddFiles: () => void;
   selectedCount: number;
   onSelectedOnlyChange: (selectedOnly: boolean) => void;
+  folderControl?: React.ReactNode;
 }
 
 function FileLibrarySection({
@@ -483,6 +486,7 @@ function FileLibrarySection({
   onAddFiles,
   selectedCount,
   onSelectedOnlyChange,
+  folderControl,
   ...list
 }: FileLibrarySectionProps) {
   const { scrolled, scrollRef } = useIsScrolled();
@@ -496,6 +500,7 @@ function FileLibrarySection({
         onAddFiles={onAddFiles}
         onOpenFilesPage={list.onOpenFilesPage}
       />
+      {folderControl}
       <div
         className="file-sidebar-selection-filter"
         aria-label={t("workspaceFiles.filter", "File filter")}
@@ -574,6 +579,7 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
     const openPlan = useOpenPlan();
 
     const [allFileStubs, setAllFileStubs] = useState<StirlingFileStub[]>([]);
+    const workspaceFolder = useWorkspaceFolder(allFileStubs);
     // Keep unreadable records so a reload can retry their bytes.
     const [lostFileIds, setLostFileIds] = useState<ReadonlySet<string>>(
       () => new Set(),
@@ -862,8 +868,8 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
       () =>
         selectedOnly
           ? allFileStubs.filter((stub) => selectedIds.has(stub.id))
-          : allFileStubs,
-      [selectedOnly, allFileStubs, selectedIds],
+          : workspaceFolder.stubs,
+      [selectedOnly, allFileStubs, selectedIds, workspaceFolder.stubs],
     );
     const fileGroups = useFileSidebarGroups(visibleStubs);
     const workbenchIds = useMemo(
@@ -910,6 +916,33 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
 
     const handleSelectionToggle = useCallback(
       (fileId: FileId) => {
+        const entry = workspaceFolder.entries.get(fileId);
+        if (entry) {
+          const selectDiskFile = async () => {
+            try {
+              const file = await readDiskFile(entry);
+              if (!file) return;
+              const added = await addFiles([file], { selectFiles: false });
+              const id = added[0]?.fileId;
+              if (id) {
+                const selected = selectors
+                  .getSelectedStirlingFileStubs()
+                  .map((stub) => stub.id);
+                fileActions.setSelectedFiles([...new Set([...selected, id])]);
+              }
+            } catch (error) {
+              alert({
+                alertType: "error",
+                title: entry.name,
+                body: error instanceof Error ? error.message : String(error),
+              });
+            }
+          };
+          requestNavigation(() => {
+            void selectDiskFile();
+          });
+          return;
+        }
         const stub = allFileStubs.find((file) => file.id === fileId);
         if (!stub || stub.dataUnavailable || lostFileIds.has(fileId)) return;
         const toggle = async () => {
@@ -942,6 +975,8 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
         selectors,
         currentWorkbench,
         requestNavigation,
+        workspaceFolder.entries,
+        addFiles,
       ],
     );
 
@@ -950,6 +985,26 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
 
     const handleFileClick = useCallback(
       (fileId: FileId) => {
+        const entry = workspaceFolder.entries.get(fileId);
+        if (entry) {
+          requestNavigation(() => {
+            void (async () => {
+              try {
+                const file = await readDiskFile(entry);
+                if (!file) return;
+                const added = await addFiles([file], { selectFiles: false });
+                if (added[0]) setPendingViewFileId(added[0].fileId);
+              } catch (error) {
+                alert({
+                  alertType: "error",
+                  title: entry.name,
+                  body: error instanceof Error ? error.message : String(error),
+                });
+              }
+            })();
+          });
+          return;
+        }
         const stub = allFileStubs.find((file) => file.id === fileId);
         if (!stub || stub.dataUnavailable || lostFileIds.has(fileId)) return;
         if (viewedWorkbenchId === fileId) return;
@@ -968,6 +1023,8 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
         viewedWorkbenchId,
         requestNavigation,
         fileActions,
+        workspaceFolder.entries,
+        addFiles,
       ],
     );
 
@@ -1072,6 +1129,7 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
     const eligibleFileIds = useToolEligibleFileIds();
 
     const renderFileRow = (stub: StirlingFileStub) => {
+      const listedOnDisk = workspaceFolder.entries.has(stub.id);
       const isInWorkbench = workbenchIds.has(stub.id);
       const isSelected = selectedIds.has(stub.id);
       const workbenchFileId = isInWorkbench ? stub.id : undefined;
@@ -1115,12 +1173,14 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
           onSelectionToggle={handleSelectionToggle}
           dataUnavailable={dataUnavailable}
           policies={policyFileBadges.get(stub.id) ?? NO_POLICIES}
-          onDelete={handleSidebarDelete}
-          onDownload={handleDownload}
-          onRename={handleRename}
-          onDuplicate={handleDuplicate}
+          onDelete={listedOnDisk ? undefined : handleSidebarDelete}
+          onDownload={listedOnDisk ? undefined : handleDownload}
+          onRename={listedOnDisk ? undefined : handleRename}
+          onDuplicate={listedOnDisk ? undefined : handleDuplicate}
           onOpenInNewWindow={
-            canOpenInNewWindow(stub) ? handleOpenInNewWindow : undefined
+            !listedOnDisk && canOpenInNewWindow(stub)
+              ? handleOpenInNewWindow
+              : undefined
           }
           onSaveToCloud={handleSaveToCloud}
           canSaveToCloud={storageEnabled && fileOrigin !== "shared-with-me"}
@@ -1207,12 +1267,40 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
                 <FolderTreeSection />
               ) : (
                 <FileLibrarySection
-                  loaded={stubsLoaded}
+                  loaded={
+                    stubsLoaded && (selectedOnly || !workspaceFolder.loading)
+                  }
                   stubs={visibleStubs}
                   groups={selectedOnly ? null : fileGroups}
                   selectedOnly={selectedOnly}
                   selectedCount={state.ui.selectedFileIds.length}
                   onSelectedOnlyChange={setSelectedOnly}
+                  folderControl={
+                    workspaceFolder.choices.length > 0 ? (
+                      <Select
+                        className="file-sidebar-folder-picker"
+                        aria-label={t("filesPage.folder", "Folder")}
+                        value={workspaceFolder.selected}
+                        data={[
+                          {
+                            value: "",
+                            label: t("filesPage.recentFiles", "Recents"),
+                          },
+                          ...workspaceFolder.choices.map((folder) => ({
+                            value: folder.id,
+                            label: folder.name,
+                          })),
+                        ]}
+                        onChange={(value) =>
+                          workspaceFolder.setChosen(
+                            (value ?? "") as FolderId | "",
+                          )
+                        }
+                        allowDeselect={false}
+                        size="xs"
+                      />
+                    ) : undefined
+                  }
                   groupOpen={groupOpen}
                   onGroupOpenChange={setGroupOpenState}
                   renderFileRow={renderFileRow}

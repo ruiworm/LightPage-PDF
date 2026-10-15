@@ -1,6 +1,4 @@
-// Classification is available on every proprietary-based build: the classify
-// policy labels server-side with AI on, the in-browser heuristic labels with AI off.
-
+/** The file library uses folders and filenames rather than inferred categories. */
 export function useClassificationEnabled(): boolean {
-  return true;
+  return false;
 }

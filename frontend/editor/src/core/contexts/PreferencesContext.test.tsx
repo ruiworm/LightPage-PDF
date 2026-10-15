@@ -23,14 +23,14 @@ afterEach(() => {
 });
 
 describe("fixed editor preferences", () => {
-  it("opens the reader and keeps unavailable options visible on first launch", () => {
+  it("opens the reader and hides unavailable options on first launch", () => {
     const { result } = renderPreferences();
 
     expect(result.current.preferences).toMatchObject({
       defaultStartupView: "read",
       defaultViewerZoom: "auto",
-      hideUnavailableTools: false,
-      hideUnavailableConversions: false,
+      hideUnavailableTools: true,
+      hideUnavailableConversions: true,
     });
   });
 
@@ -50,18 +50,16 @@ describe("fixed editor preferences", () => {
 
     expect(result.current.preferences).toMatchObject({
       defaultStartupView: "read",
-      hideUnavailableTools: false,
-      hideUnavailableConversions: false,
+      hideUnavailableTools: true,
+      hideUnavailableConversions: true,
       defaultToolPanelMode: "sidebar",
       defaultViewerZoom: "125",
       theme: "dark",
     });
     expect(preferencesService.getPreference("defaultStartupView")).toBe("read");
-    expect(preferencesService.getPreference("hideUnavailableTools")).toBe(
-      false,
-    );
+    expect(preferencesService.getPreference("hideUnavailableTools")).toBe(true);
     expect(preferencesService.getPreference("hideUnavailableConversions")).toBe(
-      false,
+      true,
     );
   });
 
@@ -79,8 +77,8 @@ describe("fixed editor preferences", () => {
 
     expect(result.current.preferences).toMatchObject({
       defaultStartupView: "read",
-      hideUnavailableTools: false,
-      hideUnavailableConversions: false,
+      hideUnavailableTools: true,
+      hideUnavailableConversions: true,
       defaultViewerZoom: "fitWidth",
     });
   });
@@ -96,13 +94,13 @@ describe("fixed editor preferences", () => {
 
     expect(result.current.preferences).toMatchObject({
       defaultStartupView: "read",
-      hideUnavailableTools: false,
-      hideUnavailableConversions: false,
+      hideUnavailableTools: true,
+      hideUnavailableConversions: true,
     });
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toMatchObject({
       defaultStartupView: "read",
-      hideUnavailableTools: false,
-      hideUnavailableConversions: false,
+      hideUnavailableTools: true,
+      hideUnavailableConversions: true,
     });
   });
 
@@ -126,8 +124,8 @@ describe("fixed editor preferences", () => {
     expect(result.current.preferences).toMatchObject({
       defaultStartupView: "read",
       defaultViewerZoom: "auto",
-      hideUnavailableTools: false,
-      hideUnavailableConversions: false,
+      hideUnavailableTools: true,
+      hideUnavailableConversions: true,
     });
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });

@@ -53,8 +53,8 @@ export const DEFAULT_PREFERENCES: UserPreferences = {
   hasCompletedOnboarding: false,
   hasSeenIntroOnboarding: false,
   hasSeenCookieBanner: false,
-  hideUnavailableTools: false,
-  hideUnavailableConversions: false,
+  hideUnavailableTools: true,
+  hideUnavailableConversions: true,
   pdfRenderMode: "normal",
 };
 

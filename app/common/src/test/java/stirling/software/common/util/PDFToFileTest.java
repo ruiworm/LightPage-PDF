@@ -92,6 +92,43 @@ class PDFToFileTest {
     }
 
     @Test
+    void desktopConversionDoesNotWaitForAnUnoServer() throws Exception {
+        String previous = System.getProperty("STIRLING_PDF_TAURI_MODE");
+        System.setProperty("STIRLING_PDF_TAURI_MODE", "true");
+        lenient().when(mockRuntimePathConfig.getUnoConvertPath()).thenReturn("unoconvert");
+        try (MockedStatic<ProcessExecutor> process = mockStatic(ProcessExecutor.class)) {
+            process.when(() -> ProcessExecutor.getInstance(ProcessExecutor.Processes.LIBRE_OFFICE))
+                    .thenReturn(mockProcessExecutor);
+            when(mockProcessExecutor.runCommandWithOutputHandling(anyList()))
+                    .thenAnswer(
+                            invocation -> {
+                                List<String> command = invocation.getArgument(0);
+                                assertEquals("/usr/bin/soffice", command.getFirst());
+                                Path directory =
+                                        Path.of(command.get(command.indexOf("--outdir") + 1));
+                                Files.writeString(
+                                        directory.resolve("document.docx"), "desktop conversion");
+                                return mockExecutorResult;
+                            });
+            MultipartFile input =
+                    new MockMultipartFile(
+                            "fileInput",
+                            "document.pdf",
+                            MediaType.APPLICATION_PDF_VALUE,
+                            "%PDF".getBytes());
+            ResponseEntity<Resource> output =
+                    pdfToFile.processPdfToOfficeFormat(input, "docx", "writer_pdf_import");
+            assertEquals(
+                    "desktop conversion",
+                    new String(drain(output), java.nio.charset.StandardCharsets.UTF_8));
+            org.mockito.Mockito.verify(mockProcessExecutor).runCommandWithOutputHandling(anyList());
+        } finally {
+            if (previous == null) System.clearProperty("STIRLING_PDF_TAURI_MODE");
+            else System.setProperty("STIRLING_PDF_TAURI_MODE", previous);
+        }
+    }
+
+    @Test
     void testProcessPdfToMarkdown_InvalidContentType() throws IOException, InterruptedException {
         // Prepare
         MultipartFile nonPdfFile =

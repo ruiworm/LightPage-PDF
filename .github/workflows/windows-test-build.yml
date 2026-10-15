@@ -64,7 +64,7 @@ jobs:
         run: task desktop:prepare
 
       - name: Smoke-test bundled backend startup
-        run: ./scripts/smoke-bundled-backend.ps1
+        run: ./scripts/smoke-bundled-backend.ps1 -RequireDocumentComponents
 
       - name: Check desktop types
         run: task frontend:typecheck:desktop

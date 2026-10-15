@@ -45,6 +45,12 @@ vi.mock("@app/services/apiClient", () => ({
 // Cast to a plain mock: the real get() is the tauri-http signature, but the
 // tests only need { data } back.
 const mockGet = apiClient.get as unknown as Mock;
+let cloudUrl = "https://cloud.example.test";
+vi.mock("@app/constants/connection", () => ({
+  get STIRLING_SAAS_BACKEND_API_URL() {
+    return cloudUrl;
+  },
+}));
 
 // --- connection mode ---
 let mode: "saas" | "selfhosted" | "local" = "saas";
@@ -128,6 +134,7 @@ function availability(map: Record<string, { enabled: boolean }>) {
 beforeEach(() => {
   vi.clearAllMocks();
   mode = "saas";
+  cloudUrl = "https://cloud.example.test";
   backendStatus = "healthy";
   backendUrl = "http://127.0.0.1:8080";
   selfHostedStatus = "online";
@@ -140,6 +147,21 @@ afterEach(() => {
 });
 
 describe("desktop useMultipleEndpointsEnabled", () => {
+  it("keeps missing components disabled when no cloud service is configured", async () => {
+    cloudUrl = "";
+    mockGet.mockImplementation((url: string) =>
+      Promise.resolve(
+        url.includes("app-config")
+          ? appConfig(true)
+          : availability({ ocr: { enabled: false } }),
+      ),
+    );
+    const { result } = renderHook(() => useMultipleEndpointsEnabled(["ocr"]), {
+      wrapper: TestQueryProvider,
+    });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.endpointStatus.ocr).toBe(false);
+  });
   it("projects a fetched availability map once dependencies are ready", async () => {
     mode = "local";
     mockGet.mockImplementation((url: string) => {

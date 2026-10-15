@@ -10,6 +10,7 @@ import {
 } from "@app/constants/backendErrors";
 import type { EndpointAvailabilityDetails } from "@app/types/endpointAvailability";
 import type { AppConfig } from "@app/contexts/AppConfigContext";
+import { STIRLING_SAAS_BACKEND_API_URL } from "@app/constants/connection";
 
 export type EndpointAvailabilityMap = Record<
   string,
@@ -131,7 +132,9 @@ export async function resolveEndpointsAvailability(
   }
 
   await ensureDependenciesReady();
-  const saas = (await connectionModeService.getCurrentMode()) === "saas";
+  const saas =
+    Boolean(STIRLING_SAAS_BACKEND_API_URL) &&
+    (await connectionModeService.getCurrentMode()) === "saas";
 
   try {
     const map = normalise(await fetchAvailabilityMap(endpoints));
@@ -159,7 +162,9 @@ export async function resolveEndpointEnabled(
   }
 
   await ensureDependenciesReady();
-  const saas = (await connectionModeService.getCurrentMode()) === "saas";
+  const saas =
+    Boolean(STIRLING_SAAS_BACKEND_API_URL) &&
+    (await connectionModeService.getCurrentMode()) === "saas";
 
   try {
     const response = await apiClient.get<boolean>(

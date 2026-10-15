@@ -370,7 +370,8 @@ public class PDFToFile {
     }
 
     private boolean isUnoConvertEnabled() {
-        return runtimePathConfig != null
+        return !Boolean.getBoolean("STIRLING_PDF_TAURI_MODE")
+                && runtimePathConfig != null
                 && runtimePathConfig.getUnoConvertPath() != null
                 && !runtimePathConfig.getUnoConvertPath().isBlank();
     }
