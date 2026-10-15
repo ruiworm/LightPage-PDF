@@ -1,5 +1,8 @@
 {
   "bundle": {
-    "resources": ["libs/*.jar", "runtime/jre/**/*", "runtime/tools/**/*"]
+    "resources": ["libs/*.jar", "runtime/jre/**/*", "runtime/tools/**/*"],
+    "windows": {
+      "nsis": { "template": "runtime/installer.nsi" }
+    }
   }
 }

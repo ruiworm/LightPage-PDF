@@ -29,6 +29,16 @@ function Expand-AdministrativeImage([string]$Archive, [string]$Destination) {
     if ($image.ExitCode -ne 0) { throw "Administrative extraction failed: $($image.ExitCode) ($Archive)" }
 }
 
+$taskFrontend = Split-Path (Split-Path $taskBundle -Parent) -Parent
+$taskCliVersion = (Get-Content -LiteralPath (Join-Path $taskFrontend 'node_modules/@tauri-apps/cli/package.json') -Raw | ConvertFrom-Json).version
+if ($taskCliVersion -ne $taskManifest.nsisTemplate.version) { throw 'Update the pinned NSIS template to match the installed Tauri CLI' }
+$taskTemplate = Get-Content -LiteralPath (Get-ComponentArchive $taskManifest.nsisTemplate) -Raw
+$taskSolidCompressor = 'SetCompressor /SOLID "{{compression}}"'
+if (-not $taskTemplate.Contains($taskSolidCompressor)) { throw 'Expected the upstream NSIS compressor directive' }
+New-Item -ItemType Directory -Path (Join-Path $taskBundle 'runtime') -Force | Out-Null
+# Per-file compression avoids mapping the complete document runtime into the 32-bit NSIS compiler.
+$taskTemplate.Replace($taskSolidCompressor, 'SetCompressor "{{compression}}"') | Set-Content -LiteralPath (Join-Path $taskBundle 'runtime/installer.nsi')
+
 $taskSevenZip = Get-Command 7z.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -First 1
 if (-not $taskSevenZip) {
     $taskSevenZip = Join-Path $taskCache '7zip/Files/7-Zip/7z.exe'

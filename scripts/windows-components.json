@@ -19,6 +19,12 @@
     "url": "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/osd.traineddata",
     "sha256": "9cf5d576fcc47564f11265841e5ca839001e7e6f38ff7f7aacf46d15a96b00ff"
   },
+  "nsisTemplate": {
+    "version": "2.10.1",
+    "file": "tauri-installer-2.10.1.nsi",
+    "url": "https://raw.githubusercontent.com/tauri-apps/tauri/tauri-cli-v2.10.1/crates/tauri-bundler/src/bundle/windows/nsis/installer.nsi",
+    "sha256": "fe22026f68bdb3292fab376756035496ce0a35e3d580e06ebaa6a28295916eb3"
+  },
   "sevenzip": {
     "file": "7zip.msi",
     "url": "https://www.7-zip.org/a/7z2501-x64.msi",
