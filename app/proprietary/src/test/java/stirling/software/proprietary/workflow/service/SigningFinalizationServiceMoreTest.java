@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,6 +33,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
@@ -392,49 +395,58 @@ class SigningFinalizationServiceMoreTest {
     @DisplayName("finalizeDocument - summary page")
     class SummaryPage {
 
-        @Test
+        @ParameterizedTest
+        @ValueSource(strings = {"en-US", "zh-CN", "ar"})
         @DisplayName("appends a summary page when includeSummaryPage is true")
-        void appendsSummaryPage() throws Exception {
-            byte[] p12 = loadCert("valid-test.p12");
-            WorkflowParticipant signed = participant(1L, ParticipantStatus.SIGNED);
-            signed.setParticipantMetadata(p12SubmissionMetadata(p12, "testpass"));
-            signed.setLastUpdated(java.time.LocalDateTime.now());
-            WorkflowParticipant declined = participant(2L, ParticipantStatus.DECLINED);
-            WorkflowSession session = sessionOf(signed, declined);
-            session.getWorkflowMetadata().put("includeSummaryPage", true);
+        void appendsSummaryPage(String language) throws Exception {
+            Locale previousLocale = Locale.getDefault();
+            try {
+                Locale.setDefault(Locale.forLanguageTag(language));
+                byte[] p12 = loadCert("valid-test.p12");
+                WorkflowParticipant signed = participant(1L, ParticipantStatus.SIGNED);
+                signed.setParticipantMetadata(p12SubmissionMetadata(p12, "testpass"));
+                signed.setLastUpdated(java.time.LocalDateTime.now());
+                WorkflowParticipant declined = participant(2L, ParticipantStatus.DECLINED);
+                WorkflowSession session = sessionOf(signed, declined);
+                session.getWorkflowMetadata().put("includeSummaryPage", true);
 
-            byte[] original = singlePagePdf();
-            // factory called once for summary-page rendering (no wet sigs present)
-            when(pdfDocumentFactory.load(any(InputStream.class))).thenReturn(loadDoc(original));
-            when(participantRepository.findById(1L)).thenReturn(Optional.of(signed));
-            lenient().when(metadataEncryptionService.decrypt("testpass")).thenReturn("testpass");
-            when(pdfSigningService.signWithKeystore(
-                            any(),
-                            any(),
-                            any(),
-                            anyBoolean(),
-                            any(),
-                            any(),
-                            any(),
-                            any(),
-                            anyBoolean()))
-                    .thenAnswer(inv -> inv.getArgument(0));
+                byte[] original = singlePagePdf();
+                // factory called once for summary-page rendering (no wet sigs present)
+                when(pdfDocumentFactory.load(any(InputStream.class))).thenReturn(loadDoc(original));
+                when(participantRepository.findById(1L)).thenReturn(Optional.of(signed));
+                lenient()
+                        .when(metadataEncryptionService.decrypt("testpass"))
+                        .thenReturn("testpass");
+                when(pdfSigningService.signWithKeystore(
+                                any(),
+                                any(),
+                                any(),
+                                anyBoolean(),
+                                any(),
+                                any(),
+                                any(),
+                                any(),
+                                anyBoolean()))
+                        .thenAnswer(inv -> inv.getArgument(0));
 
-            byte[] result = service.finalizeDocument(session, original);
+                byte[] result = service.finalizeDocument(session, original);
 
-            assertThat(result).isNotNull();
-            // showVisualSignature forced to false when summary page enabled
-            verify(pdfSigningService)
-                    .signWithKeystore(
-                            any(),
-                            any(),
-                            any(),
-                            eq(false),
-                            any(),
-                            any(),
-                            any(),
-                            any(),
-                            anyBoolean());
+                assertThat(result).isNotNull();
+                // showVisualSignature forced to false when summary page enabled
+                verify(pdfSigningService)
+                        .signWithKeystore(
+                                any(),
+                                any(),
+                                any(),
+                                eq(false),
+                                any(),
+                                any(),
+                                any(),
+                                any(),
+                                anyBoolean());
+            } finally {
+                Locale.setDefault(previousLocale);
+            }
         }
     }
 

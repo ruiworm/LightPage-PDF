@@ -3,7 +3,9 @@ package stirling.software.proprietary.integration.api;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,8 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import stirling.software.common.model.ApplicationProperties;
 
@@ -66,15 +70,18 @@ class ResultUrlsTest {
 
     @Test
     void anUnresolvableHostIsRefusedRatherThanAssumedSafe() {
-        // Fail closed: if we cannot see where a name points, we cannot say it is not internal.
-        assertThatThrownBy(
-                        () ->
-                                ResultUrls.validate(
-                                        connection(null),
-                                        "https://api.vendor.example/files/signed.pdf",
-                                        properties))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Unable to resolve");
+        try (MockedStatic<InetAddress> resolver = Mockito.mockStatic(InetAddress.class)) {
+            resolver.when(() -> InetAddress.getAllByName("api.vendor.example"))
+                    .thenThrow(new UnknownHostException("unresolvable fixture"));
+            assertThatThrownBy(
+                            () ->
+                                    ResultUrls.validate(
+                                            connection(null),
+                                            "https://api.vendor.example/files/signed.pdf",
+                                            properties))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("Unable to resolve");
+        }
     }
 
     @Test

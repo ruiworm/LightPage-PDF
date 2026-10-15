@@ -321,7 +321,8 @@ public class SigningFinalizationService {
 
         // ---- Date formatters ----
         java.time.format.DateTimeFormatter tsFormatter =
-                java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss");
+                java.time.format.DateTimeFormatter.ofPattern(
+                        "dd MMM yyyy HH:mm:ss", java.util.Locale.ROOT);
 
         try (PDDocument document = pdfDocumentFactory.load(new ByteArrayInputStream(pdfBytes))) {
             PDPage summaryPage = new PDPage(PDRectangle.A4);
@@ -1080,7 +1081,8 @@ public class SigningFinalizationService {
             String issuerCN = extractCN(x509.getIssuerX500Principal().getName());
 
             java.time.format.DateTimeFormatter dtf =
-                    java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy");
+                    java.time.format.DateTimeFormatter.ofPattern(
+                            "dd MMM yyyy", java.util.Locale.ROOT);
             String validFrom =
                     x509.getNotBefore()
                             .toInstant()
