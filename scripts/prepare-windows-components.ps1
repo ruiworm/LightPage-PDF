@@ -49,7 +49,11 @@ if (-not $taskSevenZip) {
 
 $taskTools = Join-Path $taskBundle 'runtime/tools'
 New-Item -ItemType Directory -Path $taskTools -Force | Out-Null
-$taskLock = (Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'windows-components.json') -Algorithm SHA256).Hash
+# Preparation rules can change without changing the upstream component versions.
+$taskLock = @(
+    (Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'windows-components.json') -Algorithm SHA256).Hash,
+    (Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash
+) -join ':'
 $taskStamp = Join-Path $taskTools 'components.lock'
 $taskRequired = @('libreoffice/program/soffice.exe', 'libreoffice/program/soffice.com', 'tesseract/tesseract.exe', 'poppler/Library/bin/pdftohtml.exe', 'tesseract/tessdata/chi_sim.traineddata', 'tesseract/tessdata/eng.traineddata', 'tesseract/tessdata/osd.traineddata')
 if ((Test-Path -LiteralPath $taskStamp) -and (Get-Content -LiteralPath $taskStamp -Raw).Trim() -eq $taskLock -and

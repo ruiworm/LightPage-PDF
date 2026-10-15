@@ -17,7 +17,8 @@ $taskListener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Lo
 $taskListener.Start()
 $taskPort = $taskListener.LocalEndpoint.Port
 $taskListener.Stop()
-$taskWorkDir = Join-Path ([System.IO.Path]::GetTempPath()) ('lightpage-backend-smoke-' + [guid]::NewGuid())
+# Leave room for LibreOffice's deeply nested extension registry paths on Windows.
+$taskWorkDir = Join-Path ([System.IO.Path]::GetTempPath()) ('lp-' + [System.IO.Path]::GetRandomFileName())
 New-Item -ItemType Directory -Path $taskWorkDir | Out-Null
 $taskTempDir = Join-Path $taskWorkDir 'tmp'
 New-Item -ItemType Directory -Path $taskTempDir | Out-Null
