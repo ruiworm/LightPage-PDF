@@ -49,6 +49,7 @@ if ((Test-Path -LiteralPath $taskStamp) -and (Get-Content -LiteralPath $taskStam
 }
 
 $taskOfficeDestination = Join-Path $taskTools 'libreoffice'
+Write-Output 'Preparing bundled LibreOffice'
 Expand-AdministrativeImage (Get-ComponentArchive $taskManifest.libreoffice) $taskOfficeDestination
 if (-not (Test-Path -LiteralPath (Join-Path $taskOfficeDestination 'program/soffice.exe'))) { throw 'Expected an extracted LibreOffice runtime' }
 $taskNestedMsi = Join-Path $taskOfficeDestination $taskManifest.libreoffice.file
@@ -56,9 +57,11 @@ if (Test-Path -LiteralPath $taskNestedMsi) { Remove-Item -LiteralPath $taskNeste
 Get-ChildItem -LiteralPath (Join-Path $taskOfficeDestination 'System64') -Filter '*.dll' -File | Copy-Item -Destination (Join-Path $taskOfficeDestination 'program') -Force
 
 $taskTesseract = Join-Path $taskTools 'tesseract'
+Write-Output 'Preparing bundled Tesseract'
 & $taskSevenZip x (Get-ComponentArchive $taskManifest.tesseract) "-o$taskTesseract" -y -bso0 -bsp0
 if ($LASTEXITCODE -ne 0) { throw 'Tesseract extraction failed' }
 $taskPopplerImage = Join-Path $taskCache 'poppler-image'
+Write-Output 'Preparing bundled Poppler'
 Expand-Archive -LiteralPath (Get-ComponentArchive $taskManifest.poppler) -DestinationPath $taskPopplerImage -Force
 $taskPopplerExe = @(Get-ChildItem -LiteralPath $taskPopplerImage -Recurse -File -Filter pdftohtml.exe)
 if ($taskPopplerExe.Count -ne 1) { throw 'Expected one extracted Poppler runtime' }

@@ -43,7 +43,7 @@ tasks:
     platforms: [windows]
     dir: ..
     cmds:
-      - powershell -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-windows-components.ps1
+      - pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/prepare-windows-components.ps1
 
   provisioner:
     desc: "Build installer provisioner"
