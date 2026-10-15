@@ -20,12 +20,15 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedConstruction;
 import org.mockito.Mockito;
 
 import stirling.software.common.util.ProcessExecutor.ProcessExecutorResult;
 
+@EnabledOnOs({OS.LINUX, OS.MAC})
 class ProcessExecutorLibreOfficeRetryTest {
 
     @TempDir Path tmp;

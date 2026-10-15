@@ -2,6 +2,8 @@ package stirling.software.common.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import stirling.software.common.model.ApplicationProperties;
 import stirling.software.common.model.ApplicationProperties.Html.UrlSecurity;
@@ -265,8 +269,14 @@ class SsrfProtectionServiceTest {
         @Test
         @DisplayName("blocks unresolvable host (UnknownHostException path)")
         void blocksUnresolvableHost() {
-            assertThat(service.isUrlAllowed("http://nonexistent-host-stirling-test.invalid/page"))
-                    .isFalse();
+            try (MockedStatic<InetAddress> resolver = Mockito.mockStatic(InetAddress.class)) {
+                resolver.when(() -> InetAddress.getByName("nonexistent-host-stirling-test.invalid"))
+                        .thenThrow(new UnknownHostException("unresolvable fixture"));
+                assertThat(
+                                service.isUrlAllowed(
+                                        "http://nonexistent-host-stirling-test.invalid/page"))
+                        .isFalse();
+            }
         }
     }
 

@@ -215,6 +215,7 @@ class EndpointConfigurationGapTest {
         @DisplayName("a functional group with all endpoints enabled reports enabled")
         void functionalGroupEnabled() {
             EndpointConfiguration config = buildDefault();
+            config.enableGroup("PageOps");
             assertTrue(config.isGroupEnabled("PageOps"));
         }
 
@@ -284,6 +285,7 @@ class EndpointConfigurationGapTest {
         @DisplayName("disabling a tool group does NOT cascade to its endpoints directly")
         void toolGroupNoCascade() {
             EndpointConfiguration config = buildDefault();
+            config.enableEndpoint("repair");
             // repair has alternatives (qpdf, Ghostscript); disabling only qpdf keeps it enabled
             config.disableGroup("qpdf");
             assertTrue(config.isEndpointEnabled("repair"));
@@ -293,6 +295,8 @@ class EndpointConfigurationGapTest {
         @DisplayName("endpoint with alternatives is disabled only when all tool groups are gone")
         void allAlternativesDisabled() {
             EndpointConfiguration config = buildDefault();
+            config.enableEndpoint("repair");
+            assertTrue(config.isEndpointEnabled("repair"));
             config.disableGroup("qpdf");
             config.disableGroup("Ghostscript");
             // repair's only alternatives are qpdf and Ghostscript

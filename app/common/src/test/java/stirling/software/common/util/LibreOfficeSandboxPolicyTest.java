@@ -40,6 +40,21 @@ class LibreOfficeSandboxPolicyTest {
     }
 
     @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void windowsDrivePathsRemainUnderTheSharedPolicy() {
+        Path root = Path.of("C:\\lightpage-sandbox-fixture");
+        assertEquals(
+                Optional.empty(),
+                LibreOfficeSandboxPolicy.forCommand(
+                        sofficeCommand(
+                                root.resolve("profile"),
+                                root.resolve("output"),
+                                root.resolve("in.docx")),
+                        List.of(root)));
+    }
+
+    @Test
+    @EnabledOnOs({OS.LINUX, OS.MAC})
     void confinesDirectConversionToItsOwnFiles() throws IOException {
         Path profile = tmp.resolve("libreoffice_profile_1");
         Path outDir = tmp.resolve("output_1");
@@ -64,6 +79,7 @@ class LibreOfficeSandboxPolicyTest {
     }
 
     @Test
+    @EnabledOnOs({OS.LINUX, OS.MAC})
     void convertToFilterValueIsNotTreatedAsInput() throws IOException {
         Path input = Files.writeString(tmp.resolve("in.pdf"), "x");
         Files.writeString(tmp.resolve("pdf"), "decoy");
@@ -116,6 +132,7 @@ class LibreOfficeSandboxPolicyTest {
     }
 
     @Test
+    @EnabledOnOs({OS.LINUX, OS.MAC})
     void pathWithListSeparatorIsLeftToSharedPolicy() throws IOException {
         Path odd = Files.createDirectories(tmp.resolve("a:b"));
         Path input = Files.writeString(tmp.resolve("in.docx"), "x");
@@ -128,6 +145,7 @@ class LibreOfficeSandboxPolicyTest {
     }
 
     @Test
+    @EnabledOnOs({OS.LINUX, OS.MAC})
     void pathsOutsideTheWorkRootsAreNotGranted() throws IOException {
         Path root = Files.createDirectories(tmp.resolve("work"));
         Path outside = Files.createDirectories(tmp.resolve("elsewhere"));

@@ -1,8 +1,13 @@
 package stirling.software.common.util;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
 
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +19,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
 
 import stirling.software.common.model.ApplicationProperties;
 
@@ -131,12 +138,33 @@ public class UnoServerPoolTest {
         unreachable.setHostLocation("local");
         UnoServerPool pool = new UnoServerPool(List.of(unreachable));
 
-        long started = System.nanoTime();
-        assertFalse(pool.waitForEndpoint(unreachable, 50, TimeUnit.MILLISECONDS));
-        long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
-        assertTrue(
-                elapsedMillis < 300,
-                "The connect probe must clamp to the 50ms budget, took " + elapsedMillis + "ms");
+        AtomicInteger attempts = new AtomicInteger();
+        try (MockedConstruction<Socket> sockets =
+                Mockito.mockConstruction(
+                        Socket.class,
+                        (socket, context) ->
+                                doAnswer(
+                                                invocation -> {
+                                                    int connectTimeout = invocation.getArgument(1);
+                                                    assertTrue(
+                                                            connectTimeout > 0
+                                                                    && connectTimeout <= 50);
+                                                    attempts.incrementAndGet();
+                                                    throw new SocketTimeoutException(
+                                                            "unreachable fixture");
+                                                })
+                                        .when(socket)
+                                        .connect(any(), anyInt()))) {
+            long started = System.nanoTime();
+            assertFalse(pool.waitForEndpoint(unreachable, 50, TimeUnit.MILLISECONDS));
+            long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+            assertTrue(attempts.get() > 0);
+            assertTrue(
+                    elapsedMillis < 300,
+                    "The connect probe must clamp to the 50ms budget, took "
+                            + elapsedMillis
+                            + "ms");
+        }
     }
 
     @Test
