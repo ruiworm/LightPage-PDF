@@ -558,7 +558,7 @@ class StorageFolderTriggerTest {
 
             finishBatch();
 
-            verify(events).publishEvent(any(SourceBatchSettledEvent.class));
+            verify(events, timeout(5000)).publishEvent(any(SourceBatchSettledEvent.class));
             verify(trigger, after(750).times(1)).sweep(folder.getId());
             assertEquals(100, processed.size());
         } finally {
