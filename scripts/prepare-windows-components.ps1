@@ -66,6 +66,97 @@ $taskNestedMsi = Join-Path $taskOfficeDestination $taskManifest.libreoffice.file
 if (Test-Path -LiteralPath $taskNestedMsi) { Remove-Item -LiteralPath $taskNestedMsi -Force }
 Get-ChildItem -LiteralPath (Join-Path $taskOfficeDestination 'System64') -Filter '*.dll' -File | Copy-Item -Destination (Join-Path $taskOfficeDestination 'program') -Force
 
+
+# ---------------------------------------------------------------------------
+# Size trim: the backend drives LibreOffice headlessly (soffice.com) for
+# document conversion only. The full upstream distribution ships UI language
+# packs, spelling dictionaries, icon themes, and templates for every locale,
+# none of which affect headless conversion. Keep English + Chinese (Simplified
+# & Traditional) and drop the rest.
+# ---------------------------------------------------------------------------
+$taskKeepLangs = @('en', 'en-US', 'en-GB', 'en-ZA', 'zh-CN', 'zh-TW', 'zh')
+function Test-KeepLang([string]$Name) {
+    # Strip the .xcd suffix and registry prefixes so 'Langpack-en-GB.xcd' -> 'en-GB',
+    # 'cjk_zh-CN.xcd' -> 'zh-CN', 'ctl_he.xcd' -> 'he', etc.
+    $bare = ($Name -replace '\.xcd$', '') -replace '^(Langpack-|ctl_|cjk_|fx_)', ''
+    foreach ($lang in $taskKeepLangs) {
+        if ($bare -eq $lang -or $bare -like "$lang-*" -or $bare -like "$lang@*") { return $true }
+    }
+    return $false
+}
+
+# Spelling dictionaries: keep en/zh only (non-dict extensions are kept).
+$taskExtensions = Join-Path $taskOfficeDestination 'share/extensions'
+if (Test-Path -LiteralPath $taskExtensions) {
+    Get-ChildItem -LiteralPath $taskExtensions -Directory | Where-Object {
+        $_.Name -like 'dict-*' -and $_.Name -notin @('dict-en', 'dict-zh')
+    } | Remove-Item -Recurse -Force
+}
+
+# UI resource bundles (program/resource/<lang>/): keep en/zh variants only.
+$taskResources = Join-Path $taskOfficeDestination 'program/resource'
+if (Test-Path -LiteralPath $taskResources) {
+    Get-ChildItem -LiteralPath $taskResources -Directory | Where-Object {
+        $_.Name -notin @('en_GB', 'en_ZA', 'zh_CN', 'zh_TW')
+    } | Remove-Item -Recurse -Force
+}
+
+# Registry language packs and locale helpers: keep en/zh + language-neutral files.
+$taskRegistry = Join-Path $taskOfficeDestination 'share/registry'
+if (Test-Path -LiteralPath $taskRegistry) {
+    Get-ChildItem -LiteralPath $taskRegistry -File -Filter '*.xcd' | Where-Object {
+        ($_.Name -like 'Langpack-*' -or $_.Name -like 'ctl*' -or $_.Name -like 'cjk_*' -or $_.Name -like 'fx_*') -and
+        -not (Test-KeepLang $_.Name)
+    } | Remove-Item -Force
+    # Per-locale helper files under share/registry/res/ (fcfg_langpack_<lang>.xcd,
+    # registry_<lang>.xcd): keep en/zh (plus the qtz pseudo locale).
+    $taskRegistryRes = Join-Path $taskRegistry 'res'
+    if (Test-Path -LiteralPath $taskRegistryRes) {
+        Get-ChildItem -LiteralPath $taskRegistryRes -File -Filter '*.xcd' | Where-Object {
+            $_.Name -notlike 'fcfg_langpack_en*' -and $_.Name -notlike 'fcfg_langpack_zh*' -and
+            $_.Name -notlike 'registry_en*' -and $_.Name -notlike 'registry_zh*' -and
+            $_.Name -ne 'fcfg_langpack_qtz.xcd' -and $_.Name -ne 'registry_qtz.xcd'
+        } | Remove-Item -Force
+    }
+}
+
+# Icon themes: keep colibre (LibreOffice default) + help images, drop the rest.
+$taskConfig = Join-Path $taskOfficeDestination 'share/config'
+if (Test-Path -LiteralPath $taskConfig) {
+    Get-ChildItem -LiteralPath $taskConfig -File -Filter 'images_*.zip' | Where-Object {
+        $_.Name -notlike 'images_colibre*' -and $_.Name -ne 'images_helpimg.zip'
+    } | Remove-Item -Force
+}
+
+# Fonts: keep Latin + CJK-capable basics for en/zh rendering; drop fonts for
+# scripts of locales we no longer bundle.
+$taskFonts = Join-Path $taskOfficeDestination 'Fonts'
+if (Test-Path -LiteralPath $taskFonts) {
+    Get-ChildItem -LiteralPath $taskFonts -File | Where-Object {
+        $_.Name -match '^(Alef|Amiri|David|DavidLibre|NotoKufiArabic|NotoNaskhArabic|NotoSansArabic|NotoSansArmenian|NotoSansGeorgian|NotoSansHebrew|NotoSansLao|NotoSansLisu|NotoSerifArmenian|NotoSerifGeorgian|NotoSerifHebrew|NotoSerifLao|NotoSerifLisu|Kacst|Farsi|Scheherazade|Lateef|NanumGothic|NanumMyeongjo)' -and
+        $_.Name -notmatch '(CJK|SC|TC)'
+    } | Remove-Item -Force
+}
+
+# Headless conversion never touches these:
+foreach ($taskDrop in @(
+        (Join-Path $taskOfficeDestination 'help'),
+        (Join-Path $taskOfficeDestination 'readmes'),
+        (Join-Path $taskOfficeDestination 'share/gallery'),
+        (Join-Path $taskOfficeDestination 'share/template'),
+        (Join-Path $taskOfficeDestination 'share/wizards'),
+        (Join-Path $taskOfficeDestination 'share/autotext'),
+        (Join-Path $taskOfficeDestination 'share/Scripts'),
+        (Join-Path $taskOfficeDestination 'share/tipoftheday'),
+        (Join-Path $taskOfficeDestination 'share/wordbook'),
+        (Join-Path $taskOfficeDestination 'share/labels'),
+        (Join-Path $taskOfficeDestination 'program/python-core-3.12.14'),
+        (Join-Path $taskOfficeDestination 'program/python312.dll')
+    )) {
+    if (Test-Path -LiteralPath $taskDrop) { Remove-Item -LiteralPath $taskDrop -Recurse -Force }
+}
+Write-Output 'Trimmed LibreOffice to English + Chinese locales'
+
 $taskTesseract = Join-Path $taskTools 'tesseract'
 Write-Output 'Preparing bundled Tesseract'
 & $taskSevenZip x (Get-ComponentArchive $taskManifest.tesseract) "-o$taskTesseract" -y -bso0 -bsp0
@@ -100,6 +191,9 @@ Source: https://poppler.freedesktop.org/ (GPL-2.0-or-later; see poppler/Library/
 OCR language data: same pinned tessdata_fast files as the bundled browser OCR, Apache-2.0.
 
 All upstream license and notice files are retained. 7-Zip is build tooling only and is not bundled.
+The LibreOffice distribution is trimmed for size: only English and Chinese (Simplified and
+Traditional) UI resources, dictionaries, and fonts are bundled; icon themes other than colibre
+are removed, as are help files, galleries, templates, and the embedded Python scripting runtime.
 '@ | Set-Content -LiteralPath (Join-Path $taskTools 'THIRD_PARTY_COMPONENTS.txt')
 Set-Content -LiteralPath $taskStamp -Value $taskLock
 Write-Output 'Bundled document components are ready'
