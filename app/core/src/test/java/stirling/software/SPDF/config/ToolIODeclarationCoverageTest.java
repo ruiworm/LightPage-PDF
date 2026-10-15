@@ -18,6 +18,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.env.StandardEnvironment;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -301,6 +303,17 @@ class ToolIODeclarationCoverageTest {
         Map<String, ToolIOSpec> declared = new HashMap<>();
         ClassPathScanningCandidateComponentProvider scanner =
                 new ClassPathScanningCandidateComponentProvider(false);
+        StandardEnvironment environment = new StandardEnvironment();
+        environment
+                .getPropertySources()
+                .addFirst(
+                        new MapPropertySource(
+                                "tool-io-fixture",
+                                Map.of(
+                                        "stirling.features.overlay-pdf.enabled", "true",
+                                        "stirling.features.add-attachments.enabled", "true",
+                                        "stirling.features.extract-image-scans.enabled", "true")));
+        scanner.setEnvironment(environment);
         scanner.addIncludeFilter(new AnnotationTypeFilter(RequestMapping.class, true, true));
 
         for (BeanDefinition definition : scanner.findCandidateComponents("stirling.software")) {

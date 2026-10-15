@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -40,6 +41,7 @@ import tools.jackson.databind.ObjectMapper;
 
 /** Absent from the desktop bundle for the same reason as {@link PipelineDirectoryProcessor}. */
 @PipelineApi
+@ConditionalOnExpression("!${STIRLING_PDF_TAURI_MODE:false}")
 @ConditionalOnProperty(
         name = "stirling.features.pipeline.enabled",
         havingValue = "true",

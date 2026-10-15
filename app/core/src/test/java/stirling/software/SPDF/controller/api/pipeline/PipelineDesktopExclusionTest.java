@@ -26,6 +26,7 @@ class PipelineDesktopExclusionTest {
 
     private final ApplicationContextRunner runner =
             new ApplicationContextRunner()
+                    .withPropertyValues("stirling.features.pipeline.enabled=true")
                     .withUserConfiguration(
                             PipelineDependencies.class,
                             PipelineDirectoryProcessor.class,
@@ -62,6 +63,16 @@ class PipelineDesktopExclusionTest {
                                         .hasNotFailed()
                                         .hasSingleBean(PipelineDirectoryProcessor.class)
                                         .hasSingleBean(PipelineController.class));
+    }
+
+    @Test
+    void aDisabledFeatureDoesNotExposeTheServerRoute() {
+        runner.withPropertyValues("stirling.features.pipeline.enabled=false")
+                .run(
+                        context ->
+                                assertThat(context)
+                                        .hasNotFailed()
+                                        .doesNotHaveBean(PipelineController.class));
     }
 
     @Configuration(proxyBeanMethods = false)

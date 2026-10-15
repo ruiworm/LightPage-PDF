@@ -45,17 +45,14 @@ class OpenApiConfigTest {
         }
 
         @Test
-        @DisplayName("sets license, contact and terms of service")
+        @DisplayName("sets license without upstream contact or terms")
         void setsLicenseAndContact() {
             OpenAPI openAPI = config.customOpenAPI();
 
             assertThat(openAPI.getInfo().getLicense()).isNotNull();
             assertThat(openAPI.getInfo().getLicense().getName()).contains("MIT");
-            assertThat(openAPI.getInfo().getTermsOfService())
-                    .isEqualTo("https://www.stirlingpdf.com/terms");
-            assertThat(openAPI.getInfo().getContact()).isNotNull();
-            assertThat(openAPI.getInfo().getContact().getEmail())
-                    .isEqualTo("contact@stirlingpdf.com");
+            assertThat(openAPI.getInfo().getTermsOfService()).isNull();
+            assertThat(openAPI.getInfo().getContact()).isNull();
         }
 
         @Test
