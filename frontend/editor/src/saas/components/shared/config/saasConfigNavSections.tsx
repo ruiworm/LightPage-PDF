@@ -5,7 +5,6 @@ import {
   type ConfigNavSection,
 } from "@core/components/shared/config/configNavSections";
 import type { ConfigNavItem } from "@app/components/shared/config/types";
-import HotkeysSection from "@app/components/shared/config/configSections/HotkeysSection";
 import GeneralSection from "@app/components/shared/config/configSections/GeneralSection";
 import PreferencesSection from "@core/components/shared/config/configSections/preferences/PreferencesSection";
 import PasswordSecurity from "@app/components/shared/config/configSections/PasswordSecurity";
@@ -47,12 +46,6 @@ function ensurePreferencesSection(
             label: t("settings.general.title", "General"),
             icon: "settings",
             component: <GeneralSection />,
-          },
-          {
-            key: "hotkeys",
-            label: t("settings.hotkeys.title", "Keyboard Shortcuts"),
-            icon: "keyboard",
-            component: <HotkeysSection />,
           },
         ],
       },

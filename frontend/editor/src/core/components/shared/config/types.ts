@@ -17,7 +17,6 @@ export const VALID_NAV_KEYS = [
   "requests",
   "developer",
   "api-keys",
-  "hotkeys",
   "adminGeneral",
   "adminSecurity",
   "adminConnections",

@@ -1,4 +1,3 @@
-import { useHotkeys } from "@app/contexts/HotkeyContext";
 import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
 import { ToolRegistryEntry } from "@app/data/toolsTaxonomy";
 import { ToolId } from "@app/types/toolId";
@@ -129,13 +128,11 @@ export const getDisabledLabel = (
 };
 
 export function useToolMeta(id: string, tool: ToolRegistryEntry) {
-  const { hotkeys } = useHotkeys();
   const { isFavorite, toggleFavorite, toolAvailability } = useToolWorkflow();
   const { config } = useAppConfig();
   const premiumEnabled = config?.premiumEnabled;
 
   const isFav = isFavorite(id as ToolId);
-  const binding = hotkeys[id as ToolId];
   const disabledReason = getToolDisabledReason(
     id,
     tool,
@@ -145,7 +142,6 @@ export function useToolMeta(id: string, tool: ToolRegistryEntry) {
   const disabled = disabledReason !== null;
 
   return {
-    binding,
     isFav,
     toggleFavorite: () => toggleFavorite(id as ToolId),
     disabled,

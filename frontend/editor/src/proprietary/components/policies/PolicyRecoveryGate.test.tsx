@@ -35,8 +35,6 @@ const harness = vi.hoisted(() => ({
   files: [] as StirlingFileStub[],
   user: { username: "alice", email: "alice@example.com" },
   removeFiles: vi.fn(),
-  pauseHotkeys: vi.fn(),
-  resumeHotkeys: vi.fn(),
   navigation: { setSelectedTool: vi.fn(), setWorkbench: vi.fn() },
   setPreviewFile: vi.fn(),
   selectors: { getStirlingFileStubs: (): StirlingFileStub[] => harness.files },
@@ -48,13 +46,6 @@ vi.mock("@app/contexts/FileContext", () => ({
   useAllFiles: () => ({ fileStubs: harness.files }),
   useFileSelectors: () => harness.selectors,
   useFileManagement: () => ({ removeFiles: harness.removeFiles }),
-}));
-vi.mock("@app/contexts/HotkeyContext", () => ({
-  useHotkeys: () => ({
-    pauseHotkeys: harness.pauseHotkeys,
-    resumeHotkeys: harness.resumeHotkeys,
-    areHotkeysPaused: false,
-  }),
 }));
 vi.mock("@app/contexts/NavigationContext", () => ({
   useNavigationActions: () => ({ actions: harness.navigation }),
@@ -171,7 +162,6 @@ describe("editor policy recovery", () => {
       screen.getByText("Technical details").closest("details"),
     ).not.toHaveAttribute("open");
     expect(editor).toHaveValue("Unsaved changes");
-    expect(harness.pauseHotkeys).toHaveBeenCalled();
     view.unmount();
     render(app());
     expect(screen.getByRole("dialog")).toBeInTheDocument();
@@ -252,7 +242,6 @@ describe("editor policy recovery", () => {
       view.unmount();
       fireEvent.keyDown(window, { key: "s", ctrlKey: true });
       expect(shortcut).toHaveBeenCalledOnce();
-      expect(harness.resumeHotkeys).toHaveBeenCalledOnce();
     } finally {
       window.removeEventListener("keydown", shortcut);
       document.removeEventListener("paste", clipboard);

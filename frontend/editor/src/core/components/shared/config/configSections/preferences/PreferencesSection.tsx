@@ -2,7 +2,6 @@ import { type ReactNode } from "react";
 import { AppearanceCard } from "@app/components/shared/config/configSections/preferences/AppearanceCard";
 import { EditorDefaultsCard } from "@app/components/shared/config/configSections/preferences/EditorDefaultsCard";
 import { DownloadsCard } from "@app/components/shared/config/configSections/preferences/DownloadsCard";
-import { HotkeysCard } from "@app/components/shared/config/configSections/preferences/HotkeysCard";
 import "@app/components/shared/config/configSections/preferences/PreferencesSection.css";
 import { CardLicenseSettings } from "@app/components/license/CardLicensePanel";
 
@@ -38,9 +37,6 @@ export default function PreferencesSection({
           </div>
           <div id="downloads">
             <DownloadsCard />
-          </div>
-          <div id="hotkeys" className="preferences-hotkeys">
-            <HotkeysCard />
           </div>
         </div>
       </div>

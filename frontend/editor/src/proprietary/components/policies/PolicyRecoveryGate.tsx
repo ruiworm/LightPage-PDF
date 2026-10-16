@@ -15,7 +15,6 @@ import {
   useFileManagement,
   useFileSelectors,
 } from "@app/contexts/FileContext";
-import { useHotkeys } from "@app/contexts/HotkeyContext";
 import { useNavigationActions } from "@app/contexts/NavigationContext";
 import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
 import {
@@ -81,8 +80,6 @@ function RecoveryDialog({ blocks, policies, runs }: RecoveryDialogProps) {
   const titleId = useId();
   const bodyId = useId();
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const { pauseHotkeys, resumeHotkeys, areHotkeysPaused } = useHotkeys();
-  const previouslyPaused = useRef(areHotkeysPaused);
   const { removeFiles } = useFileManagement();
   const { actions: navigation } = useNavigationActions();
   const { setPreviewFile } = useToolWorkflow();
@@ -127,7 +124,6 @@ function RecoveryDialog({ blocks, policies, runs }: RecoveryDialogProps) {
     const previousFocus = document.activeElement;
     // The top layer also makes existing portals inert; a z-index overlay cannot do that.
     dialog.showModal();
-    pauseHotkeys();
     const stopEvent = (event: Event) => event.stopPropagation();
     // Keep dialog events out of editor handlers without cancelling browser or clipboard defaults.
     for (const name of ["keydown", "keyup", "copy", "cut", "paste"])
@@ -136,11 +132,10 @@ function RecoveryDialog({ blocks, policies, runs }: RecoveryDialogProps) {
       for (const name of ["keydown", "keyup", "copy", "cut", "paste"])
         dialog.removeEventListener(name, stopEvent);
       dialog.close();
-      if (!previouslyPaused.current) resumeHotkeys();
       if (previousFocus instanceof HTMLElement && previousFocus.isConnected)
         previousFocus.focus();
     };
-  }, [pauseHotkeys, resumeHotkeys]);
+  }, []);
 
   const retry = async () => {
     if (runningFileCount || closing) return;

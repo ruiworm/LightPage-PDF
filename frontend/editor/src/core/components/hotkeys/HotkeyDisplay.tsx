@@ -1,6 +1,9 @@
 import React from "react";
-import { HotkeyBinding } from "@app/utils/hotkeys";
-import { useHotkeys } from "@app/contexts/HotkeyContext";
+import {
+  getDisplayParts,
+  isMacLike,
+  type HotkeyBinding,
+} from "@app/utils/hotkeys";
 
 interface HotkeyDisplayProps {
   binding: HotkeyBinding | null | undefined;
@@ -28,8 +31,7 @@ export const HotkeyDisplay: React.FC<HotkeyDisplayProps> = ({
   size = "sm",
   muted = false,
 }) => {
-  const { getDisplayParts } = useHotkeys();
-  const parts = getDisplayParts(binding);
+  const parts = getDisplayParts(binding, isMacLike());
 
   if (!binding || parts.length === 0) {
     return null;

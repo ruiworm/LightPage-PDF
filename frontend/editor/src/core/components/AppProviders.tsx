@@ -7,7 +7,6 @@ import { NavigationProvider } from "@app/contexts/NavigationContext";
 import { ToolRegistryProvider } from "@app/contexts/ToolRegistryProvider";
 import { FilesModalProvider } from "@app/contexts/FilesModalContext";
 import { ToolWorkflowProvider } from "@app/contexts/ToolWorkflowContext";
-import { HotkeyProvider } from "@app/contexts/HotkeyContext";
 import { SidebarProvider } from "@app/contexts/SidebarContext";
 import {
   PreferencesProvider,
@@ -141,32 +140,30 @@ export function AppProviders({
                             <ViewerProvider>
                               <FilesModalProvider>
                                 <ToolWorkflowProvider>
-                                  <HotkeyProvider>
-                                    <SidebarProvider>
-                                      <PageEditorProvider>
-                                        <SignatureProvider>
-                                          <SigningOverlayProvider>
-                                            <RedactionProvider>
-                                              <FileRedactionProvider>
-                                                <FormFillProvider>
-                                                  <AnnotationProvider>
-                                                    <WorkbenchBarProvider>
-                                                      <TourOrchestrationProvider>
-                                                        <AdminTourOrchestrationProvider>
-                                                          <WorkbenchSessionPersistence />
-                                                          {children}
-                                                        </AdminTourOrchestrationProvider>
-                                                      </TourOrchestrationProvider>
-                                                    </WorkbenchBarProvider>
-                                                  </AnnotationProvider>
-                                                </FormFillProvider>
-                                              </FileRedactionProvider>
-                                            </RedactionProvider>
-                                          </SigningOverlayProvider>
-                                        </SignatureProvider>
-                                      </PageEditorProvider>
-                                    </SidebarProvider>
-                                  </HotkeyProvider>
+                                  <SidebarProvider>
+                                    <PageEditorProvider>
+                                      <SignatureProvider>
+                                        <SigningOverlayProvider>
+                                          <RedactionProvider>
+                                            <FileRedactionProvider>
+                                              <FormFillProvider>
+                                                <AnnotationProvider>
+                                                  <WorkbenchBarProvider>
+                                                    <TourOrchestrationProvider>
+                                                      <AdminTourOrchestrationProvider>
+                                                        <WorkbenchSessionPersistence />
+                                                        {children}
+                                                      </AdminTourOrchestrationProvider>
+                                                    </TourOrchestrationProvider>
+                                                  </WorkbenchBarProvider>
+                                                </AnnotationProvider>
+                                              </FormFillProvider>
+                                            </FileRedactionProvider>
+                                          </RedactionProvider>
+                                        </SigningOverlayProvider>
+                                      </SignatureProvider>
+                                    </PageEditorProvider>
+                                  </SidebarProvider>
                                 </ToolWorkflowProvider>
                               </FilesModalProvider>
                             </ViewerProvider>

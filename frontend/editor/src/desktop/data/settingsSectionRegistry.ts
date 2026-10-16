@@ -24,14 +24,6 @@ export const SETTINGS_SECTION_REGISTRY: SettingsSectionEntry[] = [
     groupLabelFallback: "Preferences",
   },
   {
-    key: "hotkeys",
-    labelKey: "settings.hotkeys.title",
-    labelFallback: "Keyboard Shortcuts",
-    keywords: ["hotkey", "shortcut", "keybinding", "keyboard"],
-    groupLabelKey: "settings.preferences.title",
-    groupLabelFallback: "Preferences",
-  },
-  {
     key: "connectionMode",
     labelKey: "settings.connection.title",
     labelFallback: "Connection Mode",

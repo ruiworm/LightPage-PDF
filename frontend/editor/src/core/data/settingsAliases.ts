@@ -18,7 +18,6 @@ export const BASE_SECTION_ALIASES: Partial<Record<string, NavKey>> = {
   adminAiModels: "adminAi",
   adminAiDocuments: "adminAi",
   adminAiLimits: "adminAi",
-  hotkeys: "general",
   account: "general",
   adminFeatures: "adminGeneral",
   adminStorageSharing: "adminGeneral",

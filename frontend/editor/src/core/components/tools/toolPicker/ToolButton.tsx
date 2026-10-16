@@ -8,8 +8,6 @@ import { ToolRegistryEntry } from "@app/data/toolsTaxonomy";
 import { useToolNavigation } from "@app/hooks/useToolNavigation";
 import { handleUnlessSpecialClick } from "@app/utils/clickHandlers";
 import FitText from "@app/components/shared/FitText";
-import { useHotkeys } from "@app/contexts/HotkeyContext";
-import HotkeyDisplay from "@app/components/hotkeys/HotkeyDisplay";
 import FavoriteStar from "@app/components/tools/toolPicker/FavoriteStar";
 import {
   useToolWorkflowActions,
@@ -71,8 +69,6 @@ const ToolButton: React.FC<ToolButtonProps> = ({
     disabledReason !== "comingSoon" &&
     disabledReason !== "selfHostedOffline";
   const visuallyUnavailable = isUnavailable && !showAsCloudAvailable;
-  const { hotkeys } = useHotkeys();
-  const binding = hotkeys[id];
   const { getToolNavigation } = useToolNavigation();
   const fav = isFavorite(id);
 
@@ -109,38 +105,7 @@ const ToolButton: React.FC<ToolButtonProps> = ({
       <strong>{disabledMessage}</strong> {tool.description}
     </span>
   ) : (
-    <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
-      <span>{tool.description}</span>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          fontSize: "0.75rem",
-        }}
-      >
-        {binding ? (
-          <>
-            <span
-              style={{ color: "var(--mantine-color-dimmed)", fontWeight: 500 }}
-            >
-              {t("settings.hotkeys.shortcut", "Shortcut")}
-            </span>
-            <HotkeyDisplay binding={binding} />
-          </>
-        ) : (
-          <span
-            style={{
-              color: "var(--mantine-color-dimmed)",
-              fontWeight: 500,
-              fontStyle: "italic",
-            }}
-          >
-            {t("settings.hotkeys.noShortcut", "No shortcut set")}
-          </span>
-        )}
-      </div>
-    </div>
+    <span>{tool.description}</span>
   );
   const buttonIcon = (
     <ToolIcon

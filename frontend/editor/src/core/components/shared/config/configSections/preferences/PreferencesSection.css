@@ -24,27 +24,13 @@
   flex-shrink: 0;
 }
 
-.preferences-hotkeys {
-  padding: var(--space-5) var(--space-6) var(--space-6);
-}
-
-.preferences-hotkeys .mantine-InputWrapper-label {
-  margin-bottom: var(--space-2);
-  color: var(--c-text);
-  font-weight: 500;
-}
-
-.preferences-hotkey-list {
-  margin-top: var(--space-5);
+.preferences-panel > :last-child > .preference-row:last-child {
+  border-bottom: 0;
 }
 
 @media (max-width: 30rem) {
   .preference-row {
     flex-wrap: wrap;
-    padding-inline: var(--space-4);
-  }
-
-  .preferences-hotkeys {
     padding-inline: var(--space-4);
   }
 }

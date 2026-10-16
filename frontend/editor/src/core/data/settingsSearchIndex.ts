@@ -66,14 +66,6 @@ export const SETTINGS_SEARCH_INDEX: SettingsSearchEntry[] = [
     labelFallback: "Auto-unzip file limit",
     keywords: ["zip", "limit", "files", "extract"],
   },
-  // --- Keyboard Shortcuts ---
-  {
-    section: "general",
-    anchor: "setting-hotkeys-search",
-    labelKey: "settings.hotkeys.title",
-    labelFallback: "Keyboard Shortcuts",
-    keywords: ["hotkey", "shortcut", "keybinding", "keyboard"],
-  },
   // --- About: one row per card the four folded rows became, carrying the
   // labels and search terms those rows had.
   {
@@ -153,13 +145,6 @@ export const SETTINGS_SEARCH_INDEX: SettingsSearchEntry[] = [
     keywords: ["tokens", "rate", "concurrency", "guardrail", "performance"],
   },
   // --- Anchors for the rows the folds retired; each lands on its host card.
-  {
-    section: "general",
-    anchor: "hotkeys",
-    labelKey: "settings.hotkeys.title",
-    labelFallback: "Keyboard Shortcuts",
-    keywords: ["hotkey", "shortcut", "keybinding", "keyboard"],
-  },
   {
     section: "general",
     anchor: "account",

@@ -19,7 +19,7 @@ import type { TFunction } from "i18next";
  * prefix.
  */
 const SECTION_TRANSLATION_PREFIXES: Partial<Record<string, string[]>> = {
-  general: ["settings.general", "settings.hotkeys", "account"],
+  general: ["settings.general", "account"],
   users: ["settings.workspace", "settings.team", "users", "portal.users"],
   "api-keys": ["settings.developer"],
   connectionMode: ["settings.connection"],
