@@ -12,6 +12,8 @@ import {
   type DiskFileEntry,
 } from "@app/services/localFolderContents";
 
+const EMPTY_ENTRIES: DiskFileEntry[] = [];
+
 /** Reads mounted directories and ignores obsolete replies after navigation. */
 export function useDiskFolder(
   currentLocalDirectory: string | undefined,
@@ -23,6 +25,7 @@ export function useDiskFolder(
   const { registerDiskSubfolders } = useFolders();
   const [diskEntries, setDiskEntries] = useState<DiskFileEntry[]>([]);
   const [diskLoading, setDiskLoading] = useState(false);
+  const [listedDirectory, setListedDirectory] = useState<string>();
 
   useEffect(() => {
     if (!currentLocalDirectory || !canListDirectory) {
@@ -37,6 +40,7 @@ export function useDiskFolder(
         const listed = await listDirectory(currentLocalDirectory);
         if (cancelled) return;
         const files = listed?.files ?? [];
+        setListedDirectory(currentLocalDirectory);
         setDiskEntries((prev) =>
           listingSignature(prev) === listingSignature(files) ? prev : files,
         );
@@ -58,6 +62,7 @@ export function useDiskFolder(
       } catch (err) {
         console.warn("[useDiskFolder] disk listing failed", err);
         if (!cancelled && !background) {
+          setListedDirectory(currentLocalDirectory);
           setDiskEntries([]);
           setFolderError(
             err instanceof Error
@@ -90,7 +95,13 @@ export function useDiskFolder(
     t,
   ]);
 
-  return { diskEntries, diskLoading };
+  const current = listedDirectory === currentLocalDirectory;
+  return {
+    diskEntries: current ? diskEntries : EMPTY_ENTRIES,
+    diskLoading: Boolean(
+      currentLocalDirectory && canListDirectory && (diskLoading || !current),
+    ),
+  };
 }
 
 function listingSignature(

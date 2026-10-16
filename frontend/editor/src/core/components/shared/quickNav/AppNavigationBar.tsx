@@ -66,26 +66,49 @@ export function AppNavigationBar({
         className="app-navigation-bar__views"
         aria-label={t("quickNav.landmark", "Quick navigation")}
       >
-        {entries.map((entry) => (
-          <button
-            key={entry.id}
-            type="button"
-            className="app-navigation-bar__view"
-            aria-current={entry.current ? "page" : undefined}
-            aria-pressed={entry.pressed}
-            disabled={entry.disabled}
-            title={entry.disabled ? entry.reason : undefined}
-            data-testid={entry.testId}
-            data-tour={entry.tourId}
-            onClick={entry.onClick}
-          >
-            {entry.icon}
-            <span>{entry.label}</span>
-          </button>
-        ))}
+        {entries
+          .filter((entry) => entry.id !== "tools")
+          .map((entry) => (
+            <button
+              key={entry.id}
+              type="button"
+              className="app-navigation-bar__view"
+              aria-current={entry.current ? "page" : undefined}
+              aria-pressed={entry.pressed}
+              disabled={entry.disabled}
+              title={entry.disabled ? entry.reason : undefined}
+              data-testid={entry.testId}
+              data-tour={entry.tourId}
+              onClick={entry.onClick}
+            >
+              {entry.icon}
+              <span>{entry.label}</span>
+            </button>
+          ))}
       </nav>
       <div className="app-navigation-bar__actions">
         <QuickNavRailFooterExtensions />
+        {entries
+          .filter((entry) => entry.id === "tools")
+          .map((entry) => (
+            <Tooltip
+              key={entry.id}
+              content={entry.label}
+              position="bottom"
+              arrow
+            >
+              <button
+                type="button"
+                className="app-navigation-bar__settings"
+                aria-label={entry.label}
+                aria-current={entry.current ? "page" : undefined}
+                data-testid={entry.testId}
+                onClick={entry.onClick}
+              >
+                {entry.icon}
+              </button>
+            </Tooltip>
+          ))}
         <Tooltip content={themeLabel} position="bottom" arrow>
           <button
             type="button"

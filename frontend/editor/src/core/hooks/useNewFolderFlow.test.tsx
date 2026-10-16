@@ -28,6 +28,9 @@ vi.mock("@app/contexts/FilesPageContext", () => ({
   }),
 }));
 vi.mock("react-router-dom", () => ({ useNavigate: () => vi.fn() }));
+vi.mock("@app/hooks/useOpenWorkspaceFolder", () => ({
+  useOpenWorkspaceFolder: () => vi.fn(),
+}));
 
 beforeEach(() => {
   state.storageEnabled = false;

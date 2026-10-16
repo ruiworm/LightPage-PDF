@@ -14,7 +14,7 @@ function renderButton(props: Partial<Parameters<typeof NewFolderButton>[0]>) {
   const onOpenDialog = vi.fn();
   const onAddLocalFolder = vi.fn();
   render(
-    <MantineProvider>
+    <MantineProvider env="test">
       <NewFolderButton
         label="New folder"
         currentFolderId={null}
@@ -83,7 +83,7 @@ describe("NewFolderButton in the sidebar", () => {
   it("offers both destinations from the row where a directory can be mounted", async () => {
     const onAddLocalFolder = vi.fn();
     render(
-      <MantineProvider>
+      <MantineProvider env="test">
         <NewFolderButton
           label="New folder"
           trigger="row"
@@ -103,7 +103,7 @@ describe("NewFolderButton in the sidebar", () => {
 
   it("marks the row disabled with its reason", () => {
     render(
-      <MantineProvider>
+      <MantineProvider env="test">
         <NewFolderButton
           label="New folder"
           trigger="row"
@@ -127,7 +127,7 @@ describe("NewFolderButton keyboard access", () => {
   it("opens the row's menu from the keyboard", async () => {
     const onAddLocalFolder = vi.fn();
     render(
-      <MantineProvider>
+      <MantineProvider env="test">
         <NewFolderButton
           label="New folder"
           trigger="row"
@@ -151,7 +151,7 @@ describe("NewFolderButton single-destination row", () => {
   it("opens the dialog from the keyboard where the server is the only place", async () => {
     const onOpenDialog = vi.fn();
     render(
-      <MantineProvider>
+      <MantineProvider env="test">
         <NewFolderButton
           label="New folder"
           trigger="row"

@@ -92,6 +92,7 @@ import {
 } from "@app/components/filesPage/dragDrop";
 import { clearFilesPageReturnRoute } from "@app/components/filesPage/filesPageReturnRoute";
 import { EDITOR_BASENAME } from "@app/routes/editorBasename";
+import { useOpenWorkspaceFolder } from "@app/hooks/useOpenWorkspaceFolder";
 import "@app/components/filesPage/FilesPage.css";
 
 export default function FileManagerView() {
@@ -99,6 +100,7 @@ export default function FileManagerView() {
   const navigate = useNavigate();
   const location = useLocation();
   const openFolder = useOpenFolder();
+  const openWorkspaceFolder = useOpenWorkspaceFolder();
   const folderDropHandlers = useFolderDropHandlers();
 
   const { sharingEnabled } = useSharingEnabled();
@@ -724,10 +726,10 @@ export default function FileManagerView() {
 
   const handleOpenFolder = useCallback(
     (id: FolderId) => {
-      openFolder(id);
+      openWorkspaceFolder(id);
       clearSelection();
     },
-    [openFolder, clearSelection],
+    [openWorkspaceFolder, clearSelection],
   );
 
   const dropZoneRef = useRef<HTMLDivElement>(null);
@@ -1265,6 +1267,16 @@ export default function FileManagerView() {
                   />
                   {!isMobile && (
                     <div className="files-page-toolbar-create">
+                      {canPickDirectory && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          leftSection={<Icon name="folder-open" size={20} />}
+                          onClick={() => void addLocalFolder()}
+                        >
+                          {t("workspaceFolders.openFolder", "Open folder")}
+                        </Button>
+                      )}
                       <Button
                         variant="secondary"
                         size="sm"

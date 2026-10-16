@@ -1,0 +1,106 @@
+name: macOS test package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-test-package-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
+    env:
+      DISABLE_ADDITIONAL_FEATURES: "true"
+      JPDFIUM_PLATFORMS: darwin-${{ matrix.arch }}
+      NODE_OPTIONS: --max-old-space-size=4096
+      CARGO_BUILD_JOBS: "2"
+      MACOSX_DEPLOYMENT_TARGET: "15.0"
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Set up Java
+        uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: gradle
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249
+        with:
+          toolchain: stable
+
+      - name: Restore Rust build cache
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+        with:
+          cache-on-failure: true
+          workspaces: frontend/editor/src-tauri
+
+      - name: Set up Task
+        uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e
+
+      - name: Prepare bundled backend and Java runtime
+        run: task desktop:prepare
+
+      - name: Check desktop types
+        run: task frontend:typecheck:desktop
+
+      - name: Test native host
+        working-directory: frontend/editor/src-tauri
+        run: cargo test --locked --lib
+
+      - name: Test bundled document operations
+        run: bash scripts/smoke-bundled-backend-macos.sh
+
+      - name: Build macOS application and DMG
+        working-directory: frontend/editor
+        run: npx tauri build --bundles app,dmg --config src-tauri/tauri.test-build.conf.json
+
+      - name: Verify package and record checksums
+        run: |
+          bundle=frontend/editor/src-tauri/target/release/bundle
+          app="$bundle/macos/LightPage PDF.app"
+          test -d "$app"
+          codesign --verify --deep --strict "$app"
+          bash scripts/smoke-bundled-backend-macos.sh "$app/Contents/Resources"
+          ditto -c -k --sequesterRsrc --keepParent "$app" "$bundle/LightPage-PDF-macOS-${{ matrix.arch }}.app.zip"
+          find "$bundle/dmg" -name '*.dmg' -exec shasum -a 256 {} \; > "$bundle/SHA256SUMS.txt"
+          shasum -a 256 "$bundle/LightPage-PDF-macOS-${{ matrix.arch }}.app.zip" >> "$bundle/SHA256SUMS.txt"
+          test -s "$bundle/SHA256SUMS.txt"
+
+      - name: Upload macOS test package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: LightPage-PDF-macOS-${{ matrix.arch }}-${{ github.run_number }}
+          path: |
+            frontend/editor/src-tauri/target/release/bundle/dmg/*.dmg
+            frontend/editor/src-tauri/target/release/bundle/*.app.zip
+            frontend/editor/src-tauri/target/release/bundle/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0

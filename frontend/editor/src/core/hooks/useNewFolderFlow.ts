@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useOpenWorkspaceFolder } from "@app/hooks/useOpenWorkspaceFolder";
 import { useFolders } from "@app/contexts/FolderContext";
 import { useFilesPage } from "@app/contexts/FilesPageContext";
 import { canPickDirectory, pickDirectory } from "@app/services/directoryPicker";
@@ -17,7 +17,7 @@ export function useNewFolderFlow() {
   const { t } = useTranslation();
   const folders = useFolders();
   const { currentTab, openNewFolderDialog } = useFilesPage();
-  const navigate = useNavigate();
+  const openWorkspaceFolder = useOpenWorkspaceFolder();
   const { config } = useAppConfig();
   const { isAnonymous } = useAuth();
   const rootFolderKind: FolderKind =
@@ -46,8 +46,7 @@ export function useNewFolderFlow() {
       const picked = await pickDirectory();
       if (!picked) return;
       const record = await folders.mountLocalFolder(picked.path, picked.name);
-      // The URL owns folder selection; updating folder state first races navigation.
-      navigate(`/files/${record.id}`);
+      openWorkspaceFolder(record.id);
     } catch (err) {
       folders.setError(
         err instanceof Error
@@ -58,7 +57,7 @@ export function useNewFolderFlow() {
           : t("filesPage.error.addFolderFailed", "Could not add the folder."),
       );
     }
-  }, [folders, navigate, t]);
+  }, [folders, openWorkspaceFolder, t]);
 
   const createFolderHere = useCallback(() => {
     if (createFolderHereBlockedReason !== null) return;

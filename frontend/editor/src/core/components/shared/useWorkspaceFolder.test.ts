@@ -1,4 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
+import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useWorkspaceFolder } from "@app/components/shared/useWorkspaceFolder";
 import { createNewStirlingFileStub } from "@app/types/fileContext";
@@ -19,7 +20,12 @@ vi.mock("@app/contexts/FolderContext", () => ({
   }),
 }));
 vi.mock("@app/contexts/FilesPageContext", () => ({
-  useFilesPage: () => ({ diskRevision: 0 }),
+  useFilesPage: () => {
+    const [workspaceFolderId, setWorkspaceFolderId] = useState<
+      FolderId | "" | null
+    >(null);
+    return { diskRevision: 0, workspaceFolderId, setWorkspaceFolderId };
+  },
 }));
 vi.mock("@app/components/filesPage/useDiskFolder", () => ({
   useDiskFolder: (...args: unknown[]) => mocks.list(...args),
@@ -86,13 +92,35 @@ describe("workspace library folder", () => {
     );
   });
 
-  it("allows switching to recent files without loading the mounted folder", () => {
+  it("shows loose opened files without listing a mounted folder", () => {
     const cached = createNewStirlingFileStub(new File(["pdf"], "older.pdf"));
     const { result } = renderHook(() => useWorkspaceFolder([cached]));
     act(() => result.current.setChosen(""));
     expect(result.current.stubs).toEqual([cached]);
     expect(result.current.entries.size).toBe(0);
     expect(mocks.list.mock.lastCall?.[0]).toBeUndefined();
+  });
+
+  it("scopes browser folders to their own files instead of appending previous folders", () => {
+    const browser = {
+      ...folder,
+      id: "browser" as FolderId,
+      kind: "virtual" as const,
+      directory: undefined,
+    };
+    mocks.folders.push(browser);
+    const file = {
+      ...createNewStirlingFileStub(new File(["pdf"], "browser.pdf")),
+      folderId: browser.id,
+    };
+    const other = {
+      ...createNewStirlingFileStub(new File(["pdf"], "other.pdf")),
+      folderId: folder.id,
+    };
+    const { result } = renderHook(() => useWorkspaceFolder([file, other]));
+    act(() => result.current.setChosen(browser.id));
+    expect(result.current.stubs).toEqual([file]);
+    expect(result.current.entries.size).toBe(0);
   });
 
   it("uses the library's current folder and recovers when it is removed", () => {

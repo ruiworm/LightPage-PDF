@@ -37,6 +37,14 @@ tasks:
       - provisioner
     cmds:
       - task: components:windows
+      - task: components:macos
+
+  components:macos:
+    desc: "Prepare bundled document components"
+    platforms: [darwin]
+    dir: ..
+    cmds:
+      - bash scripts/prepare-macos-components.sh
 
   components:windows:
     desc: "Prepare bundled document components"

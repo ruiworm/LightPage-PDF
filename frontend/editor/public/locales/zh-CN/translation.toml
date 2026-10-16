@@ -13818,6 +13818,19 @@ selectedCount = "已选 {{count}} 个"
 selectFile = "选择 {{fileName}} 加入工作区"
 selectionHint = "切换到“全部文件”，勾选要处理的文件。"
 
+[workspaceFolders]
+empty = "此文件夹暂无文件"
+fewerFolders = "收起文件夹"
+fileCount = "{{count}} 个文件"
+looseFiles = "已打开的文件"
+manage = "管理文件夹"
+mine = "我的文件夹"
+moreFolders = "更多文件夹"
+moreRecent = "更多最近项目"
+noRecent = "打开过的文件会显示在这里"
+openFolder = "打开文件夹"
+recent = "最近项目"
+
 [zipWarning]
 cancel = "取消"
 confirm = "解压"

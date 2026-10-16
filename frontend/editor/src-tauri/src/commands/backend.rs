@@ -228,7 +228,11 @@ fn run_stirling_pdf_jar(app: &tauri::AppHandle, java_path: &PathBuf, jar_path: &
     // Define all Java options with Tauri-specific paths
     let log_path_option = format!("-Dlogging.file.path={}", log_dir.display());
     let tools_root = jar_path.parent().and_then(|path| path.parent()).unwrap().join("runtime/tools");
-    let office_path = tools_root.join("libreoffice/program/soffice.com");
+    let office_path = if cfg!(target_os = "macos") {
+        tools_root.join("LibreOffice.app/Contents/MacOS/soffice")
+    } else {
+        tools_root.join("libreoffice/program/soffice.com")
+    };
     let office_path_option = format!("-Dsystem.customPaths.operations.soffice={}", office_path.display());
 
     let mut java_options = vec![
@@ -250,7 +254,7 @@ fn run_stirling_pdf_jar(app: &tauri::AppHandle, java_path: &PathBuf, jar_path: &
         java_options.push("-Dlegal.loginAgreement.enabled=true");
     }
 
-    if cfg!(windows) && office_path.is_file() {
+    if office_path.is_file() {
         java_options.push(&office_path_option);
     }
 
@@ -332,6 +336,17 @@ fn run_stirling_pdf_jar(app: &tauri::AppHandle, java_path: &PathBuf, jar_path: &
         sidecar_command = sidecar_command
             .env("PATH", path)
             .env("TESSDATA_PREFIX", tools_root.join("tesseract/tessdata"));
+    }
+
+    if cfg!(target_os = "macos") && tools_root.is_dir() {
+        let mut paths = vec![tools_root.join("bin")];
+        if let Some(existing) = std::env::var_os("PATH") {
+            paths.extend(std::env::split_paths(&existing));
+        }
+        let path = std::env::join_paths(paths).map_err(|error| format!("Invalid document component path: {error}"))?;
+        sidecar_command = sidecar_command
+            .env("PATH", path)
+            .env("TESSDATA_PREFIX", tools_root.join("tessdata"));
     }
 
     add_log("⚙️ Starting backend with bundled JRE...".to_string());

@@ -97,6 +97,11 @@ interface FilesPageContextValue {
   /** Invalidates disk listings, which cannot observe IndexedDB revisions. */
   diskRevision: number;
   bumpDiskRevision: () => void;
+  workspaceFolderId: FolderId | "" | null;
+  setWorkspaceFolderId: (id: FolderId | "") => void;
+  workspaceFiles: React.RefObject<Map<string, FileId>>;
+  recentWorkspaceFiles: FileId[];
+  rememberWorkspaceFile: (folder: string, id: FileId) => void;
 
   selectedFileIds: Set<FileId>;
   setSelectedFileIds: React.Dispatch<React.SetStateAction<Set<FileId>>>;
@@ -195,6 +200,59 @@ export function FilesPageProvider({ children }: { children: React.ReactNode }) {
   const shareLinksEnabled = appConfig?.storageShareLinksEnabled === true;
   const [diskRevision, setDiskRevision] = useState(0);
   const bumpDiskRevision = useCallback(() => setDiskRevision((n) => n + 1), []);
+  const [workspaceFolderId, setWorkspaceFolder] = useState<
+    FolderId | "" | null
+  >(() => {
+    try {
+      return localStorage.getItem("lightpage.workspaceFolder") as
+        | FolderId
+        | ""
+        | null;
+    } catch {
+      return null;
+    }
+  });
+  const workspaceFiles = useRef(new Map<string, FileId>());
+  const [recentWorkspaceFiles, setRecentWorkspaceFiles] = useState<FileId[]>(
+    () => {
+      try {
+        const ids: unknown = JSON.parse(
+          localStorage.getItem("lightpage.recentWorkspaceFiles") ?? "[]",
+        );
+        return Array.isArray(ids)
+          ? ids
+              .filter((id): id is FileId => typeof id === "string")
+              .slice(0, 20)
+          : [];
+      } catch {
+        return [];
+      }
+    },
+  );
+  const rememberWorkspaceFile = useCallback((folder: string, id: FileId) => {
+    workspaceFiles.current.set(folder, id);
+    setRecentWorkspaceFiles((previous) => {
+      if (previous[0] === id) return previous;
+      const next = [id, ...previous.filter((item) => item !== id)].slice(0, 20);
+      try {
+        localStorage.setItem(
+          "lightpage.recentWorkspaceFiles",
+          JSON.stringify(next),
+        );
+      } catch {
+        /* In-memory history remains available. */
+      }
+      return next;
+    });
+  }, []);
+  const setWorkspaceFolderId = useCallback((id: FolderId | "") => {
+    setWorkspaceFolder(id);
+    try {
+      localStorage.setItem("lightpage.workspaceFolder", id);
+    } catch {
+      // Folder navigation remains available when persistence is denied.
+    }
+  }, []);
 
   const refresh = useCallback(async () => {
     const gen = ++refreshGenRef.current;
@@ -755,6 +813,11 @@ export function FilesPageProvider({ children }: { children: React.ReactNode }) {
       refresh,
       diskRevision,
       bumpDiskRevision,
+      workspaceFolderId,
+      setWorkspaceFolderId,
+      workspaceFiles,
+      recentWorkspaceFiles,
+      rememberWorkspaceFile,
       selectedFileIds,
       setSelectedFileIds,
       clearSelection,
@@ -800,6 +863,10 @@ export function FilesPageProvider({ children }: { children: React.ReactNode }) {
       refresh,
       diskRevision,
       bumpDiskRevision,
+      workspaceFolderId,
+      setWorkspaceFolderId,
+      recentWorkspaceFiles,
+      rememberWorkspaceFile,
       selectedFileIds,
       setSelectedFileIds,
       clearSelection,
