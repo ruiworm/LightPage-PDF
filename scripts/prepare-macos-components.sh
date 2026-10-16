@@ -23,14 +23,21 @@ cp -R /Applications/LibreOffice.app "$tools/LibreOffice.app"
 
 fix_files=()
 for command in tesseract pdftohtml pdftotext pdfinfo pdftoppm pdftocairo; do
-  cp -L "$(command -v "$command")" "$tools/bin/$command"
+  package=poppler
+  [[ "$command" != tesseract ]] || package=tesseract
+  cp -L "$(brew --prefix "$package")/bin/$command" "$tools/bin/$command"
   chmod u+w "$tools/bin/$command"
   fix_files+=(-x "$tools/bin/$command")
 done
+search_dirs=(-s "$(brew --prefix)/lib")
+for package in $(brew deps --formula --recursive tesseract poppler) tesseract poppler; do
+  search_dirs+=(-s "$(brew --prefix "$package")/lib")
+done
 # Homebrew libraries otherwise retain absolute paths to the build machine.
-dylibbundler -b -cd -of "${fix_files[@]}" -d "$tools/lib/" -p '@executable_path/../lib/'
+printf 'quit\n' | dylibbundler -b -cd -of "${fix_files[@]}" "${search_dirs[@]}" \
+  -d "$tools/lib/" -p '@executable_path/../lib/'
 for language in chi_sim eng osd; do
-  curl --fail --location --retry 3 \
+  curl --fail --location --retry 3 --connect-timeout 30 --max-time 300 \
     "https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/87416418657359cb625c412a48b6e1d6d41c29bd/$language.traineddata" \
     --output "$tools/tessdata/$language.traineddata"
 done
@@ -45,7 +52,7 @@ brew info --json=v2 tesseract poppler libreoffice > "$tools/notices/components.j
 for package in $(brew deps --formula --recursive tesseract poppler) tesseract poppler; do
   prefix="$(brew --prefix "$package")"
   mkdir -p "$tools/notices/$package"
-  find "$prefix" -maxdepth 1 -type f \( -iname 'LICENSE*' -o -iname 'COPYING*' \) \
+  find -H "$prefix" -maxdepth 1 -type f \( -iname 'LICENSE*' -o -iname 'COPYING*' \) \
     -exec cp {} "$tools/notices/$package/" \;
 done
 while IFS= read -r -d '' binary; do

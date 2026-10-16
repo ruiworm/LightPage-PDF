@@ -65,7 +65,13 @@ jobs:
         uses: go-task/setup-task@a00fbb05ce67b35648be3c78cbc9fd85354c757e
 
       - name: Prepare bundled backend and Java runtime
-        run: task desktop:prepare
+        run: |
+          task desktop:jlink
+          task frontend:prepare MODE=desktop
+
+      - name: Prepare bundled document components
+        timeout-minutes: 15
+        run: task desktop:components:macos
 
       - name: Check desktop types
         run: task frontend:typecheck:desktop
