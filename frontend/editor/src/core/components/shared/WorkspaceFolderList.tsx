@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Loader } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { ActionIcon } from "@app/ui/ActionIcon";
@@ -43,6 +43,17 @@ export function WorkspaceFolderList({
   const { t } = useTranslation();
   const [moreRecent, setMoreRecent] = useState(false);
   const [moreFolders, setMoreFolders] = useState(false);
+  const [expanded, setExpanded] = useState(true);
+  useEffect(() => setExpanded(true), [selected]);
+
+  const toggleFolder = (id: FolderId | "") => {
+    if (id === selected) {
+      setExpanded((value) => !value);
+    } else {
+      setExpanded(true);
+      onFolder(id);
+    }
+  };
   const shown = moreFolders
     ? folders
     : folders.filter((folder, index) => index < 5 || folder.id === selected);
@@ -168,23 +179,29 @@ export function WorkspaceFolderList({
               <button
                 type="button"
                 className="workspace-folders__folder"
-                aria-expanded={selected === folder.id}
-                onClick={() => onFolder(folder.id)}
+                aria-expanded={selected === folder.id && expanded}
+                onClick={() => toggleFolder(folder.id)}
                 title={folder.directory ?? folder.name}
               >
                 <Icon
                   name={
-                    selected === folder.id ? "chevron-down" : "chevron-right"
+                    selected === folder.id && expanded
+                      ? "chevron-down"
+                      : "chevron-right"
                   }
                   size="0.8rem"
                 />
                 <Icon
-                  name={selected === folder.id ? "folder-open" : "folder"}
+                  name={
+                    selected === folder.id && expanded
+                      ? "folder-open"
+                      : "folder"
+                  }
                   size="1rem"
                 />
                 <span>{folder.name}</span>
               </button>
-              {selected === folder.id && content}
+              {selected === folder.id && expanded && content}
             </div>
           ))}
           {folders.length > 5 && (
@@ -204,17 +221,19 @@ export function WorkspaceFolderList({
           <button
             type="button"
             className="workspace-folders__folder"
-            aria-expanded={selected === ""}
-            onClick={() => onFolder("")}
+            aria-expanded={selected === "" && expanded}
+            onClick={() => toggleFolder("")}
           >
             <Icon
-              name={selected === "" ? "chevron-down" : "chevron-right"}
+              name={
+                selected === "" && expanded ? "chevron-down" : "chevron-right"
+              }
               size="0.8rem"
             />
             <Icon name="files" size="1rem" />
             <span>{t("workspaceFolders.looseFiles", "Opened files")}</span>
           </button>
-          {selected === "" && content}
+          {selected === "" && expanded && content}
         </div>
       </section>
       <button
