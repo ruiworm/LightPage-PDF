@@ -105,7 +105,7 @@ jobs:
           } | Set-Content -LiteralPath frontend/editor/src-tauri/target/release/bundle/SHA256SUMS.txt
 
       - name: Upload Windows EXE installer
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: LightPage-PDF-Windows-EXE-${{ github.run_number }}
           path: |
@@ -117,7 +117,7 @@ jobs:
 
       - name: Upload Windows MSI installer
         if: ${{ hashFiles('frontend/editor/src-tauri/target/release/bundle/msi/*.msi') != '' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: LightPage-PDF-Windows-MSI-${{ github.run_number }}
           path: |
