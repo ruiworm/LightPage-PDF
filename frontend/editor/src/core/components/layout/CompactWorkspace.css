@@ -1,0 +1,113 @@
+.compact-workspace,
+.workspace-panels {
+  display: flex;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  background: var(--c-bg);
+}
+
+.workspace-panel {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100%;
+  min-height: 0;
+  background: var(--c-bg-raised);
+}
+
+.workspace-panel[hidden] {
+  display: none;
+}
+
+.workspace-panel__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspace-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  min-height: 3.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--c-border-subtle);
+}
+
+.workspace-panel__header h2 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.compact-workspace-panel {
+  position: fixed;
+  inset-block: 0;
+  z-index: 201;
+  max-width: 92vw;
+  height: 100dvh;
+}
+
+.compact-workspace-panel.workspace-panel--files {
+  left: 0;
+  width: 20rem;
+}
+
+.compact-workspace-panel.workspace-panel--tools {
+  right: 0;
+  width: 22rem;
+}
+
+.compact-workspace-panel .tool-panel,
+.compact-workspace-panel .file-sidebar {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 100%;
+}
+
+.compact-workspace-panel .tool-panel__list-header {
+  display: none;
+}
+
+.compact-workspace .workbench-bar-top-row {
+  grid-template-columns: minmax(2.5rem, 1fr) auto minmax(5rem, 1fr);
+}
+
+.compact-workspace .workbench-bar-leading {
+  flex-shrink: 0;
+}
+
+.compact-workspace .workbench-bar-top-row > .workbench-bar-leading {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.compact-workspace .workbench-bar-top-row > .workbench-bar-views {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.compact-workspace .workbench-bar-top-row > .workbench-bar-globals {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+@media (max-width: 30rem) {
+  .compact-workspace .workbench-bar-back-btn {
+    display: none;
+  }
+
+  .compact-workspace .workbench-bar-top-row {
+    gap: 0;
+    grid-template-columns: 2.5rem minmax(0, 1fr) 5rem;
+  }
+
+  .compact-workspace .workbench-bar-views {
+    justify-content: center;
+  }
+}

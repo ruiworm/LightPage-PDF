@@ -25,6 +25,16 @@ function documentFor(text: string): RedactionDocument {
 }
 
 describe("file redaction detection", () => {
+  it("requires a person predicate instead of inferring names from conjunctions and prepositions", () => {
+    const doc = documentFor(
+      "项目与模型共同运行。方案在测试中通过。由程序、项目进行处理。\n姓名：文献\n段宁和解明共同负责测试。",
+    );
+    expect(
+      findHits(doc, { ...defaultRedactionSettings, categories: ["name"] }).map(
+        (hit) => hit.original,
+      ),
+    ).toEqual(["文献", "段宁", "解明"]);
+  });
   it("preserves technical resume prose without seeding repeated person matches", () => {
     const doc = documentFor(
       "联系人：解明\n微服务封装与容器化部署：封装核心业务接口。\n字段解析与结构化处理：字段解析可复用。\n解明和张三共同负责接口开发。",

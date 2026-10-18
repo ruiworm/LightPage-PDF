@@ -42,6 +42,35 @@ function entity(
 }
 
 describe("combined Chinese entity recognition", () => {
+  it("preserves plagiarism-report terminology while recognizing its author and supervisor", () => {
+    const text =
+      "作者：汪发锐\n指导教师：秦吉胜\n优先出版文献库\n港澳台学术文献库\n去除本人文献复制比：10.5%\n去除引用文献复制比：10.4%\n单篇最大文字复制比：8.7%\n总文字复制比\n疑似剽窃文字表述\n疑似剽窃图片\n由常规、应急两种方式处理。";
+    const guesses = ["文献", "文字", "常规", "应急"].flatMap((original) =>
+      [...text.matchAll(new RegExp(original, "gu"))].map((match) => ({
+        ...entity(text, original, "name", 0.99),
+        start: match.index,
+        end: match.index + original.length,
+      })),
+    );
+    const doc = fixture(text, guesses);
+    doc.pages.push({
+      ...doc.pages[0],
+      index: 1,
+      text: "文献与文字均应保留。常规与应急处理。",
+    });
+    const hits = findHits(doc, defaultRedactionSettings);
+    expect(hits.map((hit) => hit.original)).toEqual(["汪发锐", "秦吉胜"]);
+  });
+
+  it("leaves a surname-shaped model guess unselected without person context", () => {
+    const text = "采用周转方式完成业务。";
+    expect(
+      findHits(
+        fixture(text, [entity(text, "周转", "name", 0.99)]),
+        defaultRedactionSettings,
+      ),
+    ).toMatchObject([{ original: "周转", selected: false, review: true }]);
+  });
   it("rejects technical words from model results and OCR-spaced prose", () => {
     const text = "封 装与容器化部署，字段解 析与数据处理。联系人：解明";
     const hits = findHits(
@@ -89,7 +118,7 @@ describe("combined Chinese entity recognition", () => {
     );
   });
   it("adds unlabelled model names with correct emoji offsets and exposes uncertain candidates", () => {
-    const text = "😀陈蕴桐昨天到这里。程沐澄也到这里。";
+    const text = "😀陈蕴桐昨天到访办公室。程沐澄也到这里。";
     const hits = findHits(
       fixture(text, [
         entity(text, "陈蕴桐", "name"),
@@ -124,14 +153,14 @@ describe("combined Chinese entity recognition", () => {
       findHits(doc, { ...defaultRedactionSettings, ner: false }),
     ).toHaveLength(0);
   });
-  it("propagates a supported model name to a repeated mention on another page", () => {
+  it("does not propagate a weak model guess to another page", () => {
     const text = "陈蕴桐昨天到了办公室。";
     const doc = fixture(text, [entity(text, "陈蕴桐", "name", 0.24)]);
     doc.pages.push({ ...doc.pages[0], index: 1, text: "陈蕴桐昨天离开了。" });
     expect(findHits(doc, defaultRedactionSettings)).toMatchObject([
-      { original: "陈蕴桐", pageIndex: 0, source: "model", selected: true },
-      { original: "陈蕴桐", pageIndex: 1, source: "repeat", selected: true },
+      { original: "陈蕴桐", pageIndex: 0, source: "model", selected: false },
     ]);
+    expect(findHits(doc, defaultRedactionSettings)).toHaveLength(1);
   });
   it("does not interpret a heading's following sentence as a name field", () => {
     const text = "投保人信息\n陈蕴桐昨天到了办公室。";

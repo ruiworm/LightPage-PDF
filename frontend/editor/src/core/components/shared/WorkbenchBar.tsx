@@ -53,6 +53,7 @@ import WorkbenchBarToolbarHandle from "@app/components/shared/workbenchBar/Workb
 import { renderWithTooltip } from "@app/components/shared/workbenchBar/workbenchBarTooltip";
 import { WorkbenchBarActionsProps } from "@app/components/shared/workbenchBar/types";
 import { useIsMobile } from "@app/hooks/useIsMobile";
+import { CompactWorkspaceButton } from "@app/components/layout/CompactWorkspace";
 import "@app/components/shared/WorkbenchBar.css";
 
 const SECTION_ORDER: WorkbenchBarSection[] = ["top", "middle", "bottom"];
@@ -434,6 +435,7 @@ export default function WorkbenchBar({
 
   const leadingCluster = (
     <div className="workbench-bar-leading">
+      <CompactWorkspaceButton panel="files" />
       {returnRoute && hasFiles && (
         <>
           <Button
@@ -507,11 +509,7 @@ export default function WorkbenchBar({
     (sectionsWithButtons.length > 0 || toolLeadButtons.length > 0) &&
     !(isViewer && viewerToolbarCollapsed) ? (
       <div
-        className={`workbench-bar-center${
-          isMobile && mobileToolsExpanded
-            ? " workbench-bar-center--expanded"
-            : ""
-        }`}
+        className={`workbench-bar-center${isMobile && mobileToolsExpanded ? " workbench-bar-center--expanded" : ""}`}
       >
         {toolLeadButtons.length > 0 && (
           <div className="workbench-bar-tool-lead">
@@ -556,6 +554,7 @@ export default function WorkbenchBar({
   // Right: global buttons - export group left, close anchored right.
   const globalsCluster = (
     <div className="workbench-bar-globals">
+      <CompactWorkspaceButton panel="tools" />
       {/* A view's own controls, ahead of the globals every view shares. */}
       {barRowButtons.map((btn) => {
         const content = renderButton(btn);

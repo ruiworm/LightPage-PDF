@@ -5843,12 +5843,7 @@ title = "Merge"
 
 [home.mobile]
 brandAlt = "Stirling PDF logo"
-swipeHint = "Swipe left or right to switch views"
 tools = "Tools"
-toolsSlide = "Tool selection panel"
-viewSwitcher = "Switch workspace view"
-workbenchSlide = "Workspace panel"
-workspace = "Workspace"
 
 [home.multiTool]
 desc = "Merge, Rotate, Rearrange, Split, and Remove pages"

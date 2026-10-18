@@ -14,9 +14,6 @@ test.use({
 });
 
 async function openEditor(page: Page, fileName?: string): Promise<void> {
-  await page.addInitScript(() => {
-    localStorage.setItem("stirling.mobileSwipeHintSeen", "true");
-  });
   await page.goto("/pdf-text-editor", { waitUntil: "domcontentloaded" });
   await expect(page.getByTestId("pdf-editor-root")).toBeAttached({
     timeout: 30_000,
@@ -42,17 +39,12 @@ test.describe("PDF text editor - phone layout", () => {
     test.setTimeout(120_000);
     await openEditor(page);
 
-    await expect(page.getByRole("tab", { name: "Workspace" })).toHaveAttribute(
-      "aria-selected",
-      "true",
-    );
     await expect(page.getByTestId("pdf-editor-toolbar")).toHaveAttribute(
       "data-layout",
       "mobile",
     );
     await expect(page.getByTestId("pdf-editor-mobile-save")).toBeVisible();
 
-    // Read both boxes per poll: the phone slider is still scrolling into view.
     await expect
       .poll(async () => {
         const stage = await page.getByTestId("pdf-editor-stage").boundingBox();

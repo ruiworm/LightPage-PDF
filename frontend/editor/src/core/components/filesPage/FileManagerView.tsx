@@ -726,10 +726,10 @@ export default function FileManagerView() {
 
   const handleOpenFolder = useCallback(
     (id: FolderId) => {
-      openWorkspaceFolder(id);
+      openFolder(id);
       clearSelection();
     },
-    [openWorkspaceFolder, clearSelection],
+    [openFolder, clearSelection],
   );
 
   const dropZoneRef = useRef<HTMLDivElement>(null);
@@ -1248,6 +1248,16 @@ export default function FileManagerView() {
               </div>
             )}
             <div className="files-page-toolbar-actions">
+              {currentFolder && !mobileSelection && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  leftSection={<Icon name="arrow-right" size={16} />}
+                  onClick={() => openWorkspaceFolder(currentFolder.id)}
+                >
+                  {t("filesPage.addToWorkspace", "Add to workspace")}
+                </Button>
+              )}
               {!mobileSelection && (
                 <>
                   <LibraryToolbar
@@ -1349,6 +1359,7 @@ export default function FileManagerView() {
               onSelectFile={handleSelectFile}
               onSetSelection={setSelectedFileIds}
               onOpenFolder={handleOpenFolder}
+              onAddFolderToWorkspace={openWorkspaceFolder}
               onStartProcessing={
                 processingEnabled ? setProcessingSetupFolder : undefined
               }

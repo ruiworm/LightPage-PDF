@@ -14,7 +14,7 @@ import { ensurePageRead } from "@app/tools/pdfTextEditor/hooks/useDocumentLoader
 import { EditorTopBar } from "@app/tools/pdfTextEditor/components/EditorTopBar";
 import { MobileEditorTopBar } from "@app/tools/pdfTextEditor/components/MobileEditorTopBar";
 import { MobileActionBar } from "@app/tools/pdfTextEditor/components/MobileActionBar";
-import { useIsMobile } from "@app/hooks/useIsMobile";
+import { useIsPhone } from "@app/hooks/useIsMobile";
 import { Button } from "@app/ui/Button";
 import { Icon } from "@app/ui/Icon";
 import { fitToWidthScale } from "@app/tools/pdfTextEditor/util/fitToWidth";
@@ -49,7 +49,7 @@ export const PageStage = memo(function PageStage() {
   const [draggingFile, setDraggingFile] = useState(false);
   const dragCountRef = useRef(0);
   const stageRootRef = useRef<HTMLDivElement | null>(null);
-  const isMobile = useIsMobile();
+  const isMobile = useIsPhone();
 
   useEffect(() => store.selection.subscribe(setSelection), [store]);
   useEffect(

@@ -269,6 +269,22 @@
   background: var(--c-surface);
 }
 
+.files-page-folder-entry {
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.files-page-folder-entry > [aria-hidden="true"] {
+  max-width: 4rem;
+  max-height: 3.2rem;
+  flex-shrink: 0;
+}
+
+.files-page-list-row .files-page-folder-workspace-button {
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+
 .files-page-list > * {
   flex-shrink: 0;
 }

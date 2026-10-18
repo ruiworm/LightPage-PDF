@@ -112,6 +112,8 @@ interface FileGridProps {
 
   onSetSelection?: (ids: Set<FileId>) => void;
   onOpenFolder: (id: FolderId) => void;
+  /** Explicit workspace entry; ordinary folder activation continues browsing the library. */
+  onAddFolderToWorkspace?: (id: FolderId) => void;
   onOpenFile: (file: StirlingFileStub) => void;
   onOpenDiskFile?: (entry: DiskFileEntry) => void;
 
@@ -181,6 +183,7 @@ interface FileGridActions {
   ) => void;
   toggleFile: (id: FileId) => void;
   openFolder: (id: FolderId) => void;
+  addFolderToWorkspace: (id: FolderId) => void;
   openFile: (file: StirlingFileStub) => void;
   openDiskFile: (entry: DiskFileEntry) => void;
   startProcessing: (folder: FolderRecord) => void;
@@ -270,6 +273,7 @@ export function FileGrid(props: FileGridProps & { loading?: boolean }) {
       },
       toggleFile: (id) => latest.current.onSelectFile(id, false, true),
       openFolder: (id) => latest.current.onOpenFolder(id),
+      addFolderToWorkspace: (id) => latest.current.onAddFolderToWorkspace?.(id),
       openFile: (file) => latest.current.onOpenFile(file),
       openDiskFile: (entry) => latest.current.onOpenDiskFile?.(entry),
       startProcessing: (folder) => latest.current.onStartProcessing?.(folder),
@@ -548,6 +552,7 @@ type FileGridLayoutProps = FileGridProps & {
 
 function GridView({
   picker,
+  onAddFolderToWorkspace,
   currentTab,
   entries,
   selectedFileIds,
@@ -585,6 +590,7 @@ function GridView({
             <FolderCard
               key={`folder-${entry.folder.id}`}
               selectionOnly={Boolean(picker)}
+              canAddToWorkspace={Boolean(onAddFolderToWorkspace)}
               folder={entry.folder}
               fileCount={entry.folderFileCount ?? 0}
               parentPath={entry.parentPath}
@@ -657,6 +663,7 @@ function GridView({
 
 interface FolderItemProps {
   selectionOnly?: boolean;
+  canAddToWorkspace?: boolean;
   selectionColumn?: boolean;
   folder: FolderRecord;
   fileCount: number;
@@ -669,6 +676,7 @@ interface FolderItemProps {
 
 const FolderCard = React.memo(function FolderCard({
   selectionOnly,
+  canAddToWorkspace,
   folder,
   fileCount,
   parentPath,
@@ -753,7 +761,7 @@ const FolderCard = React.memo(function FolderCard({
       }}
     >
       <div
-        className="files-page-card-thumb"
+        className={`files-page-card-thumb${!selectionOnly && canAddToWorkspace ? " files-page-folder-entry" : ""}`}
         style={{
           background: `linear-gradient(135deg, color-mix(in srgb, ${folder.color ?? "var(--c-primary)"} 18%, var(--c-surface)), color-mix(in srgb, ${folder.color ?? "var(--c-primary)"} 6%, var(--c-surface)))`,
         }}
@@ -763,6 +771,9 @@ const FolderCard = React.memo(function FolderCard({
           fileCount={fileCount}
           iconGlyph={findFolderIcon(folder.icon)?.glyph}
         />
+        {!selectionOnly && canAddToWorkspace && (
+          <FolderWorkspaceButton folderId={folder.id} actions={actions} />
+        )}
       </div>
       <div className="files-page-card-body">
         <div className="files-page-card-name" title={folder.name}>
@@ -846,6 +857,30 @@ const FolderCard = React.memo(function FolderCard({
     </div>
   );
 });
+
+function FolderWorkspaceButton({
+  folderId,
+  actions,
+}: {
+  folderId: FolderId;
+  actions: FileGridActions;
+}) {
+  const { t } = useTranslation();
+  return (
+    <Button
+      variant="secondary"
+      size="sm"
+      className="files-page-folder-workspace-button"
+      leftSection={<Icon name="arrow-right" size={16} />}
+      onClick={(event) => {
+        event.stopPropagation();
+        actions.addFolderToWorkspace(folderId);
+      }}
+    >
+      {t("filesPage.addToWorkspace", "Add to workspace")}
+    </Button>
+  );
+}
 
 /** Put actionable states first because narrow rows clip the breakdown. */
 function ProcessingFolderStats({
@@ -1384,6 +1419,7 @@ const FileCard = React.memo(function FileCard({
 /** Grid rows must own cells: wrap checkboxes, sort controls and menus in gridcell/columnheader elements. */
 function ListView({
   picker,
+  onAddFolderToWorkspace,
   currentTab,
   entries,
   selectedFileIds,
@@ -1550,6 +1586,7 @@ function ListView({
             <FolderRow
               key={`folder-${entry.folder.id}`}
               selectionOnly={Boolean(picker)}
+              canAddToWorkspace={Boolean(onAddFolderToWorkspace)}
               selectionColumn={selectionColumn}
               folder={entry.folder}
               fileCount={entry.folderFileCount ?? 0}
@@ -1620,6 +1657,7 @@ function ListView({
 
 const FolderRow = React.memo(function FolderRow({
   selectionOnly,
+  canAddToWorkspace,
   selectionColumn,
   folder,
   fileCount,
@@ -1763,6 +1801,9 @@ const FolderRow = React.memo(function FolderRow({
           </span>
         </span>
         <FolderOriginBadge folder={folder} />
+        {!selectionOnly && canAddToWorkspace && (
+          <FolderWorkspaceButton folderId={folder.id} actions={actions} />
+        )}
       </span>
       <span role="gridcell" className="files-page-col-type">
         {processing ? (

@@ -9,6 +9,12 @@ vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (_key: string, fallback: string) => fallback }),
 }));
 
+// Loading buttons schedule transition timers even when Mantine renders in test mode.
+vi.mock("@mantine/hooks", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@mantine/hooks")>()),
+  useReducedMotion: () => true,
+}));
+
 const folder: FolderRecord = {
   id: createFolderId(),
   name: "Documents",
@@ -29,7 +35,7 @@ function show(
   const onConfirm = options.onConfirm ?? vi.fn().mockResolvedValue(undefined);
   const onClose = vi.fn();
   render(
-    <MantineProvider env="test">
+    <MantineProvider env="test" theme={{ respectReducedMotion: true }}>
       <MoveToFolderDialog
         opened
         folders={[folder]}
@@ -54,8 +60,9 @@ describe("MoveToFolderDialog", () => {
   });
 
   it("allows moving a file to the root", async () => {
+    const user = userEvent.setup();
     const { onConfirm } = show();
-    await userEvent.click(screen.getByRole("button", { name: "Move here" }));
+    await user.click(screen.getByRole("button", { name: "Move here" }));
     expect(onConfirm).toHaveBeenCalledWith(null);
   });
 

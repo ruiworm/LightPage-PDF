@@ -10,6 +10,7 @@ import { FileGrid } from "@app/components/filesPage/FileGrid";
 import { FileContextProvider } from "@app/contexts/FileContext";
 import type { FileId } from "@app/types/file";
 import type { StirlingFileStub } from "@app/types/fileContext";
+import type { FolderId, FolderRecord } from "@app/types/folder";
 
 /**
  * The grid's items are memoized so a selection click re-renders the cards whose
@@ -41,6 +42,56 @@ const buildStub = (id: string, name: string): StirlingFileStub => ({
   versionNumber: 1,
   // Set so useLazyThumbnail short-circuits instead of reading IndexedDB.
   thumbnailUrl: "data:image/svg+xml,%3Csvg/%3E",
+});
+
+describe("folder browsing and workspace entry", () => {
+  it.each(["grid", "list"] as const)(
+    "separates opening a folder from adding it to the workspace in %s view",
+    (viewMode) => {
+      const onOpenFolder = vi.fn();
+      const onAddFolderToWorkspace = vi.fn();
+      const folder: FolderRecord = {
+        id: "folder" as FolderId,
+        kind: "virtual",
+        name: "查重报告",
+        parentFolderId: null,
+        createdAt: 0,
+        updatedAt: 0,
+      };
+      const view = render(
+        <FileContextProvider>
+          <FileGrid
+            entries={[{ kind: "folder", folder, folderFileCount: 2 }]}
+            selectedFileIds={new Set()}
+            viewMode={viewMode}
+            onSelectFile={() => {}}
+            onOpenFile={() => {}}
+            onOpenFolder={onOpenFolder}
+            onAddFolderToWorkspace={onAddFolderToWorkspace}
+          />
+        </FileContextProvider>,
+      );
+      fireEvent.click(screen.getByText("查重报告"));
+      expect(onOpenFolder).toHaveBeenCalledWith(folder.id);
+      expect(onAddFolderToWorkspace).not.toHaveBeenCalled();
+      onOpenFolder.mockClear();
+      const button = screen.getByRole("button", {
+        name: /addToWorkspace|Add to workspace/,
+      });
+      fireEvent.click(button);
+      expect(onAddFolderToWorkspace).toHaveBeenCalledWith(folder.id);
+      expect(onOpenFolder).not.toHaveBeenCalled();
+      fireEvent.keyDown(button, { key: "Enter" });
+      expect(onOpenFolder).not.toHaveBeenCalled();
+      expect(
+        view.container.querySelector(
+          viewMode === "grid"
+            ? ".is-folder"
+            : ".files-page-list-row:not(.is-header)",
+        ),
+      ).toBeTruthy();
+    },
+  );
 });
 
 describe("FileGrid item memoization", () => {

@@ -274,6 +274,7 @@ export function findHits(
                 selectModelCandidate(
                   match,
                   page.text.slice(match.start, match.end),
+                  page.text,
                 ),
             ),
           ].map((match) => ({
@@ -410,6 +411,7 @@ export function findHits(
         selected: selectModelCandidate(
           hit,
           page.text.slice(hit.start, hit.end),
+          page.text,
         ),
         manual: !!search,
         review:

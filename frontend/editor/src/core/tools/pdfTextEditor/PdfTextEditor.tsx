@@ -20,7 +20,7 @@ import type { FileId } from "@app/types/file";
 import type { BaseToolProps } from "@app/types/tool";
 import { useEditorStore } from "@app/tools/pdfTextEditor/hooks/useEditorStore";
 import { setEditorSession } from "@app/tools/pdfTextEditor/store/EditorSession";
-import { useIsMobile } from "@app/hooks/useIsMobile";
+import { useIsPhone } from "@app/hooks/useIsMobile";
 import {
   useDocumentLoader,
   ensureAllPagesRead,
@@ -75,7 +75,7 @@ export default function PdfTextEditor(_props: BaseToolProps) {
     },
   } = useNavigationActions();
   const { t } = useTranslation();
-  const isMobile = useIsMobile();
+  const isMobile = useIsPhone();
   const { store, state } = useEditorStore();
   const load = useDocumentLoader(store);
   const { getZoomState } = useViewer();

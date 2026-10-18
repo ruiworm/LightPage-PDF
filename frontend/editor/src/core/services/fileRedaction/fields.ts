@@ -12,6 +12,9 @@ export interface FieldMatch {
 const LABELS: Record<SensitiveField, string[]> = {
   name: [
     "姓名",
+    "作者",
+    "指导教师",
+    "指导老师",
     "客户姓名",
     "联系人",
     "紧急联系人",
@@ -129,11 +132,11 @@ const NAME_ACTION =
 const PERSON_PATTERN =
   "(?:欧阳|司马|上官|诸葛|东方|皇甫|尉迟|公孙|慕容|司徒|司空|夏侯|令狐|长孙|宇文|[赵钱孙李周吴郑王冯陈褚卫蒋沈韩杨朱秦尤许何吕施张孔曹严华金魏陶姜戚谢邹喻柏水窦章云苏潘葛奚范彭郎鲁韦昌马苗凤花方俞任袁柳鲍史唐费廉岑薛雷贺倪汤滕殷罗毕郝邬安常乐于傅皮卞齐康伍余元卜顾孟平黄穆萧尹姚邵汪祁毛禹狄米贝明臧计伏成戴宋茅庞熊纪舒屈项祝董梁杜阮蓝闵席季麻强贾路江童颜郭梅盛林钟徐邱骆高夏蔡田樊胡霍万柯卢莫房裘缪解应宗丁宣邓单杭洪包左石崔吉龚程邢裴陆荣翁荀羊惠甄曲封芮储靳焦牧侯全班秋仲伊宁仇刘景詹龙叶白怀蒲邰鄂索赖卓谭劳姬申冉桑牛温庄晏柴瞿阎连习艾鱼容向古易廖耿满弘文寇广阙巩聂晁勾敖冷辛曾沙关查游权盖桓岳帅缑亢况郜匡阚禄康窦燕支池仰甘台厉戎祖武符束刘段连凌简翟谭仉司郁单杭])(?:[ \\t]*[\\p{Script=Han}]){1,2}?";
 const PROSE_PERSON = new RegExp(
-  `(${PERSON_PATTERN})(?=${NAME_ACTION.source}|共同|[于在](?:[\\p{Script=Han}\\d])|与|和|及)`,
+  `(?:^|[\\s\\p{P}\\p{S}]|由|与|和|及|向|给|请|找)(${PERSON_PATTERN})(?=${NAME_ACTION.source})`,
   "gu",
 );
-const PROSE_PARTICIPANT = new RegExp(
-  `(?:由|与|和|及|向|给)(${PERSON_PATTERN})(?=[、，。；,;\\s])`,
+const PROSE_PEOPLE = new RegExp(
+  `(?:^|[\\s\\p{P}\\p{S}]|由|与|和|及|向|给|请|找)(${PERSON_PATTERN})(?:与|和|及)(${PERSON_PATTERN})(?=共同(?:${NAME_ACTION.source}))`,
   "gu",
 );
 const PERSON_NON_NAMES =
@@ -147,17 +150,30 @@ const PROSE_ADDRESS = new RegExp(
 
 function proseMatches(text: string): FieldMatch[] {
   const matches: FieldMatch[] = [];
-  for (const pattern of [PROSE_PERSON, PROSE_PARTICIPANT])
-    for (const match of text.matchAll(pattern)) {
-      if (isNonPersonText(match[1])) continue;
-      const start = match.index + match[0].length - match[1].length;
+  for (const match of text.matchAll(PROSE_PERSON)) {
+    if (isNonPersonText(match[1])) continue;
+    const start = match.index + match[0].length - match[1].length;
+    matches.push({
+      start,
+      end: start + match[1].length,
+      category: "name",
+      review: true,
+    });
+  }
+  for (const match of text.matchAll(PROSE_PEOPLE)) {
+    if (isNonPersonText(match[1]) || isNonPersonText(match[2])) continue;
+    for (const [index, value] of [match[1], match[2]].entries()) {
+      const start =
+        match.index +
+        (index === 0 ? match[0].indexOf(value) : match[0].lastIndexOf(value));
       matches.push({
         start,
-        end: start + match[1].length,
+        end: start + value.length,
         category: "name",
         review: true,
       });
     }
+  }
   for (const match of text.matchAll(PROSE_ADDRESS))
     matches.push({
       start: match.index,
@@ -186,6 +202,24 @@ export function isLikelyPersonName(value: string): boolean {
   return (
     !isNonPersonText(value) &&
     new RegExp(`^${PERSON_PATTERN}$`, "u").test(value)
+  );
+}
+
+/** Unlabelled model guesses need a person-related phrase, not only a surname-shaped word. */
+export function hasPersonContext(
+  text: string,
+  start: number,
+  end: number,
+): boolean {
+  const before = text.slice(Math.max(0, start - 20), start);
+  const after = text.slice(end, end + 20);
+  return (
+    /(?:姓名|作者|联系人|指导教师|指导老师|原告|被告|负责人)[ \t]*[:：]?[ \t]*$/u.test(
+      before,
+    ) ||
+    /^(?:先生|女士|同志|教授|医生|同学|老师|参加|签署|签订|提交|表示|确认|到访|出席|领取|担任|出生|(?:昨天|今天|昨日|今日)?(?:来到|到了|到访|离开|负责))/u.test(
+      after,
+    )
   );
 }
 

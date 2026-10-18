@@ -8,13 +8,12 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
-import { Group } from "@mantine/core";
 import { useSidebarContext } from "@app/contexts/SidebarContext";
 import { useDocumentMeta } from "@app/hooks/useDocumentMeta";
 import { getToolOgImage } from "@app/data/ogImage";
 import urlSeoOverrides from "@app/data/urlSeoOverrides.json";
 import { useBaseUrl } from "@app/hooks/useBaseUrl";
-import { useIsMobile, useIsTouch } from "@app/hooks/useIsMobile";
+import { useIsMobile } from "@app/hooks/useIsMobile";
 import { useAppConfig } from "@app/contexts/AppConfigContext";
 import { useFileContext } from "@app/contexts/file/fileHooks";
 import {
@@ -29,6 +28,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import RightSidebar from "@app/components/tools/RightSidebar";
 import { ReaderRail } from "@app/components/viewer/readerRail/ReaderRail";
 import Workbench from "@app/components/layout/Workbench";
+import { CompactWorkspace } from "@app/components/layout/CompactWorkspace";
 import { useViewActive } from "@app/components/layout/RetainedView";
 import FileSidebar from "@app/components/shared/FileSidebar";
 import FileManager from "@app/components/FileManager";
@@ -55,9 +55,6 @@ import { useProcessingFolderCreation } from "@app/hooks/useProcessingFolderCreat
 import { consumeProcessingFolderCreationRequest } from "@app/utils/pendingProcessingFolderCreation";
 
 import "@app/components/layout/WorkspaceFrame.css";
-import "@app/pages/HomePage.css";
-
-const SWIPE_HINT_SEEN_STORAGE_KEY = "stirling.mobileSwipeHintSeen";
 
 /**
  * The wings' slide is `--wings-ms` (dimensions.css). Read from the document so one
@@ -79,16 +76,6 @@ function wingsDurationMs(): number {
   return token.endsWith("ms") ? parsed : parsed * 1000;
 }
 
-function readSwipeHintSeen(): boolean {
-  try {
-    return window.localStorage.getItem(SWIPE_HINT_SEEN_STORAGE_KEY) === "true";
-  } catch {
-    return true;
-  }
-}
-
-type MobileView = "tools" | "workbench";
-
 export default function HomePage() {
   const viewActive = useViewActive();
   const { t, i18n } = useTranslation();
@@ -104,7 +91,6 @@ export default function HomePage() {
     handleBackToTools,
     readerMode,
     setReaderMode,
-    setLeftPanelView,
     toolAvailability,
     customWorkbenchViews,
     toolRegistry,
@@ -114,10 +100,6 @@ export default function HomePage() {
   const { config } = useAppConfig();
   const processingFolderCreation = useProcessingFolderCreation();
   const isMobile = useIsMobile();
-  const isTouch = useIsTouch();
-  const sliderRef = useRef<HTMLDivElement | null>(null);
-  const [activeMobileView, setActiveMobileView] = useState<MobileView>("tools");
-  const isProgrammaticScroll = useRef(false);
   const location = useLocation();
   useEffect(() => {
     if (
@@ -149,7 +131,7 @@ export default function HomePage() {
   }, [viewActive, setReaderMode]);
   const { actions } = useNavigationActions();
 
-  const { searchInterfaceActions } = useViewer();
+  const { searchInterfaceActions, activeFileId } = useViewer();
 
   // Find in document lives in the rail, not the bar reading hides, so the
   // shortcut opens it where the reader already is. e.code, for non-QWERTY
@@ -358,128 +340,6 @@ export default function HomePage() {
     setReaderMode(false);
   }, [setReaderMode]);
 
-  const [showSwipeHint, setShowSwipeHint] = useState(
-    () => !readSwipeHintSeen(),
-  );
-  const dismissSwipeHint = useCallback(() => {
-    setShowSwipeHint((shown) => {
-      if (shown) {
-        try {
-          window.localStorage.setItem(SWIPE_HINT_SEEN_STORAGE_KEY, "true");
-        } catch {
-          // private mode / quota: silently no-op
-        }
-      }
-      return false;
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!isMobile || !isTouch || !showSwipeHint) return;
-    const timer = window.setTimeout(dismissSwipeHint, 8000);
-    return () => window.clearTimeout(timer);
-  }, [isMobile, isTouch, showSwipeHint, dismissSwipeHint]);
-
-  const handleSelectMobileView = useCallback(
-    (view: MobileView) => {
-      setActiveMobileView(view);
-      dismissSwipeHint();
-    },
-    [dismissSwipeHint],
-  );
-
-  useEffect(() => {
-    if (isMobile) {
-      const container = sliderRef.current;
-      if (container) {
-        isProgrammaticScroll.current = true;
-        const offset = activeMobileView === "tools" ? 0 : container.offsetWidth;
-        container.scrollTo({ left: offset, behavior: "smooth" });
-
-        setTimeout(() => {
-          isProgrammaticScroll.current = false;
-        }, 500);
-      }
-      return;
-    }
-
-    setActiveMobileView("tools");
-    const container = sliderRef.current;
-    if (container) {
-      container.scrollTo({ left: 0, behavior: "auto" });
-    }
-  }, [activeMobileView, isMobile]);
-
-  useEffect(() => {
-    if (!isMobile) return;
-
-    const container = sliderRef.current;
-    if (!container) return;
-
-    let animationFrame = 0;
-
-    const handleScroll = () => {
-      if (isProgrammaticScroll.current) {
-        return;
-      }
-
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
-      }
-
-      animationFrame = window.requestAnimationFrame(() => {
-        const { scrollLeft, offsetWidth } = container;
-        const threshold = offsetWidth / 2;
-        const nextView: MobileView =
-          scrollLeft >= threshold ? "workbench" : "tools";
-        setActiveMobileView((current) => {
-          if (current !== nextView) dismissSwipeHint();
-          return current === nextView ? current : nextView;
-        });
-      });
-    };
-
-    container.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      container.removeEventListener("scroll", handleScroll);
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
-      }
-    };
-  }, [isMobile, dismissSwipeHint]);
-
-  // Full-screen tools own the mobile viewport, so opening one selects the
-  // workbench slide. The text editor is included because it manages its own
-  // state instead of going through the startup-navigation heuristic.
-  useEffect(() => {
-    if (
-      isMobile &&
-      (readerMode ||
-        selectedToolKey === "multiTool" ||
-        selectedToolKey === "pdfTextEditor")
-    ) {
-      setActiveMobileView("workbench");
-    }
-  }, [isMobile, readerMode, selectedToolKey]);
-
-  // Automatically switch to workbench slide when a custom workbench (e.g. signing) is active on mobile.
-  // hideToolPanel is true for all custom workbenches that take over the full screen.
-  useEffect(() => {
-    if (isMobile && hideToolPanel) {
-      setActiveMobileView("workbench");
-    }
-  }, [isMobile, hideToolPanel]);
-
-  // When navigating back to tools view in mobile with a workbench-only tool, show tool picker
-  useEffect(() => {
-    if (isMobile && activeMobileView === "tools" && selectedTool) {
-      if (selectedTool.workbench && !selectedTool.component) {
-        setLeftPanelView("toolPicker");
-      }
-    }
-  }, [isMobile, activeMobileView, selectedTool, setLeftPanelView]);
-
   const baseUrl = useBaseUrl();
 
   // Update document meta when tool changes. Convert aliases (e.g. /pdf-to-word)
@@ -554,127 +414,31 @@ export default function HomePage() {
         />
       )}
       <FilesPageProvider>
-        {isMobile ? (
-          <div
-            className="mobile-layout"
-            data-files-mode={navigationState.workbench === "myFiles"}
-          >
-            {/* The library brings its own tabs and folder path, so the
-              tools/workspace toggle would only cost it vertical space. Every
-              other view keeps the toggle. */}
-            {navigationState.workbench !== "myFiles" && (
-              <div className="mobile-toggle">
-                <div
-                  className="mobile-toggle-buttons"
-                  role="tablist"
-                  aria-label={t(
-                    "home.mobile.viewSwitcher",
-                    "Switch workspace view",
-                  )}
-                >
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={activeMobileView === "tools"}
-                    className={`mobile-toggle-button ${activeMobileView === "tools" ? "active" : ""}`}
-                    onClick={() => handleSelectMobileView("tools")}
-                  >
-                    {t("home.mobile.tools", "Tools")}
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={activeMobileView === "workbench"}
-                    className={`mobile-toggle-button ${activeMobileView === "workbench" ? "active" : ""}`}
-                    onClick={() => handleSelectMobileView("workbench")}
-                  >
-                    {t("home.mobile.workspace", "Workspace")}
-                  </button>
-                </div>
-              </div>
-            )}
-            {navigationState.workbench === "myFiles" ? (
-              /* /files takes the whole viewport. Skipping the slider keeps
-                the FileManagerView from being trapped inside a 100vw
-                horizontal-scroll container (which truncated buttons and
-                created a stray side-scroll surface on touch). */
-              <div className="mobile-files-full">
-                <div className="flex-1 min-h-0 flex" style={{ minWidth: 0 }}>
-                  <Workbench />
-                </div>
-              </div>
-            ) : (
-              <div className="mobile-slider-wrap">
-                <div ref={sliderRef} className="mobile-slider">
-                  <div
-                    className="mobile-slide"
-                    aria-label={t(
-                      "home.mobile.toolsSlide",
-                      "Tool selection panel",
-                    )}
-                  >
-                    <div className="mobile-slide-content">
-                      <RightSidebar />
-                    </div>
-                  </div>
-                  <div
-                    className="mobile-slide"
-                    aria-label={t(
-                      "home.mobile.workbenchSlide",
-                      "Workspace panel",
-                    )}
-                  >
-                    <div className="mobile-slide-content">
-                      <div
-                        className="flex-1 min-h-0 flex"
-                        style={{ minWidth: 0 }}
-                      >
-                        <Workbench />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                {isTouch && showSwipeHint && (
-                  <span className="mobile-swipe-hint" aria-hidden="true">
-                    {t(
-                      "home.mobile.swipeHint",
-                      "Swipe left or right to switch views",
-                    )}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        ) : (
-          <Group
-            align="flex-start"
-            gap={0}
-            h="100%"
-            className="flex-nowrap flex"
-            bg="var(--c-bg)"
-            data-wings={wingsPhase ?? undefined}
-          >
-            {/* Reading leaves the document and nothing beside it, so the wing goes
-                rather than shrinking to a rail. Everywhere else it is fixed open. */}
-            {wingsMounted && navigationState.workbench !== "myFiles" && (
-              <div className="workspace-frame">
-                <FileSidebar
-                  ref={quickAccessRef}
-                  accountHoisted
-                  onOpenSettings={openSettings}
-                  onRegisterOpenFromComputer={registerOpenFromComputer}
-                />
-              </div>
-            )}
-            <Workbench />
-            {/* The reader's rail takes the slot the tool panel holds otherwise: the
-                panel's controls are the editor's, and reading wants the viewer's.
-                Both render together only while the panel is on its way out. */}
-            {wingsMounted && !hideToolPanel && <RightSidebar />}
-            {readerMode &&
-              (viewActive ? <ReaderRail /> : <div className="reader-rail" />)}
-          </Group>
-        )}
+        <CompactWorkspace
+          compact={isMobile}
+          active={viewActive}
+          activeFileId={activeFileId ?? null}
+          toolKey={selectedToolKey ?? null}
+          toolHasSettings={!hideToolPanel && Boolean(selectedTool?.component)}
+          filesVisible={wingsMounted && navigationState.workbench !== "myFiles"}
+          toolsVisible={wingsMounted && !hideToolPanel}
+          wingsPhase={wingsPhase}
+          files={
+            <FileSidebar
+              ref={quickAccessRef}
+              accountHoisted
+              onOpenSettings={openSettings}
+              onRegisterOpenFromComputer={registerOpenFromComputer}
+            />
+          }
+          tools={<RightSidebar />}
+          trailing={
+            readerMode &&
+            (viewActive ? <ReaderRail /> : <div className="reader-rail" />)
+          }
+        >
+          <Workbench />
+        </CompactWorkspace>
         {viewActive && <FileManager selectedTool={selectedTool} />}
       </FilesPageProvider>
     </div>

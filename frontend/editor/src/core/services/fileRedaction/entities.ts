@@ -1,5 +1,6 @@
 import filters from "@app/services/fileRedaction/entityFilters.json";
 import {
+  hasPersonContext,
   isLikelyPersonName,
   isNonPersonText,
 } from "@app/services/fileRedaction/fields";
@@ -122,15 +123,20 @@ export function candidatePriority(candidate: DetectionCandidate): number {
   }[candidate.source ?? "field"];
 }
 
-/** RaNER scores are not calibrated probabilities; corroborating structure determines default selection. */
+/** Model-only names require both strong model evidence and independent person context before automatic selection. */
 export function selectModelCandidate(
   candidate: DetectionCandidate,
   original: string,
+  text: string,
 ): boolean {
   if (candidate.source !== "model") return true;
   if (candidate.confidence == null) return false;
   if (candidate.category === "name")
-    return isLikelyPersonName(compact(original));
+    return (
+      candidate.confidence >= 0.85 &&
+      isLikelyPersonName(compact(original)) &&
+      hasPersonContext(text, candidate.start, candidate.end)
+    );
   if (candidate.category === "company")
     return /有限公司|合伙企业|集团|事务所|研究院|大学|医院|银行$/u.test(
       compact(original),
