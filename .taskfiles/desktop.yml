@@ -153,10 +153,7 @@ tasks:
         platforms: [windows]
       - cmd: ./gradlew bootJar --no-daemon -PjpdfiumPlatforms={{.JPDFIUM_PLATFORMS}}
         platforms: [linux, darwin]
-      - mkdir -p frontend/editor/src-tauri/libs
-      - cp app/core/build/libs/stirling-pdf-*.jar frontend/editor/src-tauri/libs/
-    status:
-      - test -f frontend/editor/src-tauri/libs/stirling-pdf-*.jar
+      - node frontend/editor/scripts/stage-desktop-backend.mjs
 
   jlink:runtime:
     desc: "Create custom JRE with jlink"

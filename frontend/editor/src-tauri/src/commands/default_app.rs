@@ -215,12 +215,12 @@ fn set_default_macos() -> Result<String, String> {
 /// Installed desktop entry names vary by packaging (template vs binary name).
 #[cfg(target_os = "linux")]
 const LINUX_DESKTOP_CANDIDATES: &[&str] =
-    &["Stirling-PDF.desktop", "stirling-pdf.desktop"];
+    &["LightPage-PDF.desktop", "lightpage-pdf.desktop", "Stirling-PDF.desktop", "stirling-pdf.desktop"];
 
 #[cfg(target_os = "linux")]
 fn is_stirling_desktop_handler(handler: &str) -> bool {
     let name = handler.trim().to_lowercase();
-    name.contains("stirling") && name.ends_with(".desktop")
+    (name.contains("lightpage") || name.contains("stirling")) && name.ends_with(".desktop")
 }
 
 #[cfg(target_os = "linux")]
@@ -250,8 +250,7 @@ fn resolve_linux_desktop_file() -> String {
             return (*name).to_string();
         }
     }
-    // Matches tauri.conf.json desktopTemplate
-    "stirling-pdf.desktop".to_string()
+    LINUX_DESKTOP_CANDIDATES[0].to_string()
 }
 
 #[cfg(target_os = "linux")]
@@ -267,7 +266,6 @@ fn check_default_linux() -> Result<bool, String> {
     let handler = String::from_utf8_lossy(&output.stdout);
     add_log(format!("Linux PDF handler: {}", handler.trim()));
 
-    // Accept stirling-pdf.desktop and Stirling-PDF.desktop (and similar)
     Ok(is_stirling_desktop_handler(&handler))
 }
 

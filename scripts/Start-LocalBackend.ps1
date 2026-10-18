@@ -10,7 +10,8 @@ $ErrorActionPreference = 'Stop'
 $repositoryRoot = Split-Path $PSScriptRoot -Parent
 $desktopRoot = Join-Path $env:LOCALAPPDATA 'Stirling PDF'
 if (-not $JarPath) {
-    $jars = @(Get-ChildItem -LiteralPath (Join-Path $desktopRoot 'libs') -Filter 'stirling-pdf-*.jar')
+    $jars = @(Get-ChildItem -LiteralPath (Join-Path $desktopRoot 'libs') -Filter 'lightpage-pdf-*.jar')
+    if (-not $jars.Count) { $jars = @(Get-ChildItem -LiteralPath (Join-Path $desktopRoot 'libs') -Filter 'stirling-pdf-*.jar') }
     if ($jars.Count -ne 1) { throw 'Specify -JarPath for the local processing service.' }
     $JarPath = $jars[0].FullName
 }

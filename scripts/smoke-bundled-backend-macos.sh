@@ -13,7 +13,7 @@ node_path="$(command -v node)"
 export PATH="$tools/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export TESSDATA_PREFIX="$tools/tessdata"
 port="$(/usr/bin/python3 -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1]); s.close()')"
-jar_files=("$bundle"/libs/stirling-pdf-*.jar)
+jar_files=("$bundle"/libs/lightpage-pdf-*.jar)
 [[ ${#jar_files[@]} == 1 && -f "${jar_files[0]}" ]]
 repo="$(pwd)"
 (

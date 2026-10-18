@@ -98,8 +98,7 @@ fn find_bundled_jre(resource_dir: &PathBuf) -> Result<PathBuf, String> {
     Ok(java_executable)
 }
 
-// Find the Stirling-PDF JAR file
-fn find_stirling_jar(resource_dir: &PathBuf) -> Result<PathBuf, String> {
+fn find_backend_jar(resource_dir: &PathBuf) -> Result<PathBuf, String> {
     let libs_dir = resource_dir.join("libs");
     let mut jar_files: Vec<_> = std::fs::read_dir(&libs_dir)
         .map_err(|e| {
@@ -110,31 +109,75 @@ fn find_stirling_jar(resource_dir: &PathBuf) -> Result<PathBuf, String> {
         .filter_map(|entry| entry.ok())
         .filter(|entry| {
             let path = entry.path();
-            // Match any .jar file containing "stirling-pdf" (case-insensitive)
-            path.extension().and_then(|s| s.to_str()).map(|ext| ext.eq_ignore_ascii_case("jar")).unwrap_or(false)
+            path.is_file()
+                && path.extension().and_then(|s| s.to_str()).map(|ext| ext.eq_ignore_ascii_case("jar")).unwrap_or(false)
                 && path.file_name()
                     .and_then(|f| f.to_str())
-                    .map(|name| name.to_ascii_lowercase().contains("stirling-pdf"))
+                    .map(|name| {
+                        let name = name.to_ascii_lowercase();
+                        name.starts_with("lightpage-pdf-") || name.starts_with("stirling-pdf-")
+                    })
                     .unwrap_or(false)
         })
         .collect();
 
     if jar_files.is_empty() {
-        let error_msg = "No Stirling-PDF JAR found in libs directory.".to_string();
+        let error_msg = "No LightPage PDF backend JAR found in libs directory.".to_string();
         add_log(error_msg.clone());
         return Err(error_msg);
     }
 
-    // Sort by filename to get the latest version (case-insensitive)
+    // An upgrade can leave a legacy JAR beside the newly branded backend.
     jar_files.sort_by(|a, b| {
         let name_a = a.file_name().to_string_lossy().to_ascii_lowercase();
         let name_b = b.file_name().to_string_lossy().to_ascii_lowercase();
-        name_b.cmp(&name_a) // Reverse order to get latest first
+        name_b.starts_with("lightpage-pdf-").cmp(&name_a.starts_with("lightpage-pdf-"))
+            .then_with(|| name_b.cmp(&name_a))
     });
 
     let jar_path = jar_files[0].path();
     add_log(format!("📋 Selected JAR: {:?}", jar_path.file_name().unwrap()));
     Ok(jar_path)
+}
+
+#[cfg(test)]
+mod backend_jar_tests {
+    use super::find_backend_jar;
+
+    fn fixture(names: &[&str]) -> tempfile::TempDir {
+        let root = tempfile::tempdir().unwrap();
+        let libs = root.path().join("libs");
+        std::fs::create_dir(&libs).unwrap();
+        for name in names {
+            std::fs::write(libs.join(name), b"fixture").unwrap();
+        }
+        root
+    }
+
+    #[test]
+    fn discovers_the_branded_backend() {
+        let root = fixture(&["lightpage-pdf-3.0.2.jar", "dependency.jar"]);
+        assert_eq!(find_backend_jar(&root.path().to_path_buf()).unwrap().file_name().unwrap(), "lightpage-pdf-3.0.2.jar");
+    }
+
+    #[test]
+    fn prefers_the_branded_backend_over_a_legacy_upgrade_leftover() {
+        let root = fixture(&["stirling-pdf-9.9.9.jar", "lightpage-pdf-3.0.2.jar"]);
+        assert_eq!(find_backend_jar(&root.path().to_path_buf()).unwrap().file_name().unwrap(), "lightpage-pdf-3.0.2.jar");
+    }
+
+    #[test]
+    fn accepts_a_legacy_backend_for_existing_development_bundles() {
+        let root = fixture(&["Stirling-PDF-3.0.2.JAR"]);
+        assert_eq!(find_backend_jar(&root.path().to_path_buf()).unwrap().file_name().unwrap(), "Stirling-PDF-3.0.2.JAR");
+    }
+
+    #[test]
+    fn rejects_foreign_jars_and_directories_named_like_the_backend() {
+        let root = fixture(&["dependency.jar", "unrelated-stirling-pdf.jar"]);
+        std::fs::create_dir(root.path().join("libs/lightpage-pdf-3.0.2.jar")).unwrap();
+        assert!(find_backend_jar(&root.path().to_path_buf()).is_err());
+    }
 }
 
 // Normalize path to remove Windows UNC prefix
@@ -511,8 +554,7 @@ pub async fn start_backend(
         e
     })?;
 
-    // Find the Stirling-PDF JAR
-    let jar_path = find_stirling_jar(&resource_dir).map_err(|e| {
+    let jar_path = find_backend_jar(&resource_dir).map_err(|e| {
         reset_starting_flag();
         e
     })?;

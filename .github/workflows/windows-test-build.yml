@@ -40,6 +40,9 @@ jobs:
           java-version: "25"
           cache: gradle
 
+      - name: Test desktop backend staging
+        run: node --test frontend/editor/scripts/stage-desktop-backend.test.mjs
+
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249
         with:
@@ -80,6 +83,8 @@ jobs:
       - name: Verify desktop asset layout
         run: |
           node scripts/check-desktop-assets.mjs
+          if (-not (Test-Path -LiteralPath 'frontend/editor/src-tauri/target/release/LightPage-PDF.exe')) { throw 'Expected the branded application executable' }
+          if (Get-ChildItem -LiteralPath frontend/editor/src-tauri/libs -Filter 'stirling-pdf-*.jar' -File) { throw 'Legacy backend filename must not be packaged' }
           foreach ($directory in @('include', 'lib')) {
             if (Test-Path -LiteralPath "frontend/editor/src-tauri/runtime/tools/poppler/Library/$directory") { throw "Poppler SDK directory is bundled: $directory" }
           }

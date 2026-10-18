@@ -11,7 +11,7 @@ Terminal=false
 MimeType=application/pdf;
 Categories=Office;Graphics;Utility;
 Actions=open-file;
-StartupWMClass=Stirling-PDF
+StartupWMClass=LightPage-PDF
 
 [Desktop Action open-file]
 Name=Open PDF File

@@ -8,7 +8,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $taskBundleRoot = (Resolve-Path -LiteralPath $BundleRoot).Path
 $taskJavaPath = Join-Path $taskBundleRoot 'runtime/jre/bin/java.exe'
-$taskJars = @(Get-ChildItem -LiteralPath (Join-Path $taskBundleRoot 'libs') -Filter 'stirling-pdf-*.jar' -File)
+$taskJars = @(Get-ChildItem -LiteralPath (Join-Path $taskBundleRoot 'libs') -Filter 'lightpage-pdf-*.jar' -File)
 if (-not (Test-Path -LiteralPath $taskJavaPath) -or $taskJars.Count -ne 1) {
     throw 'Expected one bundled backend JAR and a Windows Java runtime'
 }

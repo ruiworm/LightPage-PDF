@@ -50,6 +50,9 @@ jobs:
           java-version: "25"
           cache: gradle
 
+      - name: Test desktop backend staging
+        run: node --test frontend/editor/scripts/stage-desktop-backend.test.mjs
+
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@686976e191b89faba57d3206551f0f330d8cb249
         with:
@@ -93,6 +96,8 @@ jobs:
           bundle=frontend/editor/src-tauri/target/release/bundle
           app="$bundle/macos/LightPage PDF.app"
           test -d "$app"
+          test -x "$app/Contents/MacOS/LightPage-PDF"
+          test -z "$(find "$app/Contents/Resources/libs" -name 'stirling-pdf-*.jar' -print -quit)"
           codesign --verify --deep --strict "$app"
           bash scripts/smoke-bundled-backend-macos.sh "$app/Contents/Resources"
           ditto -c -k --sequesterRsrc --keepParent "$app" "$bundle/LightPage-PDF-macOS-${{ matrix.arch }}.app.zip"

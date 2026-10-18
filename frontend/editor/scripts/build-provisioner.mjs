@@ -34,7 +34,7 @@ if (!existsSync(provisionerExe)) {
 const wixDir = join(tauriDir, "windows", "wix");
 mkdirSync(wixDir, { recursive: true });
 
-const destExe = join(wixDir, "stirling-provision.exe");
+const destExe = join(wixDir, "LightPage-Provision.exe");
 copyFileSync(provisionerExe, destExe);
 
 // --- Thumbnail handler DLL ---
@@ -57,4 +57,4 @@ if (!existsSync(thumbDll)) {
   throw new Error(`Thumbnail handler DLL not found at ${thumbDll}`);
 }
 
-copyFileSync(thumbDll, join(wixDir, "stirling_thumbnail_handler.dll"));
+copyFileSync(thumbDll, join(wixDir, "LightPage-ThumbnailHandler.dll"));

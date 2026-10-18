@@ -1,7 +1,7 @@
 {
   "$schema": "../../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "LightPage PDF",
-  "mainBinaryName": "Stirling-PDF",
+  "mainBinaryName": "LightPage-PDF",
   "version": "3.0.2",
   "identifier": "stirling.pdf.dev",
   "build": {
