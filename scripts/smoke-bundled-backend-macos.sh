@@ -5,6 +5,10 @@ bundle="$(cd "${1:-frontend/editor/src-tauri}" && pwd)"
 work="$(mktemp -d)"
 java="$bundle/runtime/jre/bin/java"
 tools="$bundle/runtime/tools"
+# Globbed resources dereference LibreOffice's library alias and duplicate the framework tree.
+test -L "$tools/LibreOffice.app/Contents/MacOS/urelibs"
+test "$(cd "$tools/LibreOffice.app/Contents/MacOS/urelibs" && pwd -P)" = \
+  "$(cd "$tools/LibreOffice.app/Contents/Frameworks" && pwd -P)"
 node_path="$(command -v node)"
 export PATH="$tools/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export TESSDATA_PREFIX="$tools/tessdata"

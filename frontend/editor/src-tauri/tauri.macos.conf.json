@@ -1,9 +1,13 @@
 {
   "bundle": {
-    "resources": ["libs/*.jar", "runtime/jre/**/*", "runtime/tools/**/*"],
+    "resources": ["libs/*.jar"],
     "macOS": {
       "minimumSystemVersion": "15.0",
-      "signingIdentity": "-"
+      "signingIdentity": "-",
+      "files": {
+        "Resources/runtime/jre": "runtime/jre",
+        "Resources/runtime/tools": "runtime/tools"
+      }
     }
   }
 }

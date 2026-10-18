@@ -77,6 +77,13 @@ jobs:
         working-directory: frontend/editor
         run: npx tauri build --bundles nsis --config src-tauri/tauri.test-build.conf.json
 
+      - name: Verify desktop asset layout
+        run: |
+          node scripts/check-desktop-assets.mjs
+          foreach ($directory in @('include', 'lib')) {
+            if (Test-Path -LiteralPath "frontend/editor/src-tauri/runtime/tools/poppler/Library/$directory") { throw "Poppler SDK directory is bundled: $directory" }
+          }
+
       - name: Build MSI installer
         continue-on-error: true
         working-directory: frontend/editor
@@ -86,14 +93,29 @@ jobs:
         run: |
           $packages = Get-ChildItem -LiteralPath frontend/editor/src-tauri/target/release/bundle -Recurse -File | Where-Object Extension -In '.exe','.msi'
           if (-not ($packages | Where-Object Extension -EQ '.exe')) { throw "Expected an EXE installer" }
-          $packages | ForEach-Object { $hash = Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256; "$($hash.Hash)  $($_.Name)" } | Set-Content -LiteralPath frontend/editor/src-tauri/target/release/bundle/SHA256SUMS.txt
+          $packages | ForEach-Object {
+            Write-Host "$($_.Name): $($_.Length) bytes"
+            $hash = Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256
+            "$($hash.Hash)  $($_.Name)"
+          } | Set-Content -LiteralPath frontend/editor/src-tauri/target/release/bundle/SHA256SUMS.txt
 
-      - name: Upload Windows test package
+      - name: Upload Windows EXE installer
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: LightPage-PDF-Windows-${{ github.run_number }}
+          name: LightPage-PDF-Windows-EXE-${{ github.run_number }}
           path: |
             frontend/editor/src-tauri/target/release/bundle/nsis/*.exe
+            frontend/editor/src-tauri/target/release/bundle/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+
+      - name: Upload Windows MSI installer
+        if: ${{ hashFiles('frontend/editor/src-tauri/target/release/bundle/msi/*.msi') != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: LightPage-PDF-Windows-MSI-${{ github.run_number }}
+          path: |
             frontend/editor/src-tauri/target/release/bundle/msi/*.msi
             frontend/editor/src-tauri/target/release/bundle/SHA256SUMS.txt
           if-no-files-found: error

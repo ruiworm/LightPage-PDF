@@ -173,7 +173,18 @@ if ($taskPopplerExe.Count -ne 1) { throw 'Expected one extracted Poppler runtime
 $taskPopplerRoot = $taskPopplerExe[0].Directory.Parent.Parent.FullName
 $taskPopplerDestination = Join-Path $taskTools 'poppler'
 New-Item -ItemType Directory -Path $taskPopplerDestination -Force | Out-Null
-Get-ChildItem -LiteralPath $taskPopplerRoot | Copy-Item -Destination $taskPopplerDestination -Recurse -Force
+Get-ChildItem -LiteralPath $taskPopplerRoot | Where-Object Name -NE 'Library' | Copy-Item -Destination $taskPopplerDestination -Recurse -Force
+$taskPopplerLibrary = Join-Path $taskPopplerDestination 'Library'
+New-Item -ItemType Directory -Path $taskPopplerLibrary -Force | Out-Null
+Get-ChildItem -LiteralPath (Join-Path $taskPopplerRoot 'Library') | Where-Object Name -NotIn @('include', 'lib') | Copy-Item -Destination $taskPopplerLibrary -Recurse -Force
+# A cached preparation may still contain SDK files from an earlier runtime layout.
+foreach ($directory in @('include', 'lib')) {
+    $taskDevelopmentPath = [System.IO.Path]::GetFullPath((Join-Path $taskPopplerLibrary $directory))
+    if (-not $taskDevelopmentPath.StartsWith($taskTools + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw 'Poppler SDK cleanup must stay inside the prepared tools directory'
+    }
+    if (Test-Path -LiteralPath $taskDevelopmentPath) { Remove-Item -LiteralPath $taskDevelopmentPath -Recurse -Force }
+}
 
 $taskLanguages = Join-Path (Split-Path $taskBundle -Parent) 'public/vendor/redaction-ocr/lang'
 foreach ($language in @('chi_sim', 'eng')) {
@@ -185,7 +196,7 @@ foreach ($required in $taskRequired) {
     if (-not (Test-Path -LiteralPath (Join-Path $taskTools $required))) { throw "Bundled component missing: $required" }
 }
 @'
-LightPage PDF document components (unmodified upstream distributions)
+LightPage PDF document components
 
 LibreOffice 26.2.6: https://www.libreoffice.org/ (MPL-2.0; see libreoffice/licenses and CREDITS files).
 Source: https://download.documentfoundation.org/libreoffice/src/26.2.6/
@@ -198,6 +209,8 @@ All upstream license and notice files are retained. 7-Zip is build tooling only 
 The LibreOffice distribution is trimmed for size: only English and Chinese (Simplified and
 Traditional) UI resources, dictionaries, and fonts are bundled; icon themes other than colibre
 are removed, as are help files, galleries, templates, and the embedded Python scripting runtime.
+Poppler's development headers and import libraries are omitted; its runtime binaries,
+encoding data, and license notices are retained.
 '@ | Set-Content -LiteralPath (Join-Path $taskTools 'THIRD_PARTY_COMPONENTS.txt')
 Set-Content -LiteralPath $taskStamp -Value $taskLock
 Write-Output 'Bundled document components are ready'

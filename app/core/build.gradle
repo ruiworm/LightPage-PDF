@@ -147,6 +147,20 @@ bootJar {
             'Enable-Native-Access': 'ALL-UNNAMED'
         )
     }
+
+    doLast {
+        def expectedNatives = project(':common').ext.jpdfiumNativePlatforms
+        new java.util.zip.ZipFile(archiveFile.get().asFile).withCloseable { archive ->
+            def packagedNatives = archive.entries().toList().collect { entry ->
+                def match = entry.name =~ /^BOOT-INF\/lib\/jpdfium-natives-(.+)-[0-9].*\.jar$/
+                match.matches() ? match[0][1] : null
+            }.findAll { it != null }.toSet()
+            if (packagedNatives != expectedNatives) {
+                throw new GradleException("Packaged PDFium platforms ${packagedNatives} do not match ${expectedNatives}")
+            }
+            logger.lifecycle("Verified packaged PDFium platforms: ${packagedNatives}")
+        }
+    }
 }
 
 // Configure main class for Spring Boot

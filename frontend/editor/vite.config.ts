@@ -334,18 +334,20 @@ export default defineConfig(async ({ mode, command }) => {
       tsconfigPaths({
         projects: [tsconfigProject],
       }),
-      compression({
-        threshold: 1024,
-        exclude: [/\.(png|jpg|jpeg|gif|webp|woff|woff2)$/],
-        algorithms: [
-          defineAlgorithm("gzip", { level: 9 }),
-          defineAlgorithm("brotliCompress", {
-            params: {
-              [constants.BROTLI_PARAM_QUALITY]: 11,
-            },
-          }),
-        ],
-      }),
+      // Tauri compresses embedded assets itself and never serves HTTP encoding sidecars.
+      effectiveMode !== "desktop" &&
+        compression({
+          threshold: 1024,
+          exclude: [/\.(png|jpg|jpeg|gif|webp|woff|woff2)$/],
+          algorithms: [
+            defineAlgorithm("gzip", { level: 9 }),
+            defineAlgorithm("brotliCompress", {
+              params: {
+                [constants.BROTLI_PARAM_QUALITY]: 11,
+              },
+            }),
+          ],
+        }),
       // Set ANALYZE=true to emit dist/stats.html (treemap) alongside the
       // build; rollup-plugin-visualizer is ESM-only so we import dynamically.
       ...(process.env.ANALYZE === "true"
@@ -399,7 +401,7 @@ export default defineConfig(async ({ mode, command }) => {
           },
         ],
       }),
-      compressStaticCopyPlugin(),
+      effectiveMode !== "desktop" && compressStaticCopyPlugin(),
       prerenderOgPlugin(effectiveMode === "saas"),
     ],
     // Worker bundles are a separate Rollup pass and do NOT inherit `plugins`,

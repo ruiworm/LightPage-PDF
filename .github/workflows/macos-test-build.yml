@@ -89,6 +89,7 @@ jobs:
 
       - name: Verify package and record checksums
         run: |
+          node scripts/check-desktop-assets.mjs
           bundle=frontend/editor/src-tauri/target/release/bundle
           app="$bundle/macos/LightPage PDF.app"
           test -d "$app"
@@ -98,13 +99,25 @@ jobs:
           find "$bundle/dmg" -name '*.dmg' -exec shasum -a 256 {} \; > "$bundle/SHA256SUMS.txt"
           shasum -a 256 "$bundle/LightPage-PDF-macOS-${{ matrix.arch }}.app.zip" >> "$bundle/SHA256SUMS.txt"
           test -s "$bundle/SHA256SUMS.txt"
+          stat -f '%z %N' "$bundle"/dmg/*.dmg "$bundle"/*.app.zip
+          du -sk "$app"
 
-      - name: Upload macOS test package
+      - name: Upload macOS DMG installer
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: LightPage-PDF-macOS-${{ matrix.arch }}-${{ github.run_number }}
+          name: LightPage-PDF-macOS-${{ matrix.arch }}-DMG-${{ github.run_number }}
           path: |
             frontend/editor/src-tauri/target/release/bundle/dmg/*.dmg
+            frontend/editor/src-tauri/target/release/bundle/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+
+      - name: Upload macOS application archive
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: LightPage-PDF-macOS-${{ matrix.arch }}-APP-${{ github.run_number }}
+          path: |
             frontend/editor/src-tauri/target/release/bundle/*.app.zip
             frontend/editor/src-tauri/target/release/bundle/SHA256SUMS.txt
           if-no-files-found: error
