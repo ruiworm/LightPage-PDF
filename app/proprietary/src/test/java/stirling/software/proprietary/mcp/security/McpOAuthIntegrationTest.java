@@ -267,9 +267,12 @@ class McpOAuthIntegrationTest {
     }
 
     private HttpResponse<String> postMcp(String token, String body) throws Exception {
+        // The Content-Length guard can reject before consuming the body. Waiting for 100 Continue
+        // avoids racing that early response with an in-flight upload on Windows.
         HttpRequest.Builder builder =
                 HttpRequest.newBuilder()
                         .uri(URI.create(base() + "/mcp"))
+                        .expectContinue(true)
                         .header("Content-Type", "application/json")
                         .POST(HttpRequest.BodyPublishers.ofString(body));
         if (token != null) {
