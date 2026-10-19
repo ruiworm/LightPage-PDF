@@ -760,24 +760,17 @@ const FolderCard = React.memo(function FolderCard({
         if (e.target === e.currentTarget && e.key === "Enter") onOpen();
       }}
     >
-      <div
-        className={`files-page-card-thumb${!selectionOnly && canAddToWorkspace ? " files-page-folder-entry" : ""}`}
-        style={{
-          background: `linear-gradient(135deg, color-mix(in srgb, ${folder.color ?? "var(--c-primary)"} 18%, var(--c-surface)), color-mix(in srgb, ${folder.color ?? "var(--c-primary)"} 6%, var(--c-surface)))`,
-        }}
-      >
-        <FolderThumbnail
-          color={folder.color}
-          fileCount={fileCount}
-          iconGlyph={findFolderIcon(folder.icon)?.glyph}
-        />
-        {!selectionOnly && canAddToWorkspace && (
-          <FolderWorkspaceButton folderId={folder.id} actions={actions} />
-        )}
+      <div className="files-page-card-thumb files-page-folder-entry">
+        <Icon name="folder" size={40} />
       </div>
       <div className="files-page-card-body">
-        <div className="files-page-card-name" title={folder.name}>
-          {folder.name}
+        <div className="files-page-folder-heading">
+          <div className="files-page-card-name" title={folder.name}>
+            {folder.name}
+          </div>
+          {!selectionOnly && canAddToWorkspace && (
+            <FolderWorkspaceButton folderId={folder.id} actions={actions} />
+          )}
         </div>
         {parentPath && (
           <div className="files-page-card-path" title={parentPath}>
@@ -828,7 +821,6 @@ const FolderCard = React.memo(function FolderCard({
             processingBlock={processingBlock}
             variant="kebab"
             triggerRef={kebabRef}
-            onOpen={onOpen}
             onStartProcessing={() => actions.startProcessing(folder)}
             onRunProcessing={() => void runProcessing("process folder now")}
             onStopProcessing={() =>
@@ -867,18 +859,25 @@ function FolderWorkspaceButton({
 }) {
   const { t } = useTranslation();
   return (
-    <Button
-      variant="secondary"
-      size="sm"
-      className="files-page-folder-workspace-button"
-      leftSection={<Icon name="arrow-right" size={16} />}
-      onClick={(event) => {
-        event.stopPropagation();
-        actions.addFolderToWorkspace(folderId);
-      }}
+    <Tooltip
+      label={t("filesPage.addToWorkspace", "Add to workspace")}
+      events={{ hover: true, focus: true, touch: false }}
+      withArrow
     >
-      {t("filesPage.addToWorkspace", "Add to workspace")}
-    </Button>
+      <ActionIcon
+        variant="tertiary"
+        accent="neutral"
+        size="sm"
+        className="files-page-folder-workspace-button"
+        aria-label={t("filesPage.addToWorkspace", "Add to workspace")}
+        onClick={(event) => {
+          event.stopPropagation();
+          actions.addFolderToWorkspace(folderId);
+        }}
+      >
+        <Icon name="arrow-right" size={16} />
+      </ActionIcon>
+    </Tooltip>
   );
 }
 
@@ -1848,7 +1847,6 @@ const FolderRow = React.memo(function FolderRow({
             processingBlock={processingBlock}
             variant="kebab"
             triggerRef={kebabRef}
-            onOpen={onOpen}
             onStartProcessing={() => actions.startProcessing(folder)}
             onRunProcessing={() => void runProcessing("process folder now")}
             onStopProcessing={() =>

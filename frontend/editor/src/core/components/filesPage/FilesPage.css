@@ -269,15 +269,33 @@
   background: var(--c-surface);
 }
 
-.files-page-folder-entry {
-  flex-direction: column;
-  gap: 0.25rem;
+.files-page-card-thumb.files-page-folder-entry {
+  height: 5rem;
+  aspect-ratio: auto;
+  background: var(--c-surface);
+  color: var(--c-text-muted);
 }
 
-.files-page-folder-entry > [aria-hidden="true"] {
-  max-width: 4rem;
-  max-height: 3.2rem;
+.files-page-folder-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.files-page-folder-heading .files-page-card-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.files-page-folder-workspace-button {
   flex-shrink: 0;
+}
+
+.files-page-card.is-folder
+  .files-page-card-actions
+  button.mantine-ActionIcon-root {
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .files-page-list-row .files-page-folder-workspace-button {
@@ -421,6 +439,13 @@
 
 .files-page-card.is-folder {
   cursor: pointer;
+  box-shadow: none;
+}
+
+.files-page-card.is-folder:hover {
+  transform: none;
+  border-color: var(--c-border-strong);
+  box-shadow: none;
 }
 
 .files-page-card-thumb {

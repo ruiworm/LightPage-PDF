@@ -1,6 +1,6 @@
-import React, { useId, useState, useEffect } from "react";
+import React, { useId } from "react";
 import { InfoTooltip } from "@app/ui/InfoTooltip";
-import { Paper, Stack, Switch, Text, NumberInput, Select } from "@mantine/core";
+import { Paper, Stack, Text, Select } from "@mantine/core";
 import { SegmentedControl } from "@app/ui/SegmentedControl";
 import { useTranslation } from "react-i18next";
 import { usePreferences } from "@app/contexts/PreferencesContext";
@@ -8,7 +8,6 @@ import { useTheme } from "@app/components/shared/ThemeProvider";
 import LanguageSelector from "@app/components/shared/LanguageSelector";
 import { type ViewerZoomSetting } from "@app/services/preferencesService";
 import { Z_INDEX_OVER_CONFIG_MODAL } from "@app/styles/zIndex";
-const DEFAULT_AUTO_UNZIP_FILE_LIMIT = 4;
 
 interface GeneralSectionProps {
   hideTitle?: boolean;
@@ -22,17 +21,8 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
   // are named by pointing at that text rather than by a <label> association.
   const labelIds = useId();
   const viewerZoomLabelId = `${labelIds}-viewer-zoom`;
-  const autoUnzipLabelId = `${labelIds}-auto-unzip`;
-  const autoUnzipLimitLabelId = `${labelIds}-auto-unzip-limit`;
   const { preferences, updatePreference } = usePreferences();
   const { setTheme, themeMode } = useTheme();
-  const [fileLimitInput, setFileLimitInput] = useState<number | string>(
-    preferences.autoUnzipFileLimit,
-  );
-  // Sync local state with preference changes
-  useEffect(() => {
-    setFileLimitInput(preferences.autoUnzipFileLimit);
-  }, [preferences.autoUnzipFileLimit]);
 
   return (
     <Stack gap="lg">
@@ -176,79 +166,6 @@ const GeneralSection: React.FC<GeneralSectionProps> = ({
                 withinPortal: true,
                 zIndex: Z_INDEX_OVER_CONFIG_MODAL,
               }}
-            />
-          </div>
-          <div
-            id="setting-auto-unzip"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <Text id={autoUnzipLabelId} fw={500} size="sm">
-                {t("settings.general.autoUnzip", "Auto-unzip API responses")}{" "}
-                <InfoTooltip
-                  label={t(
-                    "settings.general.autoUnzipTooltip",
-                    "Automatically extract ZIP files returned from API operations. Disable to keep ZIP files intact. This does not affect automation workflows.",
-                  )}
-                />
-              </Text>
-            </div>
-            <Switch
-              aria-labelledby={autoUnzipLabelId}
-              checked={preferences.autoUnzip}
-              onChange={(event) =>
-                updatePreference("autoUnzip", event.currentTarget.checked)
-              }
-            />
-          </div>
-
-          <div
-            id="setting-auto-unzip-file-limit"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <Text id={autoUnzipLimitLabelId} fw={500} size="sm">
-                {t(
-                  "settings.general.autoUnzipFileLimit",
-                  "Auto-unzip file limit",
-                )}{" "}
-                <InfoTooltip
-                  label={t(
-                    "settings.general.autoUnzipFileLimitTooltip",
-                    "Only unzip if the ZIP contains this many files or fewer. Set higher to extract larger ZIPs.",
-                  )}
-                />
-              </Text>
-            </div>
-            <NumberInput
-              aria-labelledby={autoUnzipLimitLabelId}
-              value={fileLimitInput}
-              onChange={setFileLimitInput}
-              onBlur={() => {
-                const numValue = Number(fileLimitInput);
-                const finalValue =
-                  !fileLimitInput ||
-                  isNaN(numValue) ||
-                  numValue < 1 ||
-                  numValue > 100
-                    ? DEFAULT_AUTO_UNZIP_FILE_LIMIT
-                    : numValue;
-                setFileLimitInput(finalValue);
-                updatePreference("autoUnzipFileLimit", finalValue);
-              }}
-              min={1}
-              max={100}
-              step={1}
-              disabled={!preferences.autoUnzip}
-              style={{ width: 90 }}
             />
           </div>
         </Stack>

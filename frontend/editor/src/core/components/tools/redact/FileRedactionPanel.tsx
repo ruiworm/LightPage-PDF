@@ -463,55 +463,58 @@ export default function FileRedactionPanel(_props: BaseToolProps) {
                       {t(`fileRedaction.categories.${hits[0].category}`)} ·{" "}
                       {t("fileRedaction.occurrences", { count: hits.length })}
                     </small>
-                    {hits[0].source && (
-                      <small>
-                        {t(`fileRedaction.sources.${hits[0].source}`)}
-                        {hits[0].source === "model" &&
-                        hits.every((hit) => !hit.selected)
-                          ? ` · ${t("fileRedaction.uncertain")}`
-                          : ""}
-                      </small>
-                    )}
                   </button>
-                </div>
-                {hits.some((hit) => hit.review) && (
-                  <button
-                    type="button"
-                    className="file-redaction-review"
-                    disabled={session.busy}
-                    onClick={() =>
-                      session.changeHits(
-                        hits.map((hit) => hit.id),
-                        { review: false },
-                      )
-                    }
-                  >
-                    {t("fileRedaction.needsReview")}
-                  </button>
-                )}
-                {session.settings.method !== "blackout" &&
-                  hits[0].category !== "region" && (
-                    <input
-                      className="file-redaction-replacement"
-                      aria-label={t("fileRedaction.replacement", {
-                        value: hits[0].original,
-                      })}
-                      placeholder={session.replacements.get(hits[0].id)}
-                      defaultValue={hits[0].replacement ?? ""}
-                      key={`${hits[0].id}:${hits[0].replacement ?? ""}`}
+                  {hits.some((hit) => hit.review) && (
+                    <button
+                      type="button"
+                      className="file-redaction-review"
+                      title={t("fileRedaction.needsReview")}
+                      aria-label={t("fileRedaction.needsReview")}
                       disabled={session.busy}
-                      onBlur={(event) =>
+                      onClick={() =>
                         session.changeHits(
                           hits.map((hit) => hit.id),
-                          {
-                            replacement: event.currentTarget.value || undefined,
-                          },
+                          { review: false },
                         )
                       }
-                    />
+                    >
+                      {t("fileRedaction.filters.review")}
+                    </button>
                   )}
+                </div>
                 <details>
                   <summary>{t("fileRedaction.showOccurrences")}</summary>
+                  {hits[0].source && (
+                    <p className="file-redaction-result-source">
+                      {t(`fileRedaction.sources.${hits[0].source}`)}
+                      {hits[0].source === "model" &&
+                      hits.every((hit) => !hit.selected)
+                        ? ` · ${t("fileRedaction.uncertain")}`
+                        : ""}
+                    </p>
+                  )}
+                  {session.settings.method !== "blackout" &&
+                    hits[0].category !== "region" && (
+                      <input
+                        className="file-redaction-replacement"
+                        aria-label={t("fileRedaction.replacement", {
+                          value: hits[0].original,
+                        })}
+                        placeholder={session.replacements.get(hits[0].id)}
+                        defaultValue={hits[0].replacement ?? ""}
+                        key={`${hits[0].id}:${hits[0].replacement ?? ""}`}
+                        disabled={session.busy}
+                        onBlur={(event) =>
+                          session.changeHits(
+                            hits.map((hit) => hit.id),
+                            {
+                              replacement:
+                                event.currentTarget.value || undefined,
+                            },
+                          )
+                        }
+                      />
+                    )}
                   {hits.map((hit) => (
                     <div className="file-redaction-occurrence" key={hit.id}>
                       <Checkbox
@@ -542,26 +545,26 @@ export default function FileRedactionPanel(_props: BaseToolProps) {
                       </button>
                     </div>
                   ))}
+                  {hits[0].original && (
+                    <Button
+                      variant="tertiary"
+                      size="sm"
+                      disabled={session.busy}
+                      onClick={() =>
+                        session.updateSettings({
+                          preservedWords: [
+                            ...new Set([
+                              ...session.settings.preservedWords,
+                              hits[0].original,
+                            ]),
+                          ],
+                        })
+                      }
+                    >
+                      {t("fileRedaction.preserve")}
+                    </Button>
+                  )}
                 </details>
-                {hits[0].original && (
-                  <Button
-                    variant="tertiary"
-                    size="sm"
-                    disabled={session.busy}
-                    onClick={() =>
-                      session.updateSettings({
-                        preservedWords: [
-                          ...new Set([
-                            ...session.settings.preservedWords,
-                            hits[0].original,
-                          ]),
-                        ],
-                      })
-                    }
-                  >
-                    {t("fileRedaction.preserve")}
-                  </Button>
-                )}
               </div>
             ))}
           </>

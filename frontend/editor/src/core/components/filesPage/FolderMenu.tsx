@@ -38,8 +38,6 @@ interface FolderMenuProps {
     icon?: string | null;
   }) => void;
   onDelete: () => void;
-  /** Adds an Open entry above the rest; absent where the folder is already open. */
-  onOpen?: () => void;
   variant?: "toolbar" | "kebab";
   /** Lets a row open its own menu from a right-click anywhere on it. */
   triggerRef?: React.Ref<HTMLButtonElement>;
@@ -64,7 +62,6 @@ export function FolderMenu({
   onRename,
   onChangeAppearance,
   onDelete,
-  onOpen,
   variant = "toolbar",
   triggerRef,
 }: FolderMenuProps) {
@@ -72,6 +69,8 @@ export function FolderMenu({
   const processingEnabled = usePoliciesEnabled();
   const [appearanceOpen, setAppearanceOpen] = useState(false);
   const settingsLabel = t("filesPage.folderSettings", "Folder settings");
+
+  if (isMount && !canUnmount && !processingEnabled) return null;
 
   return (
     <>
@@ -108,14 +107,6 @@ export function FolderMenu({
           )}
         </Menu.Target>
         <Menu.Dropdown>
-          {onOpen && (
-            <Menu.Item
-              leftSection={<Icon name="external-link" size={"1.1rem"} />}
-              onClick={onOpen}
-            >
-              {t("filesPage.open", "Open")}
-            </Menu.Item>
-          )}
           {!isMount && (
             <>
               <Menu.Label>{t("filesPage.folder", "Folder")}</Menu.Label>

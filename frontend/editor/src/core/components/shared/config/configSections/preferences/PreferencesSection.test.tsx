@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { MantineProvider } from "@mantine/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import PreferencesSection from "@app/components/shared/config/configSections/preferences/PreferencesSection";
@@ -30,7 +30,7 @@ beforeEach(() => vi.clearAllMocks());
 afterEach(cleanup);
 
 describe("preferences without tool shortcuts", () => {
-  it("keeps reader and download controls usable without a shortcut provider", () => {
+  it("keeps reader preferences without retired shortcut or download controls", () => {
     render(
       <MantineProvider>
         <PreferencesSection />
@@ -45,13 +45,12 @@ describe("preferences without tool shortcuts", () => {
     expect(
       screen.queryByPlaceholderText("Search tools..."),
     ).not.toBeInTheDocument();
-    fireEvent.click(
-      screen.getByRole("switch", { name: "Auto-unzip API responses" }),
-    );
-    expect(updatePreference).toHaveBeenCalledWith("autoUnzip", false);
     expect(
-      screen.getByRole("textbox", { name: "Auto-unzip file limit" }),
-    ).toHaveValue("4");
+      screen.queryByRole("switch", { name: "Auto-unzip API responses" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("textbox", { name: "Auto-unzip file limit" }),
+    ).not.toBeInTheDocument();
   });
 
   it("can still describe standard editor keys without a shortcut provider", () => {

@@ -52,20 +52,6 @@ export const SETTINGS_SEARCH_INDEX: SettingsSearchEntry[] = [
     labelFallback: "Default reader zoom",
     keywords: ["zoom", "viewer", "fit width", "fit page", "magnification"],
   },
-  {
-    section: "general",
-    anchor: "setting-auto-unzip",
-    labelKey: "settings.general.autoUnzip",
-    labelFallback: "Auto-unzip API responses",
-    keywords: ["zip", "extract", "unzip", "archive"],
-  },
-  {
-    section: "general",
-    anchor: "setting-auto-unzip-file-limit",
-    labelKey: "settings.general.autoUnzipFileLimit",
-    labelFallback: "Auto-unzip file limit",
-    keywords: ["zip", "limit", "files", "extract"],
-  },
   // --- About: one row per card the four folded rows became, carrying the
   // labels and search terms those rows had.
   {

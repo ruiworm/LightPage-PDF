@@ -1,7 +1,6 @@
 import { type ReactNode } from "react";
 import { AppearanceCard } from "@app/components/shared/config/configSections/preferences/AppearanceCard";
 import { EditorDefaultsCard } from "@app/components/shared/config/configSections/preferences/EditorDefaultsCard";
-import { DownloadsCard } from "@app/components/shared/config/configSections/preferences/DownloadsCard";
 import "@app/components/shared/config/configSections/preferences/PreferencesSection.css";
 import { CardLicenseSettings } from "@app/components/license/CardLicensePanel";
 
@@ -34,9 +33,6 @@ export default function PreferencesSection({
           <div id="editorDefaults">
             <EditorDefaultsCard />
             {editorDefaultsSlot}
-          </div>
-          <div id="downloads">
-            <DownloadsCard />
           </div>
         </div>
       </div>
