@@ -121,16 +121,20 @@ describe("planPartialEdit surrogate-pair guard (astral chars)", () => {
 });
 
 describe("planPartialEdit interior-insert guard (single word object)", () => {
-  it("bails when an inserted char splits a multi-char object's kept chars", () => {
+  it("replaces one object when an inserted char splits its kept chars", () => {
     // "world" is ONE object; inserting "a" mid-word ("world"->"worald") leaves
     // the survivors at non-contiguous new-text positions (0,1,2,4,5).
     const run = makeSingleSubRun("world");
-    expect(planPartialEdit(run, "world", "worald")).toBeNull();
+    expect(planPartialEdit(run, "world", "worald")?.ops).toEqual([
+      { type: "insert", anchorSubRunIdx: 0, text: "worald", startBIdx: 0 },
+    ]);
   });
 
-  it("bails on a mid-word char replace (delete+insert interior)", () => {
+  it("replaces one object for a mid-word character change", () => {
     const run = makeSingleSubRun("world");
-    expect(planPartialEdit(run, "world", "worXd")).toBeNull();
+    expect(planPartialEdit(run, "world", "worXd")?.removePtrs).toEqual([
+      { ptr: 200, containerPtr: 0 },
+    ]);
   });
 
   it("keeps the surgical path for a boundary delete (survivors contiguous)", () => {
@@ -207,8 +211,9 @@ describe("planParagraphEdit slot-range line mapping", () => {
     expect(plan).not.toBeNull();
     const entry = plan?.perSlot.find((p) => p.slotIdx === 0);
     expect(entry).toBeDefined();
-    // null plan => the apply step fresh-emits this line (word-split), avoiding „.
-    expect(entry?.plan).toBeNull();
+    expect(entry?.plan?.ops).toEqual([
+      { type: "insert", anchorSubRunIdx: 0, text: "aaa Xbb ccc", startBIdx: 0 },
+    ]);
     expect(entry?.nextLine).toBe("aaa Xbb ccc");
   });
 
@@ -235,8 +240,9 @@ describe("planParagraphEdit slot-range line mapping", () => {
     expect(plan).not.toBeNull();
     const entry = plan?.perSlot.find((p) => p.slotIdx === 1);
     expect(entry).toBeDefined();
-    // null slot plan => the apply step fresh-emits this line (correct order).
-    expect(entry?.plan).toBeNull();
+    expect(entry?.plan?.ops).toEqual([
+      { type: "insert", anchorSubRunIdx: 0, text: "worXd", startBIdx: 0 },
+    ]);
     expect(entry?.nextLine).toBe("worXd");
   });
 

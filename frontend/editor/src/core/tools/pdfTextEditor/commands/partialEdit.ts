@@ -154,11 +154,6 @@ function isCodePointBoundary(s: string, idx: number): boolean {
   );
 }
 
-/** Push a slice end off the middle of a pair so no half is orphaned. */
-function toCodePointBoundary(s: string, idx: number): number {
-  return isCodePointBoundary(s, idx) ? idx : idx + 1;
-}
-
 // Both halves of every astral char must share the SAME fate in the diff, and a
 // kept pair must stay adjacent on the other side. Sibling emoji share a high
 // surrogate (U+1F600 and U+1F601 are both \uD83D...), so the code-unit LCS can
@@ -349,6 +344,44 @@ export function planPartialEdit(
       charToSubRun[c] = i;
     }
     subRunRanges.push({ start, end });
+  }
+
+  // Rebuilding a whole mixed-font line for an edit inside one object loses
+  // every neighbouring face. Replace that object at its own origin instead.
+  const span = diffSpan(prevText, nextText);
+  const replacementIdx = subRunRanges.findIndex(
+    (range) => range && span.start > range.start && span.prevEnd < range.end,
+  );
+  if (replacementIdx >= 0 && run.containerPtr === 0) {
+    const range = subRunRanges[replacementIdx]!;
+    const delta = nextText.length - prevText.length;
+    const ops: PartialEditOp[] = run.mergedFromPtrs.map((_, i) =>
+      i === replacementIdx
+        ? {
+            type: "insert",
+            anchorSubRunIdx: i,
+            text: nextText.slice(range.start, range.end + delta),
+            startBIdx: range.start,
+          }
+        : {
+            type: "keep",
+            subRunIdx: i,
+            startBIdx:
+              run.mergedFromCharStarts[i] + (i > replacementIdx ? delta : 0),
+          },
+    );
+    return {
+      ops,
+      removePtrs: [
+        { ptr: run.mergedFromPtrs[replacementIdx], containerPtr: 0 },
+      ],
+      subRunStatus: run.mergedFromPtrs.map((_, i) =>
+        i === replacementIdx ? "mixed" : "all-kept",
+      ),
+      prevMergedFromPtrs: [...run.mergedFromPtrs],
+      prevMergedFromTexts: [...run.mergedFromTexts],
+      prevMergedFromBounds: run.mergedFromBounds.map((b) => ({ ...b })),
+    };
   }
 
   // Classify sub-runs by counting how many of their own chars (the
@@ -615,6 +648,40 @@ export interface PartialEditApplyResult {
   newBoundsWidth: number;
 }
 
+/** Restore page-level objects detached or shifted by a partial edit. */
+export function restorePartialEditPlan(
+  m: import("@embedpdf/pdfium").WrappedPdfiumModule,
+  page: Page,
+  plan: PartialEditPlan,
+): boolean {
+  if (plan.removePtrs.some((entry) => entry.containerPtr !== 0)) return false;
+  if (!m.FPDFPage_CountObjects || !m.FPDFPage_GetObject) return false;
+  const live = new Set<number>();
+  for (let i = 0; i < m.FPDFPage_CountObjects(page.pagePtr); i++) {
+    live.add(m.FPDFPage_GetObject(page.pagePtr, i));
+  }
+  for (const op of plan.ops) {
+    if (op.type === "modify" && op.subRunIdx !== undefined) {
+      setObjText(
+        m,
+        plan.prevMergedFromPtrs[op.subRunIdx],
+        plan.prevMergedFromTexts[op.subRunIdx],
+      );
+    }
+  }
+  for (let i = 0; i < plan.prevMergedFromPtrs.length; i++) {
+    const ptr = plan.prevMergedFromPtrs[i];
+    if (!ptr) continue;
+    if (!live.has(ptr)) m.FPDFPage_InsertObject(page.pagePtr, ptr);
+    const original = plan.prevMergedFromBounds[i];
+    const current = objBoundsLR(m, ptr, original.x);
+    const dx = original.x - current.x;
+    if (Math.abs(dx) > 0.05) transformObject(m, ptr, 1, 0, 0, 1, dx, 0);
+  }
+  page.markNeedsGenerate();
+  return true;
+}
+
 export function applyPartialEditPlan(
   doc: EditorDocument,
   page: Page,
@@ -656,40 +723,11 @@ export function applyPartialEditPlan(
   const newMergedFromCharStarts: number[] = [];
   const insertedPtrs: number[] = [];
 
-  // Font-borrow strategy for inserted text: Embedded CID fonts have no reliable
-  // Unicode→CID reverse lookup (ToUnicode CMaps are one-way by design).
-  const survivingChars = new Set<string>();
-  for (let i = 0; i < plan.prevMergedFromTexts.length; i++) {
-    if (plan.subRunStatus[i] !== "all-deleted") {
-      for (const ch of plan.prevMergedFromTexts[i]) survivingChars.add(ch);
-    }
-  }
-  for (const otherPage of doc.loadedPages()) {
-    for (const otherRun of otherPage.runs) {
-      if (otherRun.fontId !== run.fontId) continue;
-      for (const ch of otherRun.text) survivingChars.add(ch);
-      for (const sub of otherRun.mergedFromTexts) {
-        for (const ch of sub) survivingChars.add(ch);
-      }
-    }
-  }
-  let allInsertCharsAreSafe = true;
-  for (const op of plan.ops) {
-    if (op.type === "insert" && op.text) {
-      for (const ch of op.text) {
-        if (!survivingChars.has(ch)) {
-          allInsertCharsAreSafe = false;
-          break;
-        }
-      }
-    }
-    if (!allInsertCharsAreSafe) break;
-  }
-
   // Strategy: walk ops in order.
   let firstX = startX;
   let lastEnd = startX;
   let offset = 0;
+  let precedingSubRunIdx = 0;
   // Tracks the highest sub-run index we've already accounted for in `offset`.
   let processedUpTo = -1;
   function absorbDeletesBefore(idx: number): void {
@@ -707,6 +745,7 @@ export function applyPartialEditPlan(
 
   for (const op of plan.ops) {
     if (op.type === "keep" && op.subRunIdx !== undefined) {
+      precedingSubRunIdx = op.subRunIdx;
       absorbDeletesBefore(op.subRunIdx);
       const ptr = plan.prevMergedFromPtrs[op.subRunIdx];
       const text = plan.prevMergedFromTexts[op.subRunIdx];
@@ -730,6 +769,7 @@ export function applyPartialEditPlan(
       op.subRunIdx !== undefined &&
       op.text !== undefined
     ) {
+      precedingSubRunIdx = op.subRunIdx;
       // Edit a mixed sub-run's EXISTING object in place: SetText the surviving
       // chars so the embedded font is kept.
       absorbDeletesBefore(op.subRunIdx);
@@ -759,7 +799,9 @@ export function applyPartialEditPlan(
         } catch {
           /* best-effort */
         }
+        const emittedTexts: string[] = [];
         const reptrs = emitTextLine({
+          outTexts: emittedTexts,
           doc,
           page,
           text: modText,
@@ -785,26 +827,13 @@ export function applyPartialEditPlan(
         } else {
           // Slice modText across the re-emitted ptrs so each stored text is
           // contiguous and the next edit's char-range sanity check still tiles.
-          const total = reRight - newX;
-          const per = Math.max(1, Math.floor(modText.length / reptrs.length));
-          let cur = newX;
-          let charCursor = 0;
+          const built = buildSlotMerged(m, reptrs, modText, newX, emittedTexts);
           for (let i = 0; i < reptrs.length; i++) {
-            const isLast = i === reptrs.length - 1;
-            const slice = isLast
-              ? modText.slice(charCursor)
-              : modText.slice(
-                  charCursor,
-                  toCodePointBoundary(modText, charCursor + per),
-                );
-            const w = total / reptrs.length;
             newMergedFromPtrs.push(reptrs[i]);
-            newMergedFromTexts.push(slice);
-            newMergedFromBounds.push({ x: cur, right: cur + w });
-            newMergedFromCharStarts.push(op.startBIdx + charCursor);
+            newMergedFromTexts.push(built.texts[i]);
+            newMergedFromBounds.push(built.bounds[i]);
+            newMergedFromCharStarts.push(op.startBIdx + built.charStarts[i]);
             insertedPtrs.push(reptrs[i]);
-            cur += w;
-            charCursor += slice.length;
           }
           if (reRight > lastEnd) lastEnd = reRight;
           offset += reRight - newX - origWidth;
@@ -844,13 +873,19 @@ export function applyPartialEditPlan(
 
       // Borrow the font from a survivor that actually contains the inserted
       // chars, so the new glyph reuses that exact embedded font.
-      const borrowedFontPtr = allInsertCharsAreSafe
-        ? borrowFontForChars(m, plan, insertText)
-        : 0;
+      const sourceIdx = anchorIdx ?? beforeIdx ?? precedingSubRunIdx;
+      const borrowedFontPtr =
+        objFontPtr(m, plan.prevMergedFromPtrs[sourceIdx]) ||
+        borrowFontForChars(m, plan, insertText);
+      const insertFamily = fallbackFamilyFor(
+        fontIdForPointer(m, borrowedFontPtr, run.fontId),
+      );
+      const emittedTexts: string[] = [];
 
       // Try the borrowed source font first; measure the result and fall back to
       // Helvetica if the rendered width is sub-threshold.
       let ptrs = emitTextLine({
+        outTexts: emittedTexts,
         doc,
         page,
         text: insertText,
@@ -862,7 +897,7 @@ export function applyPartialEditPlan(
         originalFontPtr: borrowedFontPtr,
         originalFontSubset: run.fontSubset,
         charSpacingPt: run.charSpacingPt,
-        fallbackFamily,
+        fallbackFamily: insertFamily,
       });
       let realRightEdge = anchorX;
       for (const ptr of ptrs) {
@@ -893,7 +928,9 @@ export function applyPartialEditPlan(
             /* best-effort */
           }
         }
+        emittedTexts.length = 0;
         ptrs = emitTextLine({
+          outTexts: emittedTexts,
           doc,
           page,
           text: insertText,
@@ -904,7 +941,7 @@ export function applyPartialEditPlan(
           ...inkFromRun(run),
           originalFontPtr: 0,
           charSpacingPt: run.charSpacingPt,
-          fallbackFamily,
+          fallbackFamily: insertFamily,
         });
         realRightEdge = anchorX;
         for (const ptr of ptrs) {
@@ -926,63 +963,14 @@ export function applyPartialEditPlan(
         // space glyphs), matching the widened gaps emitTextLine produced.
         measuredWidth += wsWidth + run.charSpacingPt * whitespaceLen;
       }
-      // Map emitted ptrs back to text. emitTextLine emits one ptr per
-      // whitespace-separated WORD on the normal path.
-      const insertWords: Array<{ text: string; start: number }> = [];
-      {
-        const wordRe = /\S+/g;
-        let wm: RegExpExecArray | null;
-        while ((wm = wordRe.exec(insertText)) !== null) {
-          insertWords.push({ text: wm[0], start: wm.index });
-        }
-      }
-      if (ptrs.length === insertWords.length) {
-        for (let i = 0; i < ptrs.length; i++) {
-          const word = insertWords[i];
-          if (!word) {
-            try {
-              m.FPDFPage_RemoveObject(page.pagePtr, ptrs[i]);
-            } catch {
-              /* best-effort */
-            }
-            continue;
-          }
-          const bnds = objBoundsLR(m, ptrs[i], anchorX);
-          newMergedFromPtrs.push(ptrs[i]);
-          newMergedFromTexts.push(word.text);
-          newMergedFromBounds.push({ x: bnds.x, right: bnds.right });
-          newMergedFromCharStarts.push(op.startBIdx + word.start);
-          insertedPtrs.push(ptrs[i]);
-        }
-      } else {
-        // Per-char (or mismatched) emit: slice the insert text across ptrs.
-        let runningCursor = anchorX;
-        const charsPerPtr = Math.max(
-          1,
-          Math.floor(insertText.length / Math.max(1, ptrs.length)),
-        );
-        let charCursor = 0;
-        for (let i = 0; i < ptrs.length; i++) {
-          const sliceWidth = measuredWidth / ptrs.length;
-          const isLast = i === ptrs.length - 1;
-          const sliceText = isLast
-            ? insertText.slice(charCursor)
-            : insertText.slice(
-                charCursor,
-                toCodePointBoundary(insertText, charCursor + charsPerPtr),
-              );
-          newMergedFromPtrs.push(ptrs[i]);
-          newMergedFromTexts.push(sliceText);
-          newMergedFromBounds.push({
-            x: runningCursor,
-            right: runningCursor + sliceWidth,
-          });
-          newMergedFromCharStarts.push(op.startBIdx + charCursor);
-          insertedPtrs.push(ptrs[i]);
-          runningCursor += sliceWidth;
-          charCursor += sliceText.length;
-        }
-      }
+      const built = buildSlotMerged(m, ptrs, insertText, anchorX, emittedTexts);
+      newMergedFromPtrs.push(...built.ptrs);
+      newMergedFromTexts.push(...built.texts);
+      newMergedFromBounds.push(...built.bounds);
+      newMergedFromCharStarts.push(
+        ...built.charStarts.map((start) => op.startBIdx + start),
+      );
+      insertedPtrs.push(...ptrs);
       if (realRightEdge > lastEnd) lastEnd = realRightEdge;
       // Update offset: * anchored (mixed-replacement): delta vs original
       // sub-run width.
@@ -1056,6 +1044,24 @@ function objFontPtr(
     return fontMod.FPDFTextObj_GetFont(ptr) || 0;
   } catch {
     return 0;
+  }
+}
+
+function fontIdForPointer(
+  m: import("@embedpdf/pdfium").WrappedPdfiumModule,
+  font: number,
+  fallbackId: string,
+): string {
+  if (!font || !m.FPDFFont_GetBaseFontName) return fallbackId;
+  const size = m.FPDFFont_GetBaseFontName(font, 0, 0);
+  if (size <= 1 || size > 4096) return fallbackId;
+  const buf = m.pdfium.wasmExports.malloc(size);
+  try {
+    m.FPDFFont_GetBaseFontName(font, buf, size);
+    const family = m.pdfium.UTF8ToString(buf).replace(/^[A-Z]{6}\+/, "");
+    return family ? `pdf:${font}:${family}` : fallbackId;
+  } finally {
+    m.pdfium.wasmExports.free(buf);
   }
 }
 

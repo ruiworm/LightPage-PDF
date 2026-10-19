@@ -25,6 +25,7 @@ import {
   planModifiesWhitespace,
   planParagraphEdit,
   planPartialEdit,
+  restorePartialEditPlan,
   setObjText,
   type ParagraphEditPlan,
   type PartialEditPlan,
@@ -613,6 +614,21 @@ export class EditTextCommand implements Command {
         }
       }
       this.paragraphInsertedPtrs = [];
+      if (
+        this.editSnapshot &&
+        this.prevParagraphSlots.every((slot) => slot.containerPtr === 0) &&
+        this.paragraphPlan.perSlot.every((entry) => entry.plan !== null) &&
+        this.paragraphPlan.perSlot.every((entry) =>
+          restorePartialEditPlan(m, page, entry.plan!),
+        )
+      ) {
+        restoreRunModel(run, this.editSnapshot);
+        run.text = this.prevText;
+        run.dirty = true;
+        this.paragraphPlan = null;
+        page.markDirty();
+        return;
+      }
       // Pure-insert edit (no original object freed/mutated): every original
       // object is still alive, so restore the exact pre-edit model.
       const pureInsert = this.paragraphPlan.perSlot.every(
@@ -686,6 +702,18 @@ export class EditTextCommand implements Command {
         }
       }
       this.partialInsertedPtrs = [];
+      if (
+        this.editSnapshot &&
+        run.containerPtr === 0 &&
+        restorePartialEditPlan(m, page, this.partialPlan)
+      ) {
+        restoreRunModel(run, this.editSnapshot);
+        run.text = this.prevText;
+        run.dirty = true;
+        this.partialPlan = null;
+        page.markDirty();
+        return;
+      }
       // In-place "modify" sub-runs kept their object (and font); restore
       // their original text so undo shows the pre-edit characters.
       for (const op of this.partialPlan.ops) {
