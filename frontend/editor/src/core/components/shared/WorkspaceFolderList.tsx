@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { Loader } from "@mantine/core";
+import { Loader, Menu } from "@mantine/core";
 import { useTranslation } from "react-i18next";
 import { ActionIcon } from "@app/ui/ActionIcon";
 import { Icon } from "@app/ui/Icon";
@@ -19,6 +19,7 @@ interface WorkspaceFolderListProps {
   selectedCount: number;
   renderFile: (file: StirlingFileStub) => ReactNode;
   onFolder: (id: FolderId | "") => void;
+  onRemoveFolder: (folder: FolderRecord) => void;
   onRecent: (file: StirlingFileStub) => void;
   onOpenFolder?: () => void;
   onAddFiles: () => void;
@@ -35,6 +36,7 @@ export function WorkspaceFolderList({
   selectedCount,
   renderFile,
   onFolder,
+  onRemoveFolder,
   onRecent,
   onOpenFolder,
   onAddFiles,
@@ -44,6 +46,7 @@ export function WorkspaceFolderList({
   const [moreRecent, setMoreRecent] = useState(false);
   const [moreFolders, setMoreFolders] = useState(false);
   const [expanded, setExpanded] = useState(true);
+  const [menuFolder, setMenuFolder] = useState<FolderId | null>(null);
   useEffect(() => setExpanded(true), [selected]);
 
   const toggleFolder = (id: FolderId | "") => {
@@ -176,31 +179,84 @@ export function WorkspaceFolderList({
         <div className="workspace-folders__list">
           {shown.map((folder) => (
             <div key={folder.id}>
-              <button
-                type="button"
-                className="workspace-folders__folder"
-                aria-expanded={selected === folder.id && expanded}
-                onClick={() => toggleFolder(folder.id)}
-                title={folder.directory ?? folder.name}
+              <div
+                className="workspace-folders__row"
+                onContextMenu={(event) => {
+                  event.preventDefault();
+                  setMenuFolder(folder.id);
+                }}
               >
-                <Icon
-                  name={
-                    selected === folder.id && expanded
-                      ? "chevron-down"
-                      : "chevron-right"
+                <button
+                  type="button"
+                  className="workspace-folders__folder"
+                  aria-expanded={selected === folder.id && expanded}
+                  onClick={() => toggleFolder(folder.id)}
+                  title={folder.directory ?? folder.name}
+                >
+                  <Icon
+                    name={
+                      selected === folder.id && expanded
+                        ? "chevron-down"
+                        : "chevron-right"
+                    }
+                    size="0.8rem"
+                  />
+                  <Icon
+                    name={
+                      selected === folder.id && expanded
+                        ? "folder-open"
+                        : "folder"
+                    }
+                    size="1rem"
+                  />
+                  <span>{folder.name}</span>
+                </button>
+                <Menu
+                  opened={menuFolder === folder.id}
+                  onChange={(opened) =>
+                    setMenuFolder((current) =>
+                      opened
+                        ? folder.id
+                        : current === folder.id
+                          ? null
+                          : current,
+                    )
                   }
-                  size="0.8rem"
-                />
-                <Icon
-                  name={
-                    selected === folder.id && expanded
-                      ? "folder-open"
-                      : "folder"
-                  }
-                  size="1rem"
-                />
-                <span>{folder.name}</span>
-              </button>
+                  withinPortal
+                  position="bottom-end"
+                  width={240}
+                >
+                  <Menu.Target>
+                    <ActionIcon
+                      className="workspace-folders__actions"
+                      size="sm"
+                      variant="tertiary"
+                      accent="neutral"
+                      aria-label={t(
+                        "filesPage.treeMenu.actions",
+                        "Folder actions for {{name}}",
+                        { name: folder.name },
+                      )}
+                    >
+                      <Icon name="ellipsis" size="1rem" />
+                    </ActionIcon>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Item
+                      leftSection={<Icon name="x" size="1rem" />}
+                      onClick={() => onRemoveFolder(folder)}
+                    >
+                      {t(
+                        "toolLibrary.removeTool",
+                        'Remove "{{name}}" from sidebar',
+                        {
+                          name: folder.name,
+                        },
+                      )}
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+              </div>
               {selected === folder.id && expanded && content}
             </div>
           ))}

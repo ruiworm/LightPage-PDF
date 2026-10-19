@@ -99,6 +99,9 @@ interface FilesPageContextValue {
   bumpDiskRevision: () => void;
   workspaceFolderId: FolderId | "" | null;
   setWorkspaceFolderId: (id: FolderId | "") => void;
+  hiddenWorkspaceFolderIds: ReadonlySet<FolderId>;
+  /** Hides a workspace shortcut without changing the library, disk, or open documents. */
+  removeWorkspaceFolder: (id: FolderId) => void;
   workspaceFiles: React.RefObject<Map<string, FileId>>;
   recentWorkspaceFiles: FileId[];
   rememberWorkspaceFile: (folder: string, id: FileId) => void;
@@ -213,6 +216,35 @@ export function FilesPageProvider({ children }: { children: React.ReactNode }) {
     }
   });
   const workspaceFiles = useRef(new Map<string, FileId>());
+  const [hiddenWorkspaceFolderIds, setHiddenWorkspaceFolderIds] = useState<
+    ReadonlySet<FolderId>
+  >(() => {
+    try {
+      const ids: unknown = JSON.parse(
+        localStorage.getItem("lightpage.hiddenWorkspaceFolders") ?? "[]",
+      );
+      return new Set(
+        Array.isArray(ids)
+          ? ids.filter((id): id is FolderId => typeof id === "string")
+          : [],
+      );
+    } catch {
+      return new Set();
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "lightpage.hiddenWorkspaceFolders",
+        JSON.stringify([...hiddenWorkspaceFolderIds]),
+      );
+    } catch {
+      // Workspace shortcuts remain usable when persistence is denied.
+    }
+  }, [hiddenWorkspaceFolderIds]);
+  const removeWorkspaceFolder = useCallback((id: FolderId) => {
+    setHiddenWorkspaceFolderIds((previous) => new Set([...previous, id]));
+  }, []);
   const [recentWorkspaceFiles, setRecentWorkspaceFiles] = useState<FileId[]>(
     () => {
       try {
@@ -246,6 +278,12 @@ export function FilesPageProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
   const setWorkspaceFolderId = useCallback((id: FolderId | "") => {
+    setHiddenWorkspaceFolderIds((previous) => {
+      if (!id || !previous.has(id)) return previous;
+      const next = new Set(previous);
+      next.delete(id);
+      return next;
+    });
     setWorkspaceFolder(id);
     try {
       localStorage.setItem("lightpage.workspaceFolder", id);
@@ -815,6 +853,8 @@ export function FilesPageProvider({ children }: { children: React.ReactNode }) {
       bumpDiskRevision,
       workspaceFolderId,
       setWorkspaceFolderId,
+      hiddenWorkspaceFolderIds,
+      removeWorkspaceFolder,
       workspaceFiles,
       recentWorkspaceFiles,
       rememberWorkspaceFile,
@@ -865,6 +905,8 @@ export function FilesPageProvider({ children }: { children: React.ReactNode }) {
       bumpDiskRevision,
       workspaceFolderId,
       setWorkspaceFolderId,
+      hiddenWorkspaceFolderIds,
+      removeWorkspaceFolder,
       recentWorkspaceFiles,
       rememberWorkspaceFile,
       selectedFileIds,

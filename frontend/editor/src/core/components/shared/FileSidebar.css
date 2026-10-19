@@ -744,6 +744,21 @@
   cursor: pointer;
 }
 
+.workspace-folders__row {
+  display: flex;
+  align-items: center;
+}
+
+.workspace-folders__row > .workspace-folders__folder {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+
+.workspace-folders__actions {
+  flex-shrink: 0;
+}
+
 .workspace-folders__folder span {
   overflow: hidden;
   white-space: nowrap;

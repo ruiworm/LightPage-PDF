@@ -86,6 +86,7 @@ const settle = (ms: number) =>
 
 describe("library refresh ordering", () => {
   beforeEach(() => {
+    localStorage.clear();
     vi.useFakeTimers();
     vi.clearAllMocks();
     // Each test supplies its own read queue, so leftovers must not leak.
@@ -180,5 +181,27 @@ describe("library refresh ordering", () => {
     });
 
     expect(state.folders.setError).not.toHaveBeenCalled();
+  });
+
+  it("remembers removed workspace shortcuts across reloads and restores them when explicitly opened", async () => {
+    state.read.mockResolvedValue([stub("kept")]);
+    const folderId = "contracts" as FolderId;
+    const first = show();
+    await settle(1);
+    act(() => first.result.current.removeWorkspaceFolder(folderId));
+    expect(first.result.current.fileMap.has("kept" as FileId)).toBe(true);
+    first.unmount();
+
+    const second = show();
+    await settle(1);
+    expect(second.result.current.hiddenWorkspaceFolderIds.has(folderId)).toBe(
+      true,
+    );
+    act(() => second.result.current.setWorkspaceFolderId(folderId));
+    expect(second.result.current.hiddenWorkspaceFolderIds.has(folderId)).toBe(
+      false,
+    );
+    expect(second.result.current.workspaceFolderId).toBe(folderId);
+    expect(second.result.current.fileMap.has("kept" as FileId)).toBe(true);
   });
 });

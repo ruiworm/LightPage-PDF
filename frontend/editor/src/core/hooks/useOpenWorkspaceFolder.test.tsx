@@ -1,11 +1,15 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
-import { useOpenWorkspaceFolder } from "@app/hooks/useOpenWorkspaceFolder";
+import {
+  useOpenWorkspaceFolder,
+  useRemoveWorkspaceFolder,
+} from "@app/hooks/useOpenWorkspaceFolder";
 import type { FileId } from "@app/types/file";
 import type { FolderId } from "@app/types/folder";
 
 const mocks = vi.hoisted(() => ({
   folder: vi.fn(),
+  remove: vi.fn(),
   selection: vi.fn(),
   active: vi.fn(),
   reader: vi.fn(),
@@ -17,6 +21,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@app/contexts/FilesPageContext", () => ({
   useFilesPage: () => ({
     setWorkspaceFolderId: mocks.folder,
+    removeWorkspaceFolder: mocks.remove,
     workspaceFiles: { current: mocks.remembered },
   }),
 }));
@@ -63,5 +68,40 @@ it("leaves the folder, document and selection intact when unsaved edits block na
   act(() => result.current("people" as FolderId));
   expect(mocks.folder).not.toHaveBeenCalled();
   expect(mocks.selection).not.toHaveBeenCalled();
+  expect(mocks.active).not.toHaveBeenCalled();
+});
+
+it("keeps the active folder visible when the unsaved-edit guard blocks its removal", () => {
+  mocks.guard.mockImplementation(() => {});
+  const { result } = renderHook(() =>
+    useRemoveWorkspaceFolder("contracts" as FolderId),
+  );
+  act(() => result.current("contracts" as FolderId));
+  expect(mocks.remove).not.toHaveBeenCalled();
+  expect(mocks.folder).not.toHaveBeenCalled();
+  expect(mocks.selection).not.toHaveBeenCalled();
+  expect(mocks.active).not.toHaveBeenCalled();
+});
+
+it("clears the active scope after confirmed removal without closing stored documents", () => {
+  const { result } = renderHook(() =>
+    useRemoveWorkspaceFolder("contracts" as FolderId),
+  );
+  act(() => result.current("contracts" as FolderId));
+  expect(mocks.remove).toHaveBeenCalledWith("contracts");
+  expect(mocks.folder).toHaveBeenCalledWith("");
+  expect(mocks.selection).toHaveBeenCalledWith([]);
+  expect(mocks.active).toHaveBeenCalledWith(null);
+  expect(mocks.workbench).toHaveBeenCalledWith("viewer");
+});
+
+it("removes an inactive shortcut without navigating or clearing the active document", () => {
+  const { result } = renderHook(() =>
+    useRemoveWorkspaceFolder("contracts" as FolderId),
+  );
+  act(() => result.current("people" as FolderId));
+  expect(mocks.remove).toHaveBeenCalledWith("people");
+  expect(mocks.guard).not.toHaveBeenCalled();
+  expect(mocks.folder).not.toHaveBeenCalled();
   expect(mocks.active).not.toHaveBeenCalled();
 });

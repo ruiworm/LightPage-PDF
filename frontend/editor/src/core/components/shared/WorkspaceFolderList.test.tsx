@@ -1,6 +1,6 @@
 import { useState, type ComponentProps } from "react";
 import { MantineProvider } from "@mantine/core";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, expect, it, vi } from "vitest";
 import { WorkspaceFolderList } from "@app/components/shared/WorkspaceFolderList";
@@ -21,6 +21,7 @@ const folders: FolderRecord[] = ["Contracts", "Resumes"].map((name) => ({
 }));
 const files = [createNewStirlingFileStub(new File(["pdf"], "example.pdf"))];
 const onFolder = vi.fn();
+const onRemoveFolder = vi.fn();
 const props: ComponentProps<typeof WorkspaceFolderList> = {
   folders,
   selected: folders[0].id,
@@ -30,6 +31,7 @@ const props: ComponentProps<typeof WorkspaceFolderList> = {
   selectedCount: 1,
   renderFile: (file) => <span key={file.id}>{file.name}</span>,
   onFolder,
+  onRemoveFolder,
   onRecent: vi.fn(),
   onAddFiles: vi.fn(),
   onManage: vi.fn(),
@@ -37,9 +39,31 @@ const props: ComponentProps<typeof WorkspaceFolderList> = {
 
 beforeEach(() => vi.clearAllMocks());
 
+it("opens folder actions with right-click and removes only the requested shortcut", async () => {
+  const user = userEvent.setup();
+  render(<List />);
+  expect(
+    fireEvent.contextMenu(screen.getByRole("button", { name: "Resumes" })),
+  ).toBe(false);
+  await user.click(await screen.findByRole("menuitem"));
+  expect(onRemoveFolder).toHaveBeenCalledExactlyOnceWith(folders[1]);
+  expect(onFolder).not.toHaveBeenCalled();
+});
+
+it("offers the same remove action through the visible folder menu", async () => {
+  const user = userEvent.setup();
+  render(<List />);
+  await user.click(
+    screen.getAllByRole("button", { name: "Folder actions for {{name}}" })[0],
+  );
+  await user.click(await screen.findByRole("menuitem"));
+  expect(onRemoveFolder).toHaveBeenCalledExactlyOnceWith(folders[0]);
+  expect(onFolder).not.toHaveBeenCalled();
+});
+
 function List({ selected = folders[0].id }: { selected?: FolderId | "" }) {
   return (
-    <MantineProvider>
+    <MantineProvider env="test">
       <WorkspaceFolderList {...props} selected={selected} />
     </MantineProvider>
   );
@@ -67,7 +91,7 @@ it("expands a newly chosen folder after collapsing the previous one", async () =
   function Harness() {
     const [selected, setSelected] = useState<FolderId | "">(folders[0].id);
     return (
-      <MantineProvider>
+      <MantineProvider env="test">
         <WorkspaceFolderList
           {...props}
           selected={selected}

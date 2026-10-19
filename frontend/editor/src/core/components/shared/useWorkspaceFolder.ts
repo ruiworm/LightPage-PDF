@@ -49,8 +49,9 @@ export function useWorkspaceFolder(stored: StirlingFileStub[]) {
     diskRevision,
     workspaceFolderId: chosen,
     setWorkspaceFolderId: setChosen,
+    hiddenWorkspaceFolderIds,
   } = useFilesPage();
-  const choices = useMemo(
+  const allChoices = useMemo(
     () =>
       folders.filter(
         (folder) =>
@@ -58,6 +59,11 @@ export function useWorkspaceFolder(stored: StirlingFileStub[]) {
           (canListDirectory && folder.directory),
       ),
     [folders],
+  );
+  const choices = useMemo(
+    () =>
+      allChoices.filter((folder) => !hiddenWorkspaceFolderIds.has(folder.id)),
+    [allChoices, hiddenWorkspaceFolderIds],
   );
   const initial =
     choices.find((folder) => folder.id === currentFolderId) ?? choices[0];
@@ -108,6 +114,7 @@ export function useWorkspaceFolder(stored: StirlingFileStub[]) {
   }, [stored, diskEntries, folder]);
   const selectedFolder: FolderId | "" = folder?.id ?? "";
   return {
+    allChoices,
     choices,
     selected: selectedFolder,
     setChosen,

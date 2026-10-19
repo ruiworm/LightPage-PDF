@@ -43,3 +43,39 @@ export function useOpenWorkspaceFolder() {
     ],
   );
 }
+
+/** Removing the active folder obeys the same unsaved-edit guard as opening another folder. */
+export function useRemoveWorkspaceFolder(activeFolderId: FolderId | "") {
+  const { removeWorkspaceFolder, setWorkspaceFolderId } = useFilesPage();
+  const { requestNavigation } = useNavigationGuard();
+  const { actions } = useNavigationActions();
+  const { actions: files } = useFileActions();
+  const { setActiveFileId } = useViewer();
+  const { setReaderMode } = useToolWorkflowActions();
+  return useCallback(
+    (id: FolderId) => {
+      if (id !== activeFolderId) {
+        removeWorkspaceFolder(id);
+        return;
+      }
+      requestNavigation(() => {
+        removeWorkspaceFolder(id);
+        setWorkspaceFolderId("");
+        files.setSelectedFiles([]);
+        setActiveFileId(null);
+        setReaderMode(false);
+        actions.restoreWorkbench("viewer");
+      });
+    },
+    [
+      activeFolderId,
+      removeWorkspaceFolder,
+      requestNavigation,
+      setWorkspaceFolderId,
+      files,
+      setActiveFileId,
+      setReaderMode,
+      actions,
+    ],
+  );
+}

@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   currentFolderId: null as FolderId | null,
   read: vi.fn(),
   list: vi.fn(),
+  hidden: new Set<FolderId>(),
 }));
 vi.mock("@app/contexts/FolderContext", () => ({
   useFolders: () => ({
@@ -24,7 +25,12 @@ vi.mock("@app/contexts/FilesPageContext", () => ({
     const [workspaceFolderId, setWorkspaceFolderId] = useState<
       FolderId | "" | null
     >(null);
-    return { diskRevision: 0, workspaceFolderId, setWorkspaceFolderId };
+    return {
+      diskRevision: 0,
+      workspaceFolderId,
+      setWorkspaceFolderId,
+      hiddenWorkspaceFolderIds: mocks.hidden,
+    };
   },
 }));
 vi.mock("@app/components/filesPage/useDiskFolder", () => ({
@@ -51,10 +57,21 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.folders = [folder];
   mocks.currentFolderId = null;
+  mocks.hidden = new Set();
   mocks.list.mockReturnValue({ diskEntries: entries, diskLoading: false });
 });
 
 describe("workspace library folder", () => {
+  it("hides removed shortcuts without losing their library identity or reading disk files", () => {
+    mocks.hidden = new Set([folder.id]);
+    const { result } = renderHook(() => useWorkspaceFolder([]));
+    expect(result.current.choices).toEqual([]);
+    expect(result.current.allChoices).toEqual([folder]);
+    expect(result.current.selected).toBe("");
+    expect(mocks.list.mock.lastCall?.[0]).toBeUndefined();
+    expect(mocks.folders).toEqual([folder]);
+  });
+
   it("lists PDFs that have never been opened without reading their contents", () => {
     const { result } = renderHook(() => useWorkspaceFolder([]));
     expect(result.current.selected).toBe(folder.id);

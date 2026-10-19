@@ -67,7 +67,10 @@ import {
 } from "@app/components/shared/useWorkspaceFolder";
 import { readDiskFile } from "@app/services/localFolderContents";
 import { WorkspaceFolderList } from "@app/components/shared/WorkspaceFolderList";
-import { useOpenWorkspaceFolder } from "@app/hooks/useOpenWorkspaceFolder";
+import {
+  useOpenWorkspaceFolder,
+  useRemoveWorkspaceFolder,
+} from "@app/hooks/useOpenWorkspaceFolder";
 import { useNewFolderFlow } from "@app/hooks/useNewFolderFlow";
 import { canPickDirectory } from "@app/services/directoryPicker";
 import "@app/components/shared/FileSidebar.css";
@@ -262,6 +265,9 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
     const [allFileStubs, setAllFileStubs] = useState<StirlingFileStub[]>([]);
     const workspaceFolder = useWorkspaceFolder(allFileStubs);
     const openWorkspaceFolder = useOpenWorkspaceFolder();
+    const removeWorkspaceFolder = useRemoveWorkspaceFolder(
+      workspaceFolder.selected,
+    );
     const { addLocalFolder } = useNewFolderFlow();
     const { recentWorkspaceFiles, rememberWorkspaceFile } = useFilesPage();
     const folderScopeRef = useRef(workspaceFolder.selected);
@@ -728,7 +734,7 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
             (file) => file.id === stub.id,
           )
             ? workspaceFolder.selected
-            : workspaceFolderForFile(stub, workspaceFolder.choices);
+            : workspaceFolderForFile(stub, workspaceFolder.allChoices);
           if (target !== workspaceFolder.selected) {
             folderScopeRef.current = target;
             workspaceFolder.setChosen(target);
@@ -754,7 +760,7 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
         fileActions,
         workspaceFolder.entries,
         workspaceFolder.selected,
-        workspaceFolder.choices,
+        workspaceFolder.allChoices,
         workspaceFolder.setChosen,
         workspaceFolder.stubs,
         addFiles,
@@ -1013,6 +1019,7 @@ const FileSidebar = forwardRef<HTMLDivElement, FileSidebarProps>(
                   }
                   renderFile={renderFileRow}
                   onFolder={openWorkspaceFolder}
+                  onRemoveFolder={(folder) => removeWorkspaceFolder(folder.id)}
                   onRecent={(file) => handleFileClick(file.id)}
                   onOpenFolder={
                     canPickDirectory ? () => void addLocalFolder() : undefined

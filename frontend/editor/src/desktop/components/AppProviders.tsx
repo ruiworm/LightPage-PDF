@@ -28,6 +28,7 @@ import { endpointAvailabilityService } from "@app/services/endpointAvailabilityS
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { isTauri } from "@tauri-apps/api/core";
 import { SaaSTeamProvider } from "@app/contexts/SaaSTeamContext";
+import { installDesktopContextMenu } from "@app/services/desktopContextMenu";
 
 // Common tool endpoints to preload for faster first-use
 const COMMON_TOOL_ENDPOINTS = [
@@ -50,6 +51,7 @@ const COMMON_TOOL_ENDPOINTS = [
  * - Shows setup wizard on first launch
  */
 export function AppProviders({ children }: { children: ReactNode }) {
+  useEffect(installDesktopContextMenu, []);
   const { isFirstLaunch, setupComplete } = useFirstLaunchCheck();
   const [connectionMode, setConnectionMode] = useState<
     "saas" | "selfhosted" | "local" | null
