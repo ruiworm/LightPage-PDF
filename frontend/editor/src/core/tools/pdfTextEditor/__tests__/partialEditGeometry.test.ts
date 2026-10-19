@@ -166,4 +166,50 @@ describe("partial edit font and geometry preservation", () => {
       0,
     );
   });
+
+  it("keeps the pen origin separate from ink bounds when replacing a word", () => {
+    const run = mixedRun();
+    const plan = planPartialEdit(run, run.text, "标题 FXISS 向量")!;
+    const heap = new Map<number, number>();
+    let next = 100;
+    const boxes = new Map(run.mergedFromBounds.map((box, i) => [i + 1, box]));
+    const m = {
+      pdfium: {
+        wasmExports: { malloc: () => next++, free: vi.fn() },
+        getValue: (ptr: number) => heap.get(ptr) ?? 0,
+      },
+      FPDFTextObj_GetFont: (ptr: number) => ptr * 10,
+      FPDFPageObj_GetMatrix: (_ptr: number, matrix: number) => {
+        heap.set(matrix + 16, 29.5);
+        heap.set(matrix + 20, 100);
+        return true;
+      },
+      FPDFPageObj_GetBounds: (
+        ptr: number,
+        l: number,
+        _b: number,
+        r: number,
+      ) => {
+        const box = boxes.get(ptr)!;
+        heap.set(l, box.x);
+        heap.set(r, box.right);
+        return true;
+      },
+      FPDFPage_RemoveObject: vi.fn(),
+      FPDFPageObj_Transform: vi.fn(),
+    };
+    const doc = { module: m, docPtr: 1 } as unknown as EditorDocument;
+    const page = new Page({ index: 0, pagePtr: 1, width: 612, height: 792 });
+    emit.mockImplementation((opts) => {
+      boxes.set(4, { x: opts.x + 0.5, right: opts.x + 35.5 });
+      opts.outTexts.push("FXISS");
+      return [4];
+    });
+    const result = applyPartialEditPlan(doc, page, run, plan);
+    expect(emit).toHaveBeenCalledWith(
+      expect.objectContaining({ x: 29.5, y: 100 }),
+    );
+    expect(result.newMergedFromBounds[2]).toEqual({ x: 71, right: 95 });
+    expect(m.FPDFPageObj_Transform).not.toHaveBeenCalled();
+  });
 });

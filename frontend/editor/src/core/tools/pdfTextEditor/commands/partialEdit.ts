@@ -61,6 +61,22 @@ function objBoundsLR(
   }
 }
 
+function objOrigin(
+  m: import("@embedpdf/pdfium").WrappedPdfiumModule,
+  ptr: number,
+): { x: number; y: number } | null {
+  if (!ptr || !m.FPDFPageObj_GetMatrix) return null;
+  const matrix = m.pdfium.wasmExports.malloc(24);
+  try {
+    if (!m.FPDFPageObj_GetMatrix(ptr, matrix)) return null;
+    const x = m.pdfium.getValue(matrix + 16, "float");
+    const y = m.pdfium.getValue(matrix + 20, "float");
+    return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : null;
+  } finally {
+    m.pdfium.wasmExports.free(matrix);
+  }
+}
+
 // Map freshly-emitted line objects back to the text they carry, building the
 // slot's mergedFrom* arrays. `emitted` is emitTextLine's own record of what
 // each ptr holds - it emits per word OR per character, so deriving it from the
@@ -858,6 +874,10 @@ export function applyPartialEditPlan(
       else if (beforeIdx !== undefined) absorbDeletesBefore(beforeIdx);
       const origBounds =
         anchorIdx !== undefined ? plan.prevMergedFromBounds[anchorIdx] : null;
+      const sourceOrigin =
+        anchorIdx !== undefined
+          ? objOrigin(m, plan.prevMergedFromPtrs[anchorIdx])
+          : null;
       // "prefix of the following word" anchor: emit at that kept sub-run's
       // original left edge so the insert + the glyphs after it read as one.
       const beforeBounds =
@@ -866,7 +886,7 @@ export function applyPartialEditPlan(
       const leadingGap =
         (op.leadingGhostCount ?? 0) * Math.max(1, run.fontSize) * 0.25;
       const anchorX = origBounds
-        ? origBounds.x + offset
+        ? (sourceOrigin?.x ?? origBounds.x) + offset
         : beforeBounds
           ? beforeBounds.x + offset
           : lastEnd + leadingGap;
@@ -890,7 +910,7 @@ export function applyPartialEditPlan(
         page,
         text: insertText,
         x: anchorX,
-        y: emitY,
+        y: sourceOrigin?.y ?? emitY,
         fontSize: run.fontSize,
         fill: run.fill,
         ...inkFromRun(run),
@@ -935,7 +955,7 @@ export function applyPartialEditPlan(
           page,
           text: insertText,
           x: anchorX,
-          y: emitY,
+          y: sourceOrigin?.y ?? emitY,
           fontSize: run.fontSize,
           fill: run.fill,
           ...inkFromRun(run),
@@ -975,8 +995,10 @@ export function applyPartialEditPlan(
       // Update offset: * anchored (mixed-replacement): delta vs original
       // sub-run width.
       if (origBounds) {
-        const origWidth = origBounds.right - origBounds.x;
-        offset += measuredWidth - origWidth;
+        // Ink bounds include side bearings; using their left edge as the pen
+        // origin accumulates that bearing on every edit. Compare right edges
+        // in page space so unchanged neighbours retain their original gap.
+        offset += realRightEdge - (origBounds.right + offset);
       } else if (beforeBounds) {
         offset += measuredWidth;
       } else {
