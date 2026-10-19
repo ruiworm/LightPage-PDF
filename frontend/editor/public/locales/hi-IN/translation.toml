@@ -4152,7 +4152,6 @@ web = "वेब"
 [convert.formatOptions]
 any = "कोई भी"
 images = "छवियाँ"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "ठीक है"

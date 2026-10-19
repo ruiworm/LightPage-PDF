@@ -4152,7 +4152,6 @@ web = "Web"
 [convert.formatOptions]
 any = "Edozein"
 images = "Irudiak"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "Ados"

@@ -1,12 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { ScrollArea } from "@mantine/core";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import { useToolWorkflow } from "@app/contexts/ToolWorkflowContext";
-import {
-  useNavigationGuard,
-  useNavigationState,
-} from "@app/contexts/NavigationContext";
+import { useNavigationState } from "@app/contexts/NavigationContext";
 import { RetainedView } from "@app/components/layout/RetainedView";
 import { useSidebarTools } from "@app/hooks/tools/useSidebarTools";
 import { filterToolRegistryByQuery } from "@app/utils/toolSearch";
@@ -15,7 +11,6 @@ import ToolRenderer from "@app/components/tools/ToolRenderer";
 import ToolSearch from "@app/components/tools/toolPicker/ToolSearch";
 import { ToolPanelViewerBar } from "@app/components/tools/ToolPanelViewerBar";
 import { ActionIcon } from "@app/ui/ActionIcon";
-import { Button } from "@app/ui/Button";
 import { Icon } from "@app/ui/Icon";
 import type { ToolId } from "@app/types/toolId";
 import type { ToolRegistry } from "@app/data/toolsTaxonomy";
@@ -31,8 +26,6 @@ export default function ToolPanel({
   showSearch = false,
 }: ToolPanelProps) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { requestNavigation } = useNavigationGuard();
   const { workbench } = useNavigationState();
   const {
     leftPanelView,
@@ -185,17 +178,6 @@ export default function ToolPanel({
                     )}
               </p>
             )}
-          </div>
-          <div className="tool-panel__library-link">
-            <Button
-              variant="tertiary"
-              size="sm"
-              fullWidth
-              leftSection={<Icon name="plus" size="1rem" />}
-              onClick={() => requestNavigation(() => navigate("/tools"))}
-            >
-              {t("toolLibrary.manageSidebar", "Manage sidebar tools")}
-            </Button>
           </div>
         </>
       ) : selectedToolKey !== "pdfTextEditor" ? (

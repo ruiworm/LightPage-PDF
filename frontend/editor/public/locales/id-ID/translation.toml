@@ -4152,7 +4152,6 @@ web = "Web"
 [convert.formatOptions]
 any = "Apa pun"
 images = "Gambar"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "Oke"

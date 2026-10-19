@@ -4152,7 +4152,6 @@ web = "Web"
 [convert.formatOptions]
 any = "Herhangi biri"
 images = "Görseller"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "Tamam"

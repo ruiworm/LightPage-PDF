@@ -4152,7 +4152,6 @@ web = "Web"
 [convert.formatOptions]
 any = "모두"
 images = "이미지"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "확인"

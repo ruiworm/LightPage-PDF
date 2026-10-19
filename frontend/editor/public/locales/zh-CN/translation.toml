@@ -4152,7 +4152,6 @@ web = "网页"
 [convert.formatOptions]
 any = "任意"
 images = "图片"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "全部接受"
@@ -4783,6 +4782,20 @@ export = "正在生成脱敏副本"
 ocr = "正在识别文字"
 reading = "正在读取"
 recognition = "正在识别敏感信息"
+
+[fileRedaction.restore]
+archive = "还原后的原文件"
+download = "下载还原文件"
+instructions = "选择已保存的还原文件，以及与它对应、未经修改的脱敏文件。批量导出的 ZIP 请先解压，再选择里面的文件。以前未保存还原资料的结果无法还原。"
+invalid = "还原文件无效或已损坏，请选择原始的还原文件。"
+mismatch = "文件与还原资料不匹配，或导出后已被修改，请选择对应的脱敏结果。"
+note = "为保留格式，还原文件包含完整原文件及代号映射。请单独保管，不要与脱敏结果一起发送。"
+recoveryFile = "还原文件（.lp-restore）"
+redactedFiles = "对应的脱敏文件"
+run = "开始还原"
+save = "保存代号还原文件"
+saved = "还原文件已保存，请与脱敏结果分开保管。"
+title = "代号还原"
 
 [fileRedaction.sources]
 alias = "单位简称关联"

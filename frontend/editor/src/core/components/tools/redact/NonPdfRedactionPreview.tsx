@@ -183,30 +183,31 @@ function PagePreview({
               : "fileRedaction.original",
           )}
         />
-        {!session.preview &&
-          pageHits.map((hit) =>
-            hit.rects.map((rect, index) => (
-              <button
-                type="button"
-                key={`${hit.id}:${index}`}
-                className={`file-redaction-box ${hit.selected ? "is-selected" : "is-excluded"} ${hit.id === session.focusHitId ? "is-focused" : ""}`}
-                style={{
-                  left: `${(rect.x / page.width) * 100}%`,
-                  top: `${(rect.y / page.height) * 100}%`,
-                  width: `${(rect.width / page.width) * 100}%`,
-                  height: `${(rect.height / page.height) * 100}%`,
-                }}
-                aria-label={
-                  hit.original || t("fileRedaction.categories.region")
+        {pageHits.map((hit) =>
+          hit.rects.map((rect, index) => (
+            <button
+              type="button"
+              key={`${hit.id}:${index}`}
+              className={`file-redaction-box ${session.preview ? "is-preview" : ""} ${hit.selected ? "is-selected" : "is-excluded"} ${hit.id === session.focusHitId ? "is-focused" : ""}`}
+              style={{
+                left: `${(rect.x / page.width) * 100}%`,
+                top: `${(rect.y / page.height) * 100}%`,
+                width: `${(rect.width / page.width) * 100}%`,
+                height: `${(rect.height / page.height) * 100}%`,
+              }}
+              aria-label={hit.original || t("fileRedaction.categories.region")}
+              aria-pressed={hit.selected}
+              title={hit.original || t("fileRedaction.categories.region")}
+              onClick={() => {
+                if (!drawing && !session.busy) {
+                  session.changeHits([hit.id], { selected: !hit.selected });
+                  session.focusHit(hit);
                 }
-                title={hit.original || t("fileRedaction.categories.region")}
-                onClick={() => {
-                  if (!drawing) session.focusHit(hit);
-                }}
-                disabled={drawing}
-              />
-            )),
-          )}
+              }}
+              disabled={drawing || session.busy}
+            />
+          )),
+        )}
         {drag && (
           <div
             className="file-redaction-drag"
@@ -309,7 +310,12 @@ function WordTextPreview({
                 type="button"
                 key={hit.id}
                 className={`file-redaction-word-hit ${hit.selected ? "is-selected" : ""} ${hit.id === session.focusHitId ? "is-focused" : ""}`}
-                onClick={() => session.focusHit(hit)}
+                aria-pressed={hit.selected}
+                disabled={session.busy}
+                onClick={() => {
+                  session.changeHits([hit.id], { selected: !hit.selected });
+                  session.focusHit(hit);
+                }}
               >
                 {hit.original}
               </button>,

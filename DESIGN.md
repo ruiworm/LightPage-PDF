@@ -7,7 +7,7 @@ colors:
   primary-subtle: "color-mix(in srgb, var(--c-primary) 14%, transparent)"
   operation-charcoal: "#373530"
   operation-inverse: "#fafafa"
-  canvas-paper: "#f5f4f1"
+  canvas-paper: "#ffffff"
   panel-white: "#ffffff"
   surface-snow: "#fafafa"
   recess-neutral: "#f0f0f0"
@@ -162,7 +162,7 @@ Frontmatter 记录默认浅色语义映射的精确值。实际组件必须使�
 | `primary-subtle` | `--c-primary-subtle` in custom/default mode |
 | `operation-charcoal`, `text-ink` | `--c-btn-solid → --c-text → --p-ink` |
 | `operation-inverse` | `--c-btn-inverse → --p-snow` |
-| `canvas-paper` | `--c-bg → --p-paper` |
+| `canvas-paper` | `--c-bg → --p-white` in light mode |
 | `panel-white` | `--c-bg-raised`, `--c-surface-raised`, `--c-input-bg → --p-white` |
 | `surface-snow` | `--c-surface → --p-snow` |
 | `recess-neutral` | `--c-surface-sunken`, `--c-border → --p-c-f0f0f0` |

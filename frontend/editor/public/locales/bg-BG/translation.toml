@@ -4152,7 +4152,6 @@ web = "Web"
 [convert.formatOptions]
 any = "Всеки"
 images = "Изображения"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "Добре"

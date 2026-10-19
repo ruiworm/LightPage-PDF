@@ -4152,7 +4152,6 @@ web = "Web"
 [convert.formatOptions]
 any = "Bilo koji"
 images = "Slike"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "U redu"

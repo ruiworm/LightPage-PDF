@@ -23,16 +23,70 @@ const session = vi.hoisted(() => ({
   settings: { method: "blackout" },
   addRegion: vi.fn(),
   focusHit: vi.fn(),
+  changeHits: vi.fn(),
 }));
 vi.mock("@app/contexts/FileRedactionContext", () => ({
   useFileRedaction: () => session,
+}));
+vi.mock("@app/services/fileRedaction/documents", () => ({
+  paintRedactions: vi.fn(),
 }));
 beforeEach(() => {
   vi.clearAllMocks();
   session.activeDocumentId = "pdf-a";
   session.drawing = false;
+  session.busy = false;
+  session.preview = false;
+  session.hits[0].selected = true;
 });
 describe("native reader redaction layer", () => {
+  it("keeps the painted preview clickable so a masked hit can be excluded", () => {
+    session.preview = true;
+    render(
+      <FileRedactionLayer
+        fileId="pdf-a"
+        pageIndex={1}
+        width={200}
+        height={400}
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "secret", pressed: true }),
+    );
+    expect(session.changeHits).toHaveBeenCalledExactlyOnceWith(["hit"], {
+      selected: false,
+    });
+  });
+  it("toggles a marker off and back on and prevents changes while busy", () => {
+    const view = () => (
+      <FileRedactionLayer
+        fileId="pdf-a"
+        pageIndex={1}
+        width={200}
+        height={400}
+      />
+    );
+    const { rerender } = render(view());
+    fireEvent.click(
+      screen.getByRole("button", { name: "secret", pressed: true }),
+    );
+    expect(session.changeHits).toHaveBeenLastCalledWith(["hit"], {
+      selected: false,
+    });
+    session.hits[0].selected = false;
+    rerender(view());
+    fireEvent.click(
+      screen.getByRole("button", { name: "secret", pressed: false }),
+    );
+    expect(session.changeHits).toHaveBeenLastCalledWith(["hit"], {
+      selected: true,
+    });
+    session.busy = true;
+    rerender(view());
+    expect(screen.getByRole("button", { name: "secret" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "secret" }));
+    expect(session.changeHits).toHaveBeenCalledTimes(2);
+  });
   it("never shows markers from the previously analysed file on another PDF", () => {
     const { rerender } = render(
       <FileRedactionLayer

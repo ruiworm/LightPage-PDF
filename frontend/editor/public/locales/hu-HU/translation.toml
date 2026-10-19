@@ -4152,7 +4152,6 @@ web = "Web"
 [convert.formatOptions]
 any = "Bármely"
 images = "Képek"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "Elfogadom"

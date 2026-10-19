@@ -201,7 +201,7 @@ it("removes a recommended tool and preserves an intentionally empty sidebar", ()
   expect(
     screen.getByText("Add tools from the tool library to get started."),
   ).toBeTruthy();
-  fireEvent.click(screen.getByRole("button", { name: "Manage sidebar tools" }));
+  fireEvent.click(screen.getByRole("button", { name: "Library page" }));
   expect(screen.getByLabelText("Current path").textContent).toBe("/tools");
   expect(
     screen.getByRole("button", { name: "Add Merge PDF to sidebar" }),

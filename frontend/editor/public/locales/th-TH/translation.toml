@@ -4152,7 +4152,6 @@ web = "Web"
 [convert.formatOptions]
 any = "ใดก็ได้"
 images = "รูปภาพ"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "ตกลง"

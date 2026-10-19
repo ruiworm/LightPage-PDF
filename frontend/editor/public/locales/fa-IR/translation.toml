@@ -4152,7 +4152,6 @@ web = "وب"
 [convert.formatOptions]
 any = "هرکدام"
 images = "تصاویر"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "باشه"

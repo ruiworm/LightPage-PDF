@@ -72,7 +72,10 @@ interface RedactionSession {
   canUndo: boolean;
   canRedo: boolean;
   replacements: Map<string, string>;
-  exportFiles: (ids: string[]) => Promise<File[]>;
+  exportFiles: (
+    ids: string[],
+    onExport?: (source: RedactionDocument, output: File) => void,
+  ) => Promise<File[]>;
 }
 
 const Context = createContext<RedactionSession | null>(null);
@@ -366,7 +369,10 @@ export function FileRedactionProvider({ children }: { children: ReactNode }) {
     [hits, labels, settings.method],
   );
   const exportFiles = useCallback(
-    async (ids: string[]): Promise<File[]> => {
+    async (
+      ids: string[],
+      onExport?: (source: RedactionDocument, output: File) => void,
+    ): Promise<File[]> => {
       if (job.current) return [];
       const controller = new AbortController();
       job.current = controller;
@@ -382,18 +388,18 @@ export function FileRedactionProvider({ children }: { children: ReactNode }) {
         )) {
           if (controller.signal.aborted) return [];
           try {
-            output.push(
-              await exportRedactionDocument(
-                document,
-                hits,
-                replacements,
-                settings,
-                controller.signal,
-                (value) => {
-                  if (generation.current === version) setProgress(value);
-                },
-              ),
+            const file = await exportRedactionDocument(
+              document,
+              hits,
+              replacements,
+              settings,
+              controller.signal,
+              (value) => {
+                if (generation.current === version) setProgress(value);
+              },
             );
+            output.push(file);
+            onExport?.(document, file);
           } catch (error) {
             if (controller.signal.aborted) return [];
             setErrors((previous) => [

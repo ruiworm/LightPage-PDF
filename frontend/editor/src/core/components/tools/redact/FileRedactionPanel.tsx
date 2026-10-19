@@ -17,6 +17,7 @@ import type { BaseToolProps } from "@app/types/tool";
 import { Button } from "@app/ui/Button";
 import { Icon } from "@app/ui/Icon";
 import FileRedactionActions from "@app/components/tools/redact/FileRedactionActions";
+import FileRedactionRestore from "@app/components/tools/redact/FileRedactionRestore";
 import "@app/components/tools/redact/FileRedaction.css";
 
 export default function FileRedactionPanel(_props: BaseToolProps) {
@@ -184,6 +185,7 @@ export default function FileRedactionPanel(_props: BaseToolProps) {
         </div>
       )}
       {session.documents.length > 0 && <FileRedactionActions />}
+      <FileRedactionRestore disabled={session.busy} />
       <div
         className="file-redaction-tabs"
         role="tablist"

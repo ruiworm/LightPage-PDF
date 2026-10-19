@@ -202,7 +202,7 @@ describe("Convert Tool - Smart Detection Integration Tests", () => {
       expect(fileStorage.persistVersionedOutputs).toHaveBeenCalled();
     });
 
-    test("should handle unknown file type with file-to-pdf fallback", async () => {
+    test("does not dispatch conversion for an unsupported file", async () => {
       const { result: paramsResult } = renderHook(
         () => useConvertParameters(),
         {
@@ -230,8 +230,8 @@ describe("Convert Tool - Smart Detection Integration Tests", () => {
       });
 
       await waitFor(() => {
-        expect(paramsResult.current.parameters.fromExtension).toBe("file-xyz");
-        expect(paramsResult.current.parameters.toExtension).toBe("pdf"); // Fallback
+        expect(paramsResult.current.parameters.fromExtension).toBe("");
+        expect(paramsResult.current.parameters.toExtension).toBe("");
         expect(paramsResult.current.parameters.isSmartDetection).toBe(false);
       });
 
@@ -243,13 +243,7 @@ describe("Convert Tool - Smart Detection Integration Tests", () => {
         );
       });
 
-      expect(mockedApiClient.post).toHaveBeenCalledWith(
-        "/api/v1/convert/file/pdf",
-        expect.any(FormData),
-        {
-          responseType: "blob",
-        },
-      );
+      expect(mockedApiClient.post).not.toHaveBeenCalled();
     });
   });
 
@@ -379,7 +373,7 @@ describe("Convert Tool - Smart Detection Integration Tests", () => {
       );
     });
 
-    test("should detect all web files and use html-to-pdf endpoint", async () => {
+    test("does not dispatch conversion for removed web formats", async () => {
       const { result: paramsResult } = renderHook(
         () => useConvertParameters(),
         {
@@ -410,10 +404,10 @@ describe("Convert Tool - Smart Detection Integration Tests", () => {
       });
 
       await waitFor(() => {
-        expect(paramsResult.current.parameters.fromExtension).toBe("html");
-        expect(paramsResult.current.parameters.toExtension).toBe("pdf");
-        expect(paramsResult.current.parameters.isSmartDetection).toBe(true);
-        expect(paramsResult.current.parameters.smartDetectionType).toBe("web");
+        expect(paramsResult.current.parameters.fromExtension).toBe("");
+        expect(paramsResult.current.parameters.toExtension).toBe("");
+        expect(paramsResult.current.parameters.isSmartDetection).toBe(false);
+        expect(paramsResult.current.parameters.smartDetectionType).toBe("none");
       });
 
       // Test conversion operation
@@ -424,21 +418,12 @@ describe("Convert Tool - Smart Detection Integration Tests", () => {
         );
       });
 
-      expect(mockedApiClient.post).toHaveBeenCalledWith(
-        "/api/v1/convert/html/pdf",
-        expect.any(FormData),
-        {
-          responseType: "blob",
-        },
-      );
-
-      // Should process files separately for web files
-      expect(mockedApiClient.post).toHaveBeenCalledTimes(2);
+      expect(mockedApiClient.post).not.toHaveBeenCalled();
     });
   });
 
   describe("Web and Email Conversion Options Integration", () => {
-    test("should send correct HTML parameters for web-to-pdf conversion", async () => {
+    test("does not dispatch removed HTML conversion when web options remain in settings", async () => {
       const { result: paramsResult } = renderHook(
         () => useConvertParameters(),
         {
@@ -474,9 +459,7 @@ describe("Convert Tool - Smart Detection Integration Tests", () => {
         );
       });
 
-      const formData = (mockedApiClient.post as Mock).mock
-        .calls[0][1] as FormData;
-      expect(formData.get("zoom")).toBe("1.5");
+      expect(mockedApiClient.post).not.toHaveBeenCalled();
     });
 
     test("should send correct email parameters for eml-to-pdf conversion", async () => {
@@ -688,11 +671,15 @@ describe("Convert Tool - Smart Detection Integration Tests", () => {
           { wrapper: TestWrapper },
         );
         const mixedFiles = createTestFilesWithId([
-          { name: "same.txt", content: "file1", type: "text/plain" },
           {
-            name: "same.xyz",
+            name: "same.xlsx",
+            content: "file1",
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          },
+          {
+            name: "same.pptx",
             content: "file2",
-            type: "application/octet-stream",
+            type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
           },
           {
             name: "same.docx",
@@ -777,8 +764,8 @@ describe("Convert Tool - Smart Detection Integration Tests", () => {
         { wrapper: TestWrapper },
       );
       const files = createTestFilesWithId([
-        { name: "a.txt", content: "one", type: "text/plain" },
-        { name: "b.xyz", content: "two", type: "application/octet-stream" },
+        { name: "a.docx", content: "one", type: "text/plain" },
+        { name: "b.xlsx", content: "two", type: "application/octet-stream" },
       ]);
       (mockedApiClient.post as Mock).mockRejectedValue(
         new Error("Conversion refused"),
@@ -802,7 +789,7 @@ describe("Convert Tool - Smart Detection Integration Tests", () => {
       });
       expect(result.current.operation.files).toEqual([]);
       expect(result.current.operation.errorMessage).toBe(
-        "a.txt: Conversion refused\nb.xyz: Conversion refused",
+        "a.docx: Conversion refused\nb.xlsx: Conversion refused",
       );
       expect(result.current.state.ui.errorFileIds).toEqual(
         files.map((file) => file.fileId),

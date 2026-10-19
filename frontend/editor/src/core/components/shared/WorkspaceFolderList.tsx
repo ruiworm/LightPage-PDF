@@ -236,14 +236,6 @@ export function WorkspaceFolderList({
           {selected === "" && expanded && content}
         </div>
       </section>
-      <button
-        type="button"
-        className="workspace-folders__manage"
-        onClick={onManage}
-      >
-        <Icon name="folder" size="0.875rem" />
-        {t("workspaceFolders.manage", "Manage folders")}
-      </button>
     </div>
   );
 }

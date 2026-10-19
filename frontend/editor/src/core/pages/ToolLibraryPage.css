@@ -14,13 +14,6 @@
   border-bottom: 1px solid var(--c-border-subtle);
 }
 
-.tool-library__controls,
-.tool-library__groups,
-.tool-library__count {
-  max-width: 80rem;
-  margin-inline: auto;
-}
-
 .tool-library__footer {
   flex-shrink: 0;
   padding: 0.625rem 2rem;
@@ -80,7 +73,7 @@
 
 .tool-library__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
   gap: 0.75rem;
 }
 
@@ -89,8 +82,8 @@
   flex-wrap: wrap;
   align-content: start;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: 0.625rem;
+  padding: 0.875rem;
   border: 1px solid var(--c-border-subtle);
   border-radius: var(--radius-lg);
   background: var(--c-surface);
@@ -98,8 +91,8 @@
 
 .tool-library__tool-heading {
   display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
+  align-items: center;
+  gap: 0.5rem;
   width: 100%;
   min-width: 0;
 }
@@ -120,8 +113,8 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: var(--radius-md);
   background: var(--c-surface-sunken);
   color: var(--c-text-muted);
@@ -137,26 +130,12 @@
   overflow-wrap: anywhere;
 }
 
-.tool-library__tool-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-1);
+.tool-library__toggle {
   flex-shrink: 0;
-  max-width: 50%;
-}
-
-.tool-library__added {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  color: var(--c-text-muted);
-  font-size: 0.8125rem;
 }
 
 .tool-library__grid--compact .tool-library__tool {
-  padding: 0.875rem 1rem;
+  padding: 0.75rem 0.875rem;
 }
 
 .tool-library__empty {
@@ -184,9 +163,9 @@
   white-space: nowrap;
 }
 
-@media (max-width: 64rem) {
+@media (min-width: 64rem) and (max-width: 72rem) {
   .tool-library__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -211,9 +190,5 @@
 
   .tool-library__footer {
     padding-inline: 1rem;
-  }
-
-  .tool-library__grid {
-    grid-template-columns: minmax(0, 1fr);
   }
 }

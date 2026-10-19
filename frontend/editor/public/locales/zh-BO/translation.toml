@@ -4152,7 +4152,6 @@ web = "Web"
 [convert.formatOptions]
 any = "任意"
 images = "图像"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "好的"

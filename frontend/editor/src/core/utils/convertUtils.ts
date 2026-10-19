@@ -102,22 +102,7 @@ export const getAvailableToExtensions = (
 ): Array<{ value: string; label: string; group: string }> => {
   if (!fromExtension) return [];
 
-  // Handle dynamic format identifiers (file-<extension>)
-  if (fromExtension.startsWith("file-")) {
-    // Dynamic format - use 'any' conversion options (file-to-pdf)
-    const supportedExtensions = CONVERSION_MATRIX["any"] || [];
-    return TO_FORMAT_OPTIONS.filter((option) =>
-      supportedExtensions.includes(option.value),
-    );
-  }
-
-  let supportedExtensions = CONVERSION_MATRIX[fromExtension] || [];
-
-  // If no explicit conversion exists, but file-to-pdf might be available,
-  // fall back to 'any' conversion (which converts unknown files to PDF via file-to-pdf)
-  if (supportedExtensions.length === 0 && fromExtension !== "any") {
-    supportedExtensions = CONVERSION_MATRIX["any"] || [];
-  }
+  const supportedExtensions = CONVERSION_MATRIX[fromExtension] || [];
 
   return TO_FORMAT_OPTIONS.filter((option) =>
     supportedExtensions.includes(option.value),

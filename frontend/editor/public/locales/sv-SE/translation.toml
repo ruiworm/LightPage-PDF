@@ -4152,7 +4152,6 @@ web = "Webb"
 [convert.formatOptions]
 any = "Valfri"
 images = "Bilder"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "Okej"

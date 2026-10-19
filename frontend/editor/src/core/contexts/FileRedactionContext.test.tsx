@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   setActiveFileId: vi.fn(),
   scrollToPage: vi.fn(),
   disposeOcr: vi.fn(),
+  export: vi.fn(),
 }));
 vi.mock("@app/contexts/ViewerContext", () => ({
   useViewer: () => ({
@@ -24,6 +25,7 @@ vi.mock("@app/contexts/ViewerContext", () => ({
 vi.mock("@app/services/fileRedaction/documents", () => ({
   analyseRedactionFile: mocks.analyse,
   disposeRedactionDocument: mocks.dispose,
+  exportRedactionDocument: mocks.export,
 }));
 vi.mock("@app/services/fileRedaction/ocr", () => ({
   LocalRedactionOcr: class {
@@ -57,9 +59,37 @@ beforeEach(() => {
   localStorage.clear();
   mocks.analyse.mockResolvedValue(doc);
   mocks.disposeOcr.mockResolvedValue(undefined);
+  mocks.export.mockReset();
 });
 
 describe("file redaction review session", () => {
+  it("pairs recovery data only with documents whose exports succeeded", async () => {
+    const other = { ...doc, id: "second", file: new File([], "second.pdf") };
+    const output = new File(["redacted"], "second_redacted.pdf");
+    mocks.analyse.mockResolvedValueOnce(doc).mockResolvedValueOnce(other);
+    mocks.export
+      .mockRejectedValueOnce(new Error("EXPORT_FAILED"))
+      .mockResolvedValueOnce(output);
+    const { result } = renderHook(useFileRedaction, {
+      wrapper: FileRedactionProvider,
+    });
+    await act(() =>
+      result.current.analyse([
+        { file, id: doc.id },
+        { file: other.file, id: other.id },
+      ]),
+    );
+    const onExport = vi.fn();
+    await act(async () => {
+      expect(
+        await result.current.exportFiles([doc.id, other.id], onExport),
+      ).toEqual([output]);
+    });
+    expect(onExport).toHaveBeenCalledExactlyOnceWith(other, output);
+    expect(result.current.errors).toEqual([
+      { file: file.name, code: "EXPORT_FAILED" },
+    ]);
+  });
   it("allows retry after an OCR worker fails to shut down", async () => {
     mocks.disposeOcr.mockRejectedValueOnce(new Error("terminate failed"));
     const { result } = renderHook(useFileRedaction, {

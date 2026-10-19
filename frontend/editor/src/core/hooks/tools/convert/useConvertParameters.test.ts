@@ -230,13 +230,7 @@ describe("useConvertParameters", () => {
       const availableExtensions =
         result.current.getAvailableToExtensions("invalid");
 
-      expect(availableExtensions).toEqual([
-        {
-          group: "Document",
-          label: "PDF",
-          value: "pdf",
-        },
-      ]);
+      expect(availableExtensions).toEqual([]);
     });
 
     test("should return empty array for empty source format", () => {

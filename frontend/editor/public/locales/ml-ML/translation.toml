@@ -4152,7 +4152,6 @@ web = "വെബ്"
 [convert.formatOptions]
 any = "ഏതും"
 images = "ചിത്രങ്ങൾ"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "ശരി"

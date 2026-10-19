@@ -4152,7 +4152,6 @@ web = "Splet"
 [convert.formatOptions]
 any = "Poljubno"
 images = "Slike"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "V redu"

@@ -4152,7 +4152,6 @@ web = "Web"
 [convert.formatOptions]
 any = "Ľubovoľné"
 images = "Obrázky"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "OK"

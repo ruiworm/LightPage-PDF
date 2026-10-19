@@ -24,21 +24,26 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
       expect(result.current.parameters.smartDetectionType).toBe("none");
     });
 
-    test("should handle unknown file types with file-to-pdf fallback", () => {
+    test("rejects unsupported file types instead of guessing a PDF converter", () => {
       const { result } = renderHook(() => useConvertParameters());
 
       const unknownFile = [{ name: "document.xyz" }, { name: "image.jpggg" }];
 
       act(() => {
+        result.current.analyzeFileTypes([{ name: "document.docx" }]);
+      });
+      expect(result.current.parameters.toExtension).toBe("pdf");
+
+      act(() => {
         result.current.analyzeFileTypes(unknownFile);
       });
 
-      expect(result.current.parameters.fromExtension).toBe("any");
-      expect(result.current.parameters.toExtension).toBe("pdf"); // Fallback to file-to-pdf
-      expect(result.current.parameters.isSmartDetection).toBe(true);
+      expect(result.current.parameters.fromExtension).toBe("");
+      expect(result.current.parameters.toExtension).toBe("");
+      expect(result.current.parameters.isSmartDetection).toBe(false);
     });
 
-    test("should handle files without extensions", () => {
+    test("leaves files without extensions unconfigured", () => {
       const { result } = renderHook(() => useConvertParameters());
 
       const noExtFile = [{ name: "document" }];
@@ -47,8 +52,8 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
         result.current.analyzeFileTypes(noExtFile);
       });
 
-      expect(result.current.parameters.fromExtension).toBe("any");
-      expect(result.current.parameters.toExtension).toBe("pdf"); // Fallback to file-to-pdf
+      expect(result.current.parameters.fromExtension).toBe("");
+      expect(result.current.parameters.toExtension).toBe("");
     });
   });
 
@@ -72,7 +77,7 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
       expect(result.current.parameters.smartDetectionType).toBe("none");
     });
 
-    test("should handle multiple unknown file types with fallback", () => {
+    test("rejects a batch of unsupported file types", () => {
       const { result } = renderHook(() => useConvertParameters());
 
       const unknownFiles = [{ name: "file1.xyz" }, { name: "file2.xyz" }];
@@ -81,8 +86,8 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
         result.current.analyzeFileTypes(unknownFiles);
       });
 
-      expect(result.current.parameters.fromExtension).toBe("any");
-      expect(result.current.parameters.toExtension).toBe("pdf");
+      expect(result.current.parameters.fromExtension).toBe("");
+      expect(result.current.parameters.toExtension).toBe("");
       expect(result.current.parameters.isSmartDetection).toBe(false);
     });
   });
@@ -122,7 +127,7 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
   });
 
   describe("Smart Detection - All Web Files", () => {
-    test("should detect all web files and enable web smart detection", () => {
+    test("does not reactivate removed web conversion for HTML and ZIP", () => {
       const { result } = renderHook(() => useConvertParameters());
 
       const webFiles = [{ name: "page1.html" }, { name: "archive.zip" }];
@@ -131,13 +136,13 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
         result.current.analyzeFileTypes(webFiles);
       });
 
-      expect(result.current.parameters.fromExtension).toBe("html");
-      expect(result.current.parameters.toExtension).toBe("pdf");
-      expect(result.current.parameters.isSmartDetection).toBe(true);
-      expect(result.current.parameters.smartDetectionType).toBe("web");
+      expect(result.current.parameters.fromExtension).toBe("");
+      expect(result.current.parameters.toExtension).toBe("");
+      expect(result.current.parameters.isSmartDetection).toBe(false);
+      expect(result.current.parameters.smartDetectionType).toBe("none");
     });
 
-    test("should handle mixed case web extensions", () => {
+    test("does not reactivate removed web conversion for uppercase extensions", () => {
       const { result } = renderHook(() => useConvertParameters());
 
       const webFiles = [{ name: "page1.HTML" }, { name: "archive.ZIP" }];
@@ -146,11 +151,11 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
         result.current.analyzeFileTypes(webFiles);
       });
 
-      expect(result.current.parameters.isSmartDetection).toBe(true);
-      expect(result.current.parameters.smartDetectionType).toBe("web");
+      expect(result.current.parameters.isSmartDetection).toBe(false);
+      expect(result.current.parameters.smartDetectionType).toBe("none");
     });
 
-    test("should detect multiple web files and enable web smart detection", () => {
+    test("leaves removed web formats without a target", () => {
       const { result } = renderHook(() => useConvertParameters());
 
       const zipFiles = [{ name: "site1.zip" }, { name: "site2.html" }];
@@ -159,10 +164,10 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
         result.current.analyzeFileTypes(zipFiles);
       });
 
-      expect(result.current.parameters.fromExtension).toBe("html");
-      expect(result.current.parameters.toExtension).toBe("pdf");
-      expect(result.current.parameters.isSmartDetection).toBe(true);
-      expect(result.current.parameters.smartDetectionType).toBe("web");
+      expect(result.current.parameters.fromExtension).toBe("");
+      expect(result.current.parameters.toExtension).toBe("");
+      expect(result.current.parameters.isSmartDetection).toBe(false);
+      expect(result.current.parameters.smartDetectionType).toBe("none");
     });
   });
 
@@ -192,7 +197,7 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
       const mixedFiles = [
         { name: "photo.jpg" },
         { name: "document.pdf" },
-        { name: "text.txt" },
+        { name: "document.docx" },
       ];
 
       act(() => {
@@ -203,7 +208,7 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
       expect(result.current.parameters.smartDetectionType).toBe("mixed");
     });
 
-    test("should handle mixed with unknown file types", () => {
+    test("rejects mixed batches containing unsupported formats", () => {
       const { result } = renderHook(() => useConvertParameters());
 
       const mixedFiles = [
@@ -216,8 +221,8 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
         result.current.analyzeFileTypes(mixedFiles);
       });
 
-      expect(result.current.parameters.isSmartDetection).toBe(true);
-      expect(result.current.parameters.smartDetectionType).toBe("mixed");
+      expect(result.current.parameters.isSmartDetection).toBe(false);
+      expect(result.current.parameters.smartDetectionType).toBe("none");
     });
   });
 
@@ -235,7 +240,7 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
       expect(result.current.getEndpoint()).toBe("/api/v1/convert/img/pdf");
     });
 
-    test("should return correct endpoint for web smart detection", () => {
+    test("does not resolve a conversion endpoint for removed web formats", () => {
       const { result } = renderHook(() => useConvertParameters());
 
       const webFiles = [{ name: "page1.html" }, { name: "archive.zip" }];
@@ -244,8 +249,8 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
         result.current.analyzeFileTypes(webFiles);
       });
 
-      expect(result.current.getEndpointName()).toBe("html-to-pdf");
-      expect(result.current.getEndpoint()).toBe("/api/v1/convert/html/pdf");
+      expect(result.current.getEndpointName()).toBe("");
+      expect(result.current.getEndpoint()).toBe("");
     });
 
     test("should return correct endpoint for mixed smart detection", () => {
@@ -269,14 +274,13 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
     test("should select single available target automatically", () => {
       const { result } = renderHook(() => useConvertParameters());
 
-      // Markdown has only one conversion target (PDF)
-      const mdFile = [{ name: "readme.md" }];
+      const wordFile = [{ name: "document.docx" }];
 
       act(() => {
-        result.current.analyzeFileTypes(mdFile);
+        result.current.analyzeFileTypes(wordFile);
       });
 
-      expect(result.current.parameters.fromExtension).toBe("md");
+      expect(result.current.parameters.fromExtension).toBe("docx");
       expect(result.current.parameters.toExtension).toBe("pdf"); // Only available target
     });
 
@@ -297,7 +301,7 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
   });
 
   describe("Edge Cases", () => {
-    test("should handle empty file names", () => {
+    test("leaves empty file names unconfigured", () => {
       const { result } = renderHook(() => useConvertParameters());
 
       const emptyFiles = [{ name: "" }];
@@ -306,11 +310,11 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
         result.current.analyzeFileTypes(emptyFiles);
       });
 
-      expect(result.current.parameters.fromExtension).toBe("any");
-      expect(result.current.parameters.toExtension).toBe("pdf");
+      expect(result.current.parameters.fromExtension).toBe("");
+      expect(result.current.parameters.toExtension).toBe("");
     });
 
-    test("should handle malformed file objects", () => {
+    test("does not start a mixed batch containing malformed file objects", () => {
       const { result } = renderHook(() => useConvertParameters());
 
       const malformedFiles: Array<{ name: string }> = [
@@ -325,9 +329,8 @@ describe("useConvertParameters - Auto Detection & Smart Conversion", () => {
         result.current.analyzeFileTypes(malformedFiles);
       });
 
-      // Should still process the valid file and handle gracefully
-      expect(result.current.parameters.isSmartDetection).toBe(true);
-      expect(result.current.parameters.smartDetectionType).toBe("mixed");
+      expect(result.current.parameters.isSmartDetection).toBe(false);
+      expect(result.current.parameters.smartDetectionType).toBe("none");
     });
   });
 });

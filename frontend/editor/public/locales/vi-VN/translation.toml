@@ -4152,7 +4152,6 @@ web = "Web"
 [convert.formatOptions]
 any = "Bất kỳ"
 images = "Hình ảnh"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "Đồng ý"

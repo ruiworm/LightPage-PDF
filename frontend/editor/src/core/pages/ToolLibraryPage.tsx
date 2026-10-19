@@ -8,6 +8,7 @@ import { useNavigationGuard } from "@app/contexts/NavigationContext";
 import { QuickNavHostBridge } from "@app/components/shared/quickNav/QuickNavHostBridge";
 import { TextInput } from "@app/components/shared/TextInput";
 import { ToolIcon } from "@app/components/shared/ToolIcon";
+import { Tooltip } from "@app/components/shared/Tooltip";
 import { useSidebarTools } from "@app/hooks/tools/useSidebarTools";
 import { useDocumentMeta } from "@app/hooks/useDocumentMeta";
 import { filterToolRegistryByQuery } from "@app/utils/toolSearch";
@@ -20,6 +21,7 @@ import { useAppConfig } from "@app/contexts/AppConfigContext";
 import { EDITOR_BASENAME } from "@app/routes/editorBasename";
 import { Icon } from "@app/ui/Icon";
 import { Button } from "@app/ui/Button";
+import { ActionIcon } from "@app/ui/ActionIcon";
 import type { ToolId } from "@app/types/toolId";
 import "@app/pages/ToolLibraryPage.css";
 
@@ -126,13 +128,19 @@ export default function ToolLibraryPage() {
             <ToolIcon icon={tool.icon} marginRight="0" color="currentColor" />
           </span>
           <h3>{tool.name}</h3>
-          <div className="tool-library__tool-actions">
-            <Button
+          <Tooltip
+            content={
+              added ? actionLabel : t("toolLibrary.add", "Add to sidebar")
+            }
+            position="top"
+          >
+            <ActionIcon
+              className="tool-library__toggle"
               variant={added ? "tertiary" : "secondary"}
               accent={added ? "neutral" : "default"}
-              size="sm"
-              leftSection={<Icon name={added ? "minus" : "plus"} size="1rem" />}
+              size="md"
               aria-label={actionLabel}
+              aria-pressed={added}
               disabled={unavailable && !added}
               onClick={() => {
                 toggleSidebarTool(id);
@@ -151,17 +159,9 @@ export default function ToolLibraryPage() {
                 );
               }}
             >
-              {added
-                ? t("toolLibrary.remove", "Remove")
-                : t("toolLibrary.add", "Add to sidebar")}
-            </Button>
-            {added && (
-              <span className="tool-library__added">
-                <Icon name="check" size="0.875rem" />
-                {t("toolLibrary.inSidebar", "In sidebar")}
-              </span>
-            )}
-          </div>
+              <Icon name={added ? "check" : "plus"} size="1rem" />
+            </ActionIcon>
+          </Tooltip>
         </div>
         {preferences.showLegacyToolDescriptions && (
           <p className="tool-library__description">{tool.description}</p>

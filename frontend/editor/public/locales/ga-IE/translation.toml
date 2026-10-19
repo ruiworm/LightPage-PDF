@@ -4152,7 +4152,6 @@ web = "Gréasán"
 [convert.formatOptions]
 any = "Aon cheann"
 images = "Íomhánna"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "Ceart go leor"

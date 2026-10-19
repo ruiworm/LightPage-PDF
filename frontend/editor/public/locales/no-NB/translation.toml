@@ -4152,7 +4152,6 @@ web = "Nett"
 [convert.formatOptions]
 any = "Alle"
 images = "Bilder"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "OK"

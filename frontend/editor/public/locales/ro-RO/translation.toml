@@ -4152,7 +4152,6 @@ web = "Web"
 [convert.formatOptions]
 any = "Oricare"
 images = "Imagini"
-msgOutlook = "MSG (Outlook)"
 
 [cookieBanner.popUp]
 acceptAllBtn = "OK"

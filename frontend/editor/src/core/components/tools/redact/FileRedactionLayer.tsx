@@ -148,29 +148,30 @@ export default function FileRedactionLayer({
         setDrag(null);
       }}
     >
-      {session.preview ? (
+      {session.preview && (
         <canvas ref={canvas} aria-label={t("fileRedaction.preview")} />
-      ) : (
-        hits.flatMap((hit) =>
-          hit.rects.map((rect, index) => (
-            <button
-              type="button"
-              key={`${hit.id}:${index}`}
-              className={`file-redaction-box ${hit.selected ? "is-selected" : "is-excluded"} ${hit.id === session.focusHitId ? "is-focused" : ""}`}
-              style={position(rect)}
-              aria-label={hit.original || t("fileRedaction.categories.region")}
-              title={hit.original || t("fileRedaction.categories.region")}
-              onPointerDown={(event) => {
-                if (!drawing) event.stopPropagation();
-              }}
-              onClick={(event) => {
-                event.stopPropagation();
-                session.focusHit(hit);
-              }}
-              disabled={drawing || session.busy}
-            />
-          )),
-        )
+      )}
+      {hits.flatMap((hit) =>
+        hit.rects.map((rect, index) => (
+          <button
+            type="button"
+            key={`${hit.id}:${index}`}
+            className={`file-redaction-box ${session.preview ? "is-preview" : ""} ${hit.selected ? "is-selected" : "is-excluded"} ${hit.id === session.focusHitId ? "is-focused" : ""}`}
+            style={position(rect)}
+            aria-label={hit.original || t("fileRedaction.categories.region")}
+            aria-pressed={hit.selected}
+            title={hit.original || t("fileRedaction.categories.region")}
+            onPointerDown={(event) => {
+              if (!drawing) event.stopPropagation();
+            }}
+            onClick={(event) => {
+              event.stopPropagation();
+              session.changeHits([hit.id], { selected: !hit.selected });
+              session.focusHit(hit);
+            }}
+            disabled={drawing || session.busy}
+          />
+        )),
       )}
       {drag && <div className="file-redaction-drag" style={position(drag)} />}
     </div>

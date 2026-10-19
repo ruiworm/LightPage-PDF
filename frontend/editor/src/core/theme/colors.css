@@ -5,7 +5,7 @@
 :root,
 [data-theme="light"],
 html[data-app-theme="light"] {
-  --c-bg: var(--p-paper);
+  --c-bg: var(--p-white);
   --c-bg-raised: var(--p-white);
   --c-surface: var(--p-snow);
   --c-surface-raised: var(--p-white);
@@ -206,7 +206,7 @@ html[data-app-theme="custom"] {
   --c-accent-text: var(--p-blue-700);
 
   /* Primary-tinted surfaces (light base). Neutralised by the default override. */
-  --c-bg: color-mix(in srgb, var(--c-primary) 7%, var(--p-paper));
+  --c-bg: var(--p-white);
   --c-bg-raised: color-mix(in srgb, var(--c-primary) 4%, var(--p-white));
   --c-surface: color-mix(in srgb, var(--c-primary) 3%, var(--p-snow));
   --c-surface-raised: color-mix(in srgb, var(--c-primary) 4%, var(--p-white));
@@ -408,7 +408,7 @@ html[data-app-theme="custom"][data-mantine-color-scheme="dark"] {
 
 /* ── DEFAULT (no tint) — surfaces opt out of the accent tint (neutral white/grey light, zinc dark); --c-primary stays for buttons. Extra [data-accent="default"] beats the tinted blocks. ── */
 html[data-app-theme="custom"][data-accent="default"] {
-  --c-bg: var(--p-paper);
+  --c-bg: var(--p-white);
   --c-bg-raised: var(--p-white);
   --c-surface: var(--p-snow);
   --c-surface-raised: var(--p-white);

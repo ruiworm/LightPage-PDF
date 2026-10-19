@@ -11,7 +11,6 @@ import {
   getEndpointName as getEndpointNameUtil,
   getEndpointUrl,
   isImageFormat,
-  isWebFormat,
   getAvailableToExtensions as getAvailableToExtensionsUtil,
 } from "@app/utils/convertUtils";
 import { detectFileExtension as detectFileExtensionUtil } from "@app/utils/fileUtils";
@@ -162,21 +161,7 @@ export const validateConvertParameters = (
 
   if (!fromExtension || !toExtension) return false;
 
-  // Handle dynamic format identifiers (file-<extension>)
-  let supportedToExtensions: string[];
-  if (fromExtension.startsWith("file-")) {
-    // Dynamic format - use 'any' conversion options
-    supportedToExtensions = CONVERSION_MATRIX["any"] || [];
-  } else {
-    // Regular format - check conversion matrix
-    supportedToExtensions = CONVERSION_MATRIX[fromExtension] || [];
-  }
-
-  if (!supportedToExtensions.includes(toExtension)) {
-    return false;
-  }
-
-  return true;
+  return CONVERSION_MATRIX[fromExtension]?.includes(toExtension) === true;
 };
 
 const getEndpointName = (params: ConvertParameters): string => {
@@ -268,24 +253,39 @@ export const useConvertParameters = (): ConvertParametersHook => {
         return;
       }
 
+      if (
+        files.some(
+          (file) =>
+            !Object.hasOwn(
+              CONVERSION_MATRIX,
+              detectFileExtensionUtil(file.name),
+            ),
+        )
+      ) {
+        baseHook.setParameters((prev) => {
+          if (
+            !prev.fromExtension &&
+            !prev.toExtension &&
+            !prev.isSmartDetection &&
+            prev.smartDetectionType === "none"
+          )
+            return prev;
+          return {
+            ...prev,
+            fromExtension: "",
+            toExtension: "",
+            isSmartDetection: false,
+            smartDetectionType: "none",
+          };
+        });
+        return;
+      }
+
       if (files.length === 1) {
         // Single file - use regular detection with smart target selection
         const detectedExt = detectFileExtensionUtil(files[0].name);
-        let fromExt = detectedExt;
-        let availableTargets = detectedExt
-          ? CONVERSION_MATRIX[detectedExt] || []
-          : [];
-
-        // If no explicit conversion exists for this file type, create a dynamic format entry
-        // and fall back to 'any' conversion logic for the actual endpoint
-        if (availableTargets.length === 0 && detectedExt) {
-          fromExt = `file-${detectedExt}`; // Create dynamic format identifier
-          availableTargets = CONVERSION_MATRIX["any"] || [];
-        } else if (availableTargets.length === 0) {
-          // No extension detected - fall back to 'any'
-          fromExt = "any";
-          availableTargets = CONVERSION_MATRIX["any"] || [];
-        }
+        const fromExt = detectedExt;
+        const availableTargets = CONVERSION_MATRIX[detectedExt];
 
         baseHook.setParameters((prev) => {
           // Check if current toExtension is still valid for the new fromExtension
@@ -334,14 +334,8 @@ export const useConvertParameters = (): ConvertParametersHook => {
       if (uniqueExtensions.length === 1) {
         // All files are the same type - use regular detection with smart target selection
         const detectedExt = uniqueExtensions[0];
-        let fromExt = detectedExt;
-        let availableTargets = CONVERSION_MATRIX[detectedExt] || [];
-
-        // If no explicit conversion exists for this file type, fall back to 'any'
-        if (availableTargets.length === 0) {
-          fromExt = "any";
-          availableTargets = CONVERSION_MATRIX["any"] || [];
-        }
+        const fromExt = detectedExt;
+        const availableTargets = CONVERSION_MATRIX[detectedExt];
 
         baseHook.setParameters((prev) => {
           // Check if current toExtension is still valid for the new fromExtension
@@ -381,7 +375,6 @@ export const useConvertParameters = (): ConvertParametersHook => {
       } else {
         // Mixed file types
         const allImages = uniqueExtensions.every((ext) => isImageFormat(ext));
-        const allWeb = uniqueExtensions.every((ext) => isWebFormat(ext));
 
         if (allImages) {
           // All files are images - use image-to-pdf conversion
@@ -401,27 +394,6 @@ export const useConvertParameters = (): ConvertParametersHook => {
               isSmartDetection: true,
               smartDetectionType: "images",
               fromExtension: "image",
-              toExtension: "pdf",
-            };
-          });
-        } else if (allWeb) {
-          // All files are web files - use html-to-pdf conversion
-          baseHook.setParameters((prev) => {
-            // Only update if something actually changed
-            if (
-              prev.isSmartDetection === true &&
-              prev.smartDetectionType === "web" &&
-              prev.fromExtension === "html" &&
-              prev.toExtension === "pdf"
-            ) {
-              return prev; // No change needed
-            }
-
-            return {
-              ...prev,
-              isSmartDetection: true,
-              smartDetectionType: "web",
-              fromExtension: "html",
               toExtension: "pdf",
             };
           });

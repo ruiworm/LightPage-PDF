@@ -5,6 +5,7 @@ import { useFileRedaction } from "@app/contexts/FileRedactionContext";
 import { Button } from "@app/ui/Button";
 import { ActionIcon } from "@app/ui/ActionIcon";
 import { Icon } from "@app/ui/Icon";
+import type { AliasRecoveryInput } from "@app/services/fileRedaction/recovery";
 
 export default function FileRedactionActions() {
   const { t } = useTranslation();
@@ -13,6 +14,9 @@ export default function FileRedactionActions() {
     (doc) => doc.id === session.activeDocumentId,
   );
   const [message, setMessage] = useState("");
+  const [recovery, setRecovery] = useState<AliasRecoveryInput[]>([]);
+  const [exporting, setExporting] = useState(false);
+  const [savingRecovery, setSavingRecovery] = useState(false);
   const [lastExport, setLastExport] = useState<{
     url: string;
     name: string;
@@ -25,7 +29,12 @@ export default function FileRedactionActions() {
   );
 
   const exportSelected = async (all: boolean) => {
+    if (exporting || savingRecovery || session.busy) return;
+    setExporting(true);
     setMessage("");
+    setRecovery([]);
+    const recoverable = session.settings.method === "alias";
+    const recoveryInputs: AliasRecoveryInput[] = [];
     try {
       const files = await session.exportFiles(
         all
@@ -33,6 +42,24 @@ export default function FileRedactionActions() {
           : active
             ? [active.id]
             : [],
+        recoverable
+          ? (source, redacted) =>
+              recoveryInputs.push({
+                original: source.file,
+                redacted,
+                aliases: session.hits
+                  .filter(
+                    (hit) =>
+                      hit.documentId === source.id &&
+                      hit.selected &&
+                      hit.original,
+                  )
+                  .map((hit) => ({
+                    original: hit.original,
+                    alias: session.replacements.get(hit.id) ?? "",
+                  })),
+              })
+          : undefined,
       );
       if (!files.length) return;
       let blob: Blob = files[0];
@@ -58,9 +85,33 @@ export default function FileRedactionActions() {
       anchor.href = url;
       anchor.download = name;
       anchor.click();
+      setRecovery(recoveryInputs);
       setMessage(t("fileRedaction.exported", { count: files.length }));
     } catch {
       setMessage(t("fileRedaction.errors.EXPORT_FAILED"));
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const saveRecovery = async () => {
+    if (!recovery.length || exporting || savingRecovery || session.busy) return;
+    setSavingRecovery(true);
+    try {
+      const { createAliasRecovery } =
+        await import("@app/services/fileRedaction/recovery");
+      const file = await createAliasRecovery(recovery);
+      const url = URL.createObjectURL(file);
+      setLastExport({ url, name: file.name });
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = file.name;
+      anchor.click();
+      setMessage(t("fileRedaction.restore.saved"));
+    } catch {
+      setMessage(t("fileRedaction.errors.EXPORT_FAILED"));
+    } finally {
+      setSavingRecovery(false);
     }
   };
 
@@ -118,7 +169,7 @@ export default function FileRedactionActions() {
           label={t("fileRedaction.preview")}
           checked={session.preview && !!active}
           onChange={(event) => session.setPreview(event.currentTarget.checked)}
-          disabled={!active || session.busy}
+          disabled={!active || session.busy || exporting || savingRecovery}
         />
         <div className="file-redaction-history-actions">
           <ActionIcon
@@ -179,7 +230,7 @@ export default function FileRedactionActions() {
       <div className="file-redaction-export-actions">
         <Button
           size="sm"
-          disabled={!active || session.busy}
+          disabled={!active || session.busy || exporting || savingRecovery}
           onClick={() => void exportSelected(false)}
           leftSection={<Icon name="download" size={15} />}
         >
@@ -188,12 +239,32 @@ export default function FileRedactionActions() {
         <Button
           size="sm"
           variant="secondary"
-          disabled={!session.documents.length || session.busy}
+          disabled={
+            !session.documents.length ||
+            session.busy ||
+            exporting ||
+            savingRecovery
+          }
           onClick={() => void exportSelected(true)}
         >
           {t("fileRedaction.exportAll")}
         </Button>
       </div>
+      {recovery.length > 0 && (
+        <>
+          <Button
+            variant="secondary"
+            onClick={() => void saveRecovery()}
+            loading={savingRecovery}
+            disabled={session.busy || exporting}
+          >
+            {t("fileRedaction.restore.save")}
+          </Button>
+          <p className="file-redaction-note">
+            {t("fileRedaction.restore.note")}
+          </p>
+        </>
+      )}
       {!active && session.documents.length > 0 && (
         <p className="file-redaction-note">
           {t("fileRedaction.currentFileUnscanned")}
@@ -209,7 +280,9 @@ export default function FileRedactionActions() {
           {message}
           {lastExport && (
             <a href={lastExport.url} download={lastExport.name}>
-              {t("fileRedaction.downloadResult")}
+              {lastExport.name.endsWith(".lp-restore")
+                ? t("fileRedaction.restore.save")
+                : t("fileRedaction.downloadResult")}
             </a>
           )}
         </div>

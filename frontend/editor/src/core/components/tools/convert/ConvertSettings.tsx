@@ -120,26 +120,8 @@ const ConvertSettings = ({
       filteredOptions = baseOptions.filter((opt) => opt.enabled !== false);
     }
 
-    // Add dynamic format option if current selection is a file-<extension> format
-    if (
-      parameters.fromExtension &&
-      parameters.fromExtension.startsWith("file-")
-    ) {
-      const extension = parameters.fromExtension.replace("file-", "");
-      const dynamicOption = {
-        value: parameters.fromExtension,
-        label: extension.toUpperCase(),
-        group: "File",
-        enabled: true,
-      };
-
-      // Add the dynamic option at the beginning
-      return [dynamicOption, ...filteredOptions];
-    }
-
     return filteredOptions;
   }, [
-    parameters.fromExtension,
     endpointStatus,
     preferences.hideUnavailableConversions,
     conversionStatus,

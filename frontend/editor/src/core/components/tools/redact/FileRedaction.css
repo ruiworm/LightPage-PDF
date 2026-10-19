@@ -119,6 +119,18 @@
   gap: 10px;
   padding-top: 14px;
 }
+.file-redaction-restore {
+  margin-top: var(--space-4);
+  padding-block: var(--space-3);
+  border-block: 1px solid var(--c-border-subtle);
+}
+.file-redaction-restore summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.file-redaction-restore .mantine-FileInput-root {
+  margin-block: var(--space-3);
+}
 .file-redaction-action-row,
 .file-redaction-history-actions,
 .file-redaction-export-actions {
@@ -404,6 +416,10 @@
   border-style: dashed;
   background: transparent;
   border-color: var(--c-text-muted);
+}
+.file-redaction-box.is-preview.is-selected {
+  background: transparent;
+  border-color: transparent;
 }
 .file-redaction-box.is-focused {
   outline: 2px solid var(--c-accent-fg);
