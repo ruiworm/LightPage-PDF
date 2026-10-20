@@ -13,6 +13,7 @@ import { getConversionEndpoints } from "@app/data/toolsTaxonomy";
 import { usePreferences } from "@app/contexts/PreferencesContext";
 import { useConversionCloudStatus } from "@app/hooks/useConversionCloudStatus";
 import GroupedFormatDropdown from "@app/components/tools/convert/GroupedFormatDropdown";
+import { OfficeComponentInstaller } from "@app/components/tools/convert/OfficeComponentInstaller";
 import ConvertToImageSettings from "@app/components/tools/convert/ConvertToImageSettings";
 import ConvertFromImageSettings from "@app/components/tools/convert/ConvertFromImageSettings";
 import ConvertFromWebSettings from "@app/components/tools/convert/ConvertFromWebSettings";
@@ -265,6 +266,7 @@ const ConvertSettings = ({
 
   return (
     <Stack gap="md">
+      <OfficeComponentInstaller compact />
       {/* Format Selection */}
       <Stack gap="sm">
         <Text size="sm" fw={500}>

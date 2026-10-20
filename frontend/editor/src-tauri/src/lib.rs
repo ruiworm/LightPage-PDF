@@ -224,6 +224,8 @@ pub fn run() {
       commands::card_license::card_license_verify,
       commands::card_license::card_license_clear,
       start_backend,
+      commands::office_component::get_office_component_status,
+      commands::office_component::install_office_component,
       get_backend_port,
       get_opened_files,
       commands::file_drop::resolve_dropped_file_paths,

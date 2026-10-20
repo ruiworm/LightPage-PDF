@@ -1,6 +1,12 @@
 {
   "bundle": {
-    "resources": ["libs/*.jar", "runtime/jre/**/*", "runtime/tools/**/*"],
+    "resources": [
+      "libs/*.jar",
+      "runtime/jre/**/*",
+      "runtime/tools/tesseract/**/*",
+      "runtime/tools/poppler/**/*",
+      "runtime/tools/THIRD_PARTY_COMPONENTS.txt"
+    ],
     "windows": {
       "nsis": { "template": "runtime/installer.nsi" }
     }
