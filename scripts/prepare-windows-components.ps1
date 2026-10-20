@@ -53,6 +53,7 @@ New-Item -ItemType Directory -Path $taskTools -Force | Out-Null
 $taskLock = @(
     (Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'windows-components.json') -Algorithm SHA256).Hash,
     (Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash
+    (Get-FileHash -LiteralPath (Join-Path $PSScriptRoot 'trim-windows-office.ps1') -Algorithm SHA256).Hash
 ) -join ':'
 $taskStamp = Join-Path $taskTools 'components.lock'
 $taskRequired = @('libreoffice/program/soffice.exe', 'libreoffice/program/soffice.com', 'tesseract/tesseract.exe', 'poppler/Library/bin/pdftohtml.exe', 'tesseract/tessdata/chi_sim.traineddata', 'tesseract/tessdata/eng.traineddata', 'tesseract/tessdata/osd.traineddata')
@@ -160,6 +161,7 @@ foreach ($taskDrop in @(
     if (Test-Path -LiteralPath $taskDrop) { Remove-Item -LiteralPath $taskDrop -Recurse -Force }
 }
 Write-Output 'Trimmed LibreOffice to English + Chinese locales'
+& (Join-Path $PSScriptRoot 'trim-windows-office.ps1') -OfficeRoot $taskOfficeDestination
 
 $taskTesseract = Join-Path $taskTools 'tesseract'
 Write-Output 'Preparing bundled Tesseract'
@@ -205,10 +207,12 @@ Poppler Windows 26.09.0-0: https://github.com/oschwartz10612/poppler-windows/rel
 Source: https://poppler.freedesktop.org/ (GPL-2.0-or-later; see poppler/Library/share and included license files).
 OCR language data: same pinned tessdata_fast files as the bundled browser OCR, Apache-2.0.
 
-All upstream license and notice files are retained. 7-Zip is build tooling only and is not bundled.
+License and notice files for retained components are kept. 7-Zip is build tooling only and is not bundled.
 The LibreOffice distribution is trimmed for size: only English and Chinese (Simplified and
 Traditional) UI resources, dictionaries, and fonts are bundled; icon themes other than colibre
 are removed, as are help files, galleries, templates, and the embedded Python scripting runtime.
+Optional solver and Wiki-publishing extensions, the English thesaurus, alternate icon themes,
+shell integration and standalone update helpers are omitted. Fonts and hyphenation data remain.
 Poppler's development headers and import libraries are omitted; its runtime binaries,
 encoding data, and license notices are retained.
 '@ | Set-Content -LiteralPath (Join-Path $taskTools 'THIRD_PARTY_COMPONENTS.txt')

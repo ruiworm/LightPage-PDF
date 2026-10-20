@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
+import { readFile } from "node:fs/promises";
 
 const require = createRequire(new URL("../frontend/package.json", import.meta.url));
 const JSZip = require("jszip");
@@ -42,6 +43,8 @@ workbook.file("xl/workbook.xml", '<?xml version="1.0"?><workbook xmlns="http://s
 workbook.file("xl/_rels/workbook.xml.rels", '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>');
 workbook.file("xl/worksheets/sheet1.xml", '<?xml version="1.0"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1"><c r="A1" t="inlineStr"><is><t>姓名</t></is></c><c r="B1" t="inlineStr"><is><t>金额</t></is></c></row><row r="2"><c r="A2" t="inlineStr"><is><t>测试人员</t></is></c><c r="B2"><v>123</v></c></row></sheetData></worksheet>');
 await checkPdf(await post("/api/v1/convert/file/pdf", "sample.xlsx", await workbook.generateAsync({ type: "uint8array" })), "Excel to PDF");
+const slides = await readFile(new URL("../testing/cucumber/exampleFiles/example.pptx", import.meta.url));
+await checkPdf(await post("/api/v1/convert/file/pdf", "sample.pptx", slides), "PowerPoint to PDF");
 const word = await JSZip.loadAsync(await post("/api/v1/convert/pdf/word", "sample.pdf", wordPdf, { outputFormat: "docx" }));
 assert(word.file("word/document.xml"), "PDF to Word must produce a Word document");
 console.log("PDF to Word: valid DOCX");

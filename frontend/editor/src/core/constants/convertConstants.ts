@@ -137,11 +137,7 @@ export const FROM_FORMAT_OPTIONS = [
   { value: "jpg", label: "JPG", group: "Image" },
   { value: "jpeg", label: "JPEG", group: "Image" },
   { value: "png", label: "PNG", group: "Image" },
-  { value: "gif", label: "GIF", group: "Image" },
-  { value: "bmp", label: "BMP", group: "Image" },
-  { value: "tiff", label: "TIFF", group: "Image" },
   { value: "webp", label: "WEBP", group: "Image" },
-  { value: "svg", label: "SVG", group: "Image" },
 ];
 
 export const TO_FORMAT_OPTIONS = [
@@ -151,9 +147,6 @@ export const TO_FORMAT_OPTIONS = [
   { value: "txt", label: "TXT", group: "Text" },
   { value: "png", label: "PNG", group: "Image" },
   { value: "jpg", label: "JPG", group: "Image" },
-  { value: "gif", label: "GIF", group: "Image" },
-  { value: "tiff", label: "TIFF", group: "Image" },
-  { value: "bmp", label: "BMP", group: "Image" },
   { value: "webp", label: "WEBP", group: "Image" },
 ];
 
@@ -161,7 +154,7 @@ export const TO_FORMAT_OPTIONS = [
 export const CONVERSION_MATRIX: Record<string, string[]> = {
   any: ["pdf"], // Mixed files always convert to PDF
   image: ["pdf"], // Multiple images always convert to PDF
-  pdf: ["png", "jpg", "gif", "tiff", "bmp", "webp", "docx", "xlsx", "txt"],
+  pdf: ["png", "jpg", "webp", "docx", "xlsx", "txt"],
   docx: ["pdf"],
   doc: ["pdf"],
   xlsx: ["pdf"],

@@ -25,7 +25,7 @@ const ExtractImagesSettings = ({
         label={t("extractImages.selectText", "Output Format")}
         value={parameters.format}
         onChange={(value) => {
-          const allowedFormats = ["png", "jpg", "gif"] as const;
+          const allowedFormats = ["png", "jpg"] as const;
           const candidate = value as (typeof allowedFormats)[number];
           const format = allowedFormats.includes(candidate) ? candidate : "png";
           onParameterChange("format", format);
@@ -33,7 +33,6 @@ const ExtractImagesSettings = ({
         data={[
           { value: "png", label: "PNG" },
           { value: "jpg", label: "JPG" },
-          { value: "gif", label: "GIF" },
         ]}
         disabled={disabled}
         comboboxProps={{

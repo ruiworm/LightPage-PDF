@@ -1,7 +1,7 @@
 import { useBaseParameters } from "@app/hooks/tools/shared/useBaseParameters";
 
 export interface ExtractImagesParameters {
-  format: "png" | "jpg" | "gif";
+  format: "png" | "jpg";
   // allowDuplicates: boolean;
 }
 
