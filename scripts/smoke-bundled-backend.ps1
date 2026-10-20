@@ -2,9 +2,7 @@
 param(
     [string]$BundleRoot = 'frontend/editor/src-tauri',
     [int]$StartupTimeoutSeconds = 60,
-    [switch]$RequireDocumentComponents,
-    [switch]$RequireBaseComponents,
-    [string]$OfficeExecutable
+    [switch]$RequireDocumentComponents
 )
 
 $ErrorActionPreference = 'Stop'
@@ -35,13 +33,12 @@ $taskArguments = @(
     "-Dserver.port=$taskPort"
 )
 $taskTools = Join-Path $taskBundleRoot 'runtime/tools'
-$taskOfficePath = if ($OfficeExecutable) { $OfficeExecutable } else { Join-Path $taskTools 'libreoffice/program/soffice.com' }
 $taskPreviousPath = $env:PATH
 $taskPreviousTessdata = $env:TESSDATA_PREFIX
 if (Test-Path -LiteralPath $taskTools) {
-    $env:PATH = @((Join-Path $taskTools 'tesseract'), (Join-Path $taskTools 'poppler/Library/bin'), (Split-Path $taskOfficePath -Parent), $env:PATH) -join ';'
+    $env:PATH = @((Join-Path $taskTools 'tesseract'), (Join-Path $taskTools 'poppler/Library/bin'), (Join-Path $taskTools 'libreoffice/program'), $env:PATH) -join ';'
     $env:TESSDATA_PREFIX = Join-Path $taskTools 'tesseract/tessdata'
-    $taskArguments += '"-Dsystem.customPaths.operations.soffice=' + $taskOfficePath + '"'
+    $taskArguments += '"-Dsystem.customPaths.operations.soffice=' + (Join-Path $taskTools 'libreoffice/program/soffice.com') + '"'
 }
 $taskArguments += @('-jar', ('"' + $taskJars[0].FullName + '"'))
 $taskWatch = [System.Diagnostics.Stopwatch]::StartNew()
@@ -56,15 +53,6 @@ try {
             $taskHealth = Invoke-RestMethod -Uri "http://127.0.0.1:$taskPort/api/v1/info/status" -TimeoutSec 2
             if ($taskHealth.status -eq 'UP') {
                 $taskStartupMilliseconds = $taskWatch.ElapsedMilliseconds
-                if ($RequireBaseComponents) {
-                    $taskAvailability = Invoke-RestMethod -Uri "http://127.0.0.1:$taskPort/api/v1/config/endpoints-availability" -TimeoutSec 5
-                    foreach ($endpoint in @('ocr-pdf', 'auto-rotate-pdf', 'pdf-to-html')) {
-                        if ($taskAvailability.$endpoint.enabled -ne $true) { throw "Base tool unavailable: $endpoint" }
-                    }
-                    if ($taskAvailability.'file-to-pdf'.enabled -eq $true) { throw 'Office conversion should require the optional component' }
-                    & node (Join-Path $PSScriptRoot 'smoke-document-tools.mjs') "http://127.0.0.1:$taskPort" --base-only
-                    if ($LASTEXITCODE -ne 0) { throw 'Base document operation smoke test failed' }
-                }
                 if ($RequireDocumentComponents) {
                     $taskAvailability = Invoke-RestMethod -Uri "http://127.0.0.1:$taskPort/api/v1/config/endpoints-availability" -TimeoutSec 5
                     foreach ($endpoint in @('file-to-pdf', 'pdf-to-word', 'pdf-to-presentation', 'ocr-pdf', 'auto-rotate-pdf', 'pdf-to-html')) {

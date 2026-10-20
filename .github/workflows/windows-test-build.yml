@@ -72,15 +72,9 @@ jobs:
       - name: Check desktop types
         run: task frontend:typecheck:desktop
 
-      - name: Verify downloadable Office component
-        run: ./scripts/verify-office-component.ps1
-
       - name: Test native host
         working-directory: frontend/editor/src-tauri
-        run: |
-          cargo test --locked --lib
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          cargo test --locked --lib installs_actual_release_archive -- --ignored
+        run: cargo test --locked --lib
 
       - name: Build EXE installer
         working-directory: frontend/editor

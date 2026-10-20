@@ -6473,19 +6473,6 @@ bullet3 = "Plain-text sidecar creates a separate .txt file with raw content."
 text = "Decide how you want the text output formatted:"
 title = "Output"
 
-[officeComponent]
-description = "Install LibreOffice when you need Word, Excel or PowerPoint conversion. PDF editing, images and OCR work without this component."
-downloading = "Downloading component"
-extracting = "Installing component"
-install = "Install conversion component"
-installed = "Installed"
-restart = "Restart app"
-restartHint = "Save your documents, then restart the app to enable document conversion."
-retry = "Retry"
-size = "Download: {{download}} MB · Installed: {{installed}} MB"
-title = "Document conversion component"
-verifying = "Verifying download"
-
 [onboarding]
 activeFiles = "The <strong>Active Files</strong> view shows all of the PDFs you have loaded into the tool."
 allTools = "This is the <strong>Tools</strong> panel, where you can browse and select from all available PDF tools."

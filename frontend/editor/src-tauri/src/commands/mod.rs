@@ -1,5 +1,4 @@
 pub mod backend;
-pub mod office_component;
 pub mod card_license;
 pub mod files;
 pub mod file_drop;
